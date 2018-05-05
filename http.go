@@ -35,10 +35,13 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	}
 	r.Body.Close()
 
-	// HMAC Validated or not turned on.
-	// eventType := os.Getenv("Http_X_Github_Event")
-	// Check if this header exists and if not, call next plugin.
+	// Give up if we can't find this event
+	event := r.Header.Get("X-GitHub-Event")
+	if event == "" {
+		return d.Next.ServeHTTP(w, r)
+	}
 
+	// HMAC Validated or not turned on.
 	xHubSignature := os.Getenv("Http_X_Hub_Signature")
 
 	if hmacValidation() && len(xHubSignature) == 0 {
@@ -55,13 +58,8 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		}
 	}
 
-	// HMAC Validated or not turned on.
-	eventType := os.Getenv("Http_X_Github_Event")
-
-	if err := handleEvent(eventType, body); err != nil {
-		log.Fatal(err)
-	}
-	return d.Next.ServeHTTP(w, r)
+	err = handleEvent(event, body)
+	return 0, err
 }
 
 func handleEvent(eventType string, body []byte) error {
@@ -71,13 +69,6 @@ func handleEvent(eventType string, body []byte) error {
 		req := types.PullRequestOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
 			return fmt.Errorf("Cannot parse input %s", err.Error())
-		}
-
-		customer, err := auth.IsCustomer(req.Repository)
-		if err != nil {
-			return fmt.Errorf("Unable to verify customer: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
-		} else if customer == false {
-			return fmt.Errorf("No customer found for: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
 		}
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
@@ -95,13 +86,6 @@ func handleEvent(eventType string, body []byte) error {
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
 			return fmt.Errorf("Cannot parse input %s", err.Error())
-		}
-
-		customer, err := auth.IsCustomer(req.Repository)
-		if err != nil {
-			return fmt.Errorf("Unable to verify customer: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
-		} else if customer == false {
-			return fmt.Errorf("No customer found for: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
 		}
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
