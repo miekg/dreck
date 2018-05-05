@@ -1,4 +1,4 @@
-package main
+package dreck
 
 import (
 	"context"
@@ -9,11 +9,10 @@ import (
 	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/types"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/google/go-github/github"
 )
 
-func handlePullRequest(req types.PullRequestOuter) {
+func handlePullRequest(req types.PullRequestOuter) error {
 	ctx := context.Background()
 
 	token := os.Getenv("access_token")
@@ -22,7 +21,7 @@ func handlePullRequest(req types.PullRequestOuter) {
 		newToken, tokenErr := auth.MakeAccessTokenForInstallation(os.Getenv("application"), req.Installation.ID)
 
 		if tokenErr != nil {
-			log.Fatalln(tokenErr.Error())
+			return tokenErr
 		}
 
 		token = newToken
@@ -33,22 +32,24 @@ func handlePullRequest(req types.PullRequestOuter) {
 	hasUnsignedCommits, err := hasUnsigned(req, client)
 
 	if err != nil {
-		log.Fatal(err)
-	} else if hasUnsignedCommits {
+		return err
+	}
+
+	if hasUnsignedCommits {
 		fmt.Println("May need to apply labels on item.")
 
 		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
 		if labelErr != nil {
-			log.Fatalln(labelErr)
+			return labelErr
 		}
 		fmt.Println("Current labels ", issue.Labels)
 
 		if hasNoDcoLabel(issue) == false {
 			fmt.Println("Applying label")
-			_, res, assignLabelErr := client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"no-dco"})
+			_, _, assignLabelErr := client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"no-dco"})
 			if assignLabelErr != nil {
-				log.Fatalf("%s limit: %d, remaining: %d", assignLabelErr, res.Limit, res.Remaining)
+				return assignLabelErr
 			}
 
 			link := fmt.Sprintf("https://github.com/%s/%s/blob/master/CONTRIBUTING.md", req.Repository.Owner.Login, req.Repository.Name)
@@ -61,28 +62,27 @@ That's something we need before your Pull Request can be merged. Please see our 
 
 			comment, resp, err := client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 			if err != nil {
-				log.Fatalf("%s limit: %d, remaining: %d", assignLabelErr, resp.Limit, resp.Remaining)
-				log.Fatal(err)
+				return err
 			}
 			fmt.Println(comment, resp.Rate)
 		}
 	} else {
 		fmt.Println("Things look OK right now.")
-		issue, res, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
+		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
 		if labelErr != nil {
-			log.Fatalf("%s limit: %d, remaining: %d", labelErr, res.Limit, res.Remaining)
-			log.Fatalln()
+			return labelErr
 		}
 
 		if hasNoDcoLabel(issue) {
 			fmt.Println("Removing label")
 			_, removeLabelErr := client.Issues.RemoveLabelForIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, "no-dco")
 			if removeLabelErr != nil {
-				log.Fatal(removeLabelErr)
+				return removeLabelErr
 			}
 		}
 	}
+	return nil
 }
 
 func hasNoDcoLabel(issue *github.Issue) bool {
@@ -107,8 +107,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 
 	commits, resp, err := client.PullRequests.ListCommits(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if err != nil {
-		log.Fatalf("Error getting PR %d\n%s", req.PullRequest.Number, err.Error())
-		return hasUnsigned, err
+		return hasUnsigned, fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
 	fmt.Println("Rate limiting", resp.Rate)

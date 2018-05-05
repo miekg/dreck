@@ -8,10 +8,34 @@
   version = "v1.0.5"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/aead/chacha20"
+  packages = [".","chacha"]
+  revision = "e2538746bfea853aaa589feb8ec46bd46ee78f86"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/bifurcation/mint"
+  packages = [".","syntax"]
+  revision = "198357931e6129b810c9c77c12e0dd754846170c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/codahale/aesnicheck"
+  packages = ["."]
+  revision = "349fcc471aaccc29cd074e1275f1a494323826cd"
+
+[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/flynn/go-shlex"
+  packages = ["."]
+  revision = "3f9db97f856818214da2e1057f8ad84803971cff"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -33,14 +57,80 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/hashicorp/go-syslog"
+  packages = ["."]
+  revision = "326bf4a7f709d263f964a6a96558676b103f3534"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/golang-lru"
+  packages = [".","simplelru"]
+  revision = "0fb14efe8c47ae851c0034ed7a448854d3d34cf3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/aes12"
+  packages = ["."]
+  revision = "cd47fb39b79f867c6e4e5cd39cf7abd799f71670"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/fnv128a"
+  packages = ["."]
+  revision = "393af48d391698c6ae4219566bfbdfef67269997"
+
+[[projects]]
+  name = "github.com/lucas-clemente/quic-go"
+  packages = [".","h2quic","internal/ackhandler","internal/congestion","internal/crypto","internal/flowcontrol","internal/handshake","internal/protocol","internal/utils","internal/wire","qerr"]
+  revision = "30851b9a3b4e958490b476fe72adafa67641361a"
+  version = "v0.7.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/quic-go-certificates"
+  packages = ["."]
+  revision = "d2f86524cced5186554df90d92529757d22c1cb6"
+
+[[projects]]
+  name = "github.com/mholt/caddy"
+  packages = [".","caddyfile","caddyhttp/httpserver","caddyhttp/staticfiles","caddytls"]
+  revision = "2922d09bef3c504dde66bc12f7441668fcef6a20"
+  version = "v0.10.14"
+
+[[projects]]
+  name = "github.com/miekg/dns"
+  packages = ["."]
+  revision = "83c435cc65d2862736428b9b4d07d0ab10ad3e4d"
+  version = "v1.0.5"
+
+[[projects]]
+  name = "github.com/russross/blackfriday"
+  packages = ["."]
+  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
+  version = "v2.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shurcooL/sanitized_anchor_name"
+  packages = ["."]
+  revision = "86672fcb3f950f35f2e675df2240550f2a50762f"
+
+[[projects]]
+  branch = "acmev2"
+  name = "github.com/xenolf/lego"
+  packages = ["acmev2"]
+  revision = "fad2257e11ae4ff31ed03739386873aa405dec2d"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","hkdf","ocsp","ssh/terminal"]
   revision = "4ec37c66abab2c7e02ae775328b2ff001c3f025a"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp"]
+  packages = ["bpf","context","context/ctxhttp","http/httpguts","http2","http2/hpack","idna","internal/iana","internal/socket","ipv4","ipv6","lex/httplex"]
   revision = "640f4622ab692b87c2f3a94265e6f579fe38263d"
 
 [[projects]]
@@ -52,14 +142,32 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = ["cpu","unix","windows"]
   revision = "6f686a352de66814cdd080d970febae7767857a3"
+
+[[projects]]
+  name = "golang.org/x/text"
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "google.golang.org/appengine"
   packages = ["internal","internal/base","internal/datastore","internal/log","internal/remote_api","internal/urlfetch","urlfetch"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
+
+[[projects]]
+  name = "gopkg.in/natefinch/lumberjack.v2"
+  packages = ["."]
+  revision = "a96e63847dc3c67d17befa69c303767e2f84e54f"
+  version = "v2.1"
+
+[[projects]]
+  name = "gopkg.in/square/go-jose.v2"
+  packages = [".","cipher","json"]
+  revision = "76dd09796242edb5b897103a75df2645c028c960"
+  version = "v2.1.6"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -70,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "98748ca0c9049919cb7ea909848095c473c617ced15ad61852b0e366bfe10755"
+  inputs-digest = "440e30109d55858d2490caa673c9961b72b9d89604905f18b58410f02a4b8785"
   solver-name = "gps-cdcl"
   solver-version = 1

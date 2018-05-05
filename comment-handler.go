@@ -1,4 +1,4 @@
-package main
+package dreck
 
 import (
 	"bytes"
@@ -10,7 +10,6 @@ import (
 	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/types"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/google/go-github/github"
 )
 
@@ -31,7 +30,7 @@ const (
 // Trigger is the text that trigger action from this bot.
 const Trigger = "//"
 
-func makeClient(installation int) (*github.Client, context.Context) {
+func makeClient(installation int) (*github.Client, context.Context, error) {
 	ctx := context.Background()
 
 	token := os.Getenv("access_token")
@@ -41,7 +40,7 @@ func makeClient(installation int) (*github.Client, context.Context) {
 
 		newToken, tokenErr := auth.MakeAccessTokenForInstallation(applicationID, installation)
 		if tokenErr != nil {
-			log.Fatalln(tokenErr.Error())
+			return nil, ctx, tokenErr
 		}
 
 		token = newToken
@@ -49,7 +48,7 @@ func makeClient(installation int) (*github.Client, context.Context) {
 
 	client := auth.MakeClient(ctx, token)
 
-	return client, ctx
+	return client, ctx, nil
 }
 
 func handleComment(req types.IssueCommentOuter) {
@@ -123,9 +122,10 @@ func manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string)
 		return buffer.String(), nil
 	}
 
-	client, ctx := makeClient(req.Installation.ID)
-
-	var err error
+	client, ctx, err := makeClient(req.Installation.ID)
+	if err != nil {
+		return "", err
+	}
 
 	if cmdType == addLabelConst {
 		_, _, err = client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{labelValue})
@@ -134,7 +134,7 @@ func manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string)
 	}
 
 	if err != nil {
-		return buffer.String(), err
+		return "", err
 	}
 
 	buffer.WriteString(fmt.Sprintf("Request to %s label of '%s' on issue #%d was successfully completed.", labelAction, labelValue, req.Issue.Number))
@@ -153,12 +153,14 @@ func manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (
 		return buffer.String(), nil
 	}
 
-	client, ctx := makeClient(req.Installation.ID)
+	client, ctx, err := makeClient(req.Installation.ID)
+	if err != nil {
+		return "", err
+	}
 
 	input := &github.IssueRequest{Title: &newTitle}
 
-	_, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
-	if err != nil {
+	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
 		return buffer.String(), err
 	}
 
@@ -172,13 +174,14 @@ func manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue stri
 
 	buffer.WriteString(fmt.Sprintf("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number))
 
-	client, ctx := makeClient(req.Installation.ID)
+	client, ctx, err := makeClient(req.Installation.ID)
+	if err != nil {
+		return "", err
+	}
 
 	if cmdValue == "me" {
 		cmdValue = req.Comment.User.Login
 	}
-
-	var err error
 
 	if cmdType == unassignConst {
 		_, _, err = client.Issues.RemoveAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
@@ -207,11 +210,13 @@ func manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
 		return buffer.String(), nil
 	}
 
-	client, ctx := makeClient(req.Installation.ID)
+	client, ctx, err := makeClient(req.Installation.ID)
+	if err != nil {
+		return "", err
+	}
 	input := &github.IssueRequest{State: &newState}
 
-	_, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
-	if err != nil {
+	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
 		return buffer.String(), err
 	}
 
@@ -233,9 +238,10 @@ func manageLocking(req types.IssueCommentOuter, cmdType string) (string, error) 
 		return buffer.String(), nil
 	}
 
-	client, ctx := makeClient(req.Installation.ID)
-
-	var err error
+	client, ctx, err := makeClient(req.Installation.ID)
+	if err != nil {
+		return "", err
+	}
 
 	if cmdType == lockConst {
 		_, err = client.Issues.Lock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
