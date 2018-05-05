@@ -80,8 +80,8 @@ func getConfig(owner string, repository string) (*types.DerekConfig, error) {
 func parseConfig(bytesOut []byte, config *types.DerekConfig) error {
 	err := yaml.Unmarshal(bytesOut, &config)
 
-	if len(config.Maintainers) == 0 && len(config.Curators) > 0 {
-		config.Maintainers = config.Curators
+	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
+		config.Reviewers = config.Approvers
 	}
 
 	return err
