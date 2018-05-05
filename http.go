@@ -3,14 +3,16 @@ package dreck
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/types"
+
+	"github.com/mholt/caddy"
+	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
 func init() {
@@ -26,38 +28,44 @@ type Dreck struct {
 }
 
 func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	// return d.Next.ServeHTTP(w, r)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return 0, err
+	}
+	r.Body.Close()
 
 	xHubSignature := os.Getenv("Http_X_Hub_Signature")
 
 	if hmacValidation() && len(xHubSignature) == 0 {
 		log.Fatal("must provide X_Hub_Signature")
-		return
+		return 0, nil
 	}
 
 	if len(xHubSignature) > 0 {
 
-		err := auth.ValidateHMAC(bytesIn, xHubSignature)
+		err := auth.ValidateHMAC(body, xHubSignature)
 		if err != nil {
 			log.Fatal(err.Error())
-			return
+			return 0, nil
 		}
 	}
 
 	// HMAC Validated or not turned on.
 	eventType := os.Getenv("Http_X_Github_Event")
 
-	if err := handleEvent(eventType, bytesIn); err != nil {
+	if err := handleEvent(eventType, body); err != nil {
 		log.Fatal(err)
 	}
+	return d.Next.ServeHTTP(w, r)
 }
 
-func handleEvent(eventType string, bytesIn []byte) error {
+func handleEvent(eventType string, body []byte) error {
 
 	switch eventType {
 	case "pull_request":
 		req := types.PullRequestOuter{}
-		if err := json.Unmarshal(bytesIn, &req); err != nil {
+		if err := json.Unmarshal(body, &req); err != nil {
 			return fmt.Errorf("Cannot parse input %s", err.Error())
 		}
 
@@ -81,7 +89,7 @@ func handleEvent(eventType string, bytesIn []byte) error {
 
 	case "issue_comment":
 		req := types.IssueCommentOuter{}
-		if err := json.Unmarshal(bytesIn, &req); err != nil {
+		if err := json.Unmarshal(body, &req); err != nil {
 			return fmt.Errorf("Cannot parse input %s", err.Error())
 		}
 

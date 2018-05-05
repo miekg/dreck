@@ -1,8 +1,10 @@
 ignored = [
     "github.com/mholt/caddy",
     "github.com/mholt/caddy/caddyfile",
+    "github.com/mholt/caddy/caddyhttp",
     "github.com/mholt/caddy/startupshutdown",
     "github.com/mholt/caddy/onevent",
+    "github.com/mholt/caddy/caddyhttp/httpserver",
 ]
 
 [[constraint]]
