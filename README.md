@@ -1,14 +1,13 @@
 # derek
 
-[![Build Status](https://travis-ci.org/alexellis/derek.svg?branch=master)](https://travis-ci.org/alexellis/derek)
-[![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
-It's derek ![](https://pbs.twimg.com/media/DPo4OyrWsAAOk_i.png). Nice to meet you. I'd like to help you with Pull Requests and Issues on your GitHub project.
+It's dreck. Nice to meet you. I'd like to help you with Pull Requests and Issues on your GitHub project.
+
+Dreck is a fork of [Derek](https:/github.com/alexellis/derek). It adds Caddy integration, so you can
+just run it.
 
 > Please show support for the project and **Star** the repo.
-
-From the team that bought you [OpenFaaS](https://www.openfaas.com) - Serverless Functions Made Simple.
 
 ## What can I do?
 
@@ -16,9 +15,11 @@ From the team that bought you [OpenFaaS](https://www.openfaas.com) - Serverless 
 
 When someone sends a PR without a sign-off, I'll apply a label `no-dco` and also send them a comment pointing them to the contributor guide. Most of the time when I've been helping the OpenFaaS project - people read my message and fix things up without you having to get involved.
 
-* Allow users in a specified .DEREK.yml file to manage issues and pull-requests
+* Allow users in a specified .dreck.yml file to manage issues and pull-requests
 
-You don't have to give people full write access anymore to help you manage issues and pull-requests. I'll do that for you, just put them in a .DEREK.yml file in the root and when they comment on an issue then I'll use my granular permissions instead.
+You don't have to give people full write access anymore to help you manage issues and pull-requests.
+I'll do that for you, just put them in a .dreck.yml file in the root and when they comment on an
+issue then I'll use my granular permissions instead.
 
 * Wait.. doesn't the term "maintainer" mean write access in GitHub?
 
