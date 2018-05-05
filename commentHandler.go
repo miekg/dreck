@@ -29,7 +29,7 @@ const (
 )
 
 // Trigger is the text that trigger action from this bot.
-const Trigger = "Derek "
+const Trigger = "//"
 
 func makeClient(installation int) (*github.Client, context.Context) {
 	ctx := context.Background()
