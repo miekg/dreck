@@ -26,12 +26,6 @@
   version = "v3.2.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/flynn/go-shlex"
-  packages = ["."]
-  revision = "3f9db97f856818214da2e1057f8ad84803971cff"
-
-[[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
@@ -87,7 +81,7 @@
 
 [[projects]]
   name = "github.com/mholt/caddy"
-  packages = [".","caddyfile","caddyhttp/httpserver","caddyhttp/staticfiles","caddytls"]
+  packages = ["caddyhttp/httpserver","caddyhttp/staticfiles","caddytls"]
   revision = "2922d09bef3c504dde66bc12f7441668fcef6a20"
   version = "v0.10.14"
 
@@ -172,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "29792bfd7cf10b6537b9a801a54200c3f9f6a375d845d53cf5eb44b46906a26c"
+  inputs-digest = "7cf1ca13286cbbfbc2c55bcd202448d5c2ec23e56dd04ebb620dadb954b8c3c0"
   solver-name = "gps-cdcl"
   solver-version = 1
