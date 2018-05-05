@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/miekg/dreck/auth"
@@ -30,15 +29,9 @@ const (
 func makeClient(installation int) (*github.Client, context.Context, error) {
 	ctx := context.Background()
 
-	token := os.Getenv("access_token")
-	if len(token) == 0 {
-
-		newToken, tokenErr := auth.MakeAccessTokenForInstallation(ApplicationID, PrivateKeyPath, installation)
-		if tokenErr != nil {
-			return nil, ctx, tokenErr
-		}
-
-		token = newToken
+	token, err := auth.MakeAccessTokenForInstallation(ApplicationID, PrivateKeyPath, installation)
+	if err != nil {
+		return nil, ctx, err
 	}
 
 	client := auth.MakeClient(ctx, token)

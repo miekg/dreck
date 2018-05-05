@@ -17,7 +17,7 @@ this up is beyond scope of this documentation.
 ~~~
 dreck {
     client_id ID // client id
-    key PATH // private key path
+    private_key PATH // private key path
     owners NAME // owners file
     secret SECRET // webhook secret
     path PATH // when to trigger
@@ -25,12 +25,14 @@ dreck {
 ~~~
 
 * `client_id` is mandatory and must be the client **ID** of the Github App.
-* `key` specifies the **PATH** of the private key of the Github App. This is mandatory.
+* `private_key` specifies the **PATH** of the private key of the Github App. This is mandatory.
 * `secret` can optionally specify a **SECRET** for the webhook.
 * `owners` can optionally specify an OWNERS file that is named differently, defaults to "OWNERS".
 * `path` will trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
 
 ## OWNERS File Syntax
+
+### Features
 
 
 

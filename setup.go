@@ -1,6 +1,8 @@
 package dreck
 
 import (
+	"fmt"
+
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
@@ -10,6 +12,12 @@ func setup(c *caddy.Controller) error {
 	dr, err := parseDreck(c)
 	if err != nil {
 		return err
+	}
+	if dr.clientID == "" {
+		return fmt.Errorf("Need a valid client_id")
+	}
+	if dr.key == "" {
+		return fmt.Errorf("Need a private_key for a path to a private key file")
 	}
 
 	mid := func(next httpserver.Handler) httpserver.Handler {
@@ -26,13 +34,13 @@ func parseDreck(c *caddy.Controller) (Dreck, error) {
 	for c.Next() {
 		for c.NextBlock() {
 			switch c.Val() {
-			case "clientID":
+			case "client_id":
 				args := c.RemainingArgs()
 				if len(args) != 1 {
 					return d, c.ArgErr()
 				}
 				d.clientID = args[0]
-			case "key":
+			case "private_key":
 				args := c.RemainingArgs()
 				if len(args) != 1 {
 					return d, c.ArgErr()

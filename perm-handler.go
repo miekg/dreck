@@ -12,8 +12,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const configFile = ".dreck.yml"
-
 func enabledFeature(attemptedFeature string, config *types.DerekConfig) bool {
 
 	featureEnabled := false
