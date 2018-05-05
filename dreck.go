@@ -16,5 +16,18 @@ const (
 type Dreck struct {
 	Next httpserver.Handler
 
-	path string // when should dreck trigger, default to '/dreck'
+	clientID string
+	key      string
+
+	owners string
+	secret string
+	path   string // when should dreck trigger, default to '/dreck'
+}
+
+func New() Dreck {
+	d := Dreck{}
+	d.owners = "OWNERS"
+	d.path = "/dreck"
+
+	return d
 }

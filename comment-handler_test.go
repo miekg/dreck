@@ -63,19 +63,19 @@ func TestParsingLabels(t *testing.T) {
 	}{
 		{
 			title:        "Add label of demo",
-			body:         Trigger + "add label: demo",
+			body:         Trigger + "label add: demo",
 			expectedType: "AddLabel",
 			expectedVal:  "demo",
 		},
 		{
 			title:        "Remove label of demo",
-			body:         Trigger + "remove label: demo",
+			body:         Trigger + "label remove: demo",
 			expectedType: "RemoveLabel",
 			expectedVal:  "demo",
 		},
 		{
 			title:        "Invalid label action",
-			body:         Trigger + "peel label: demo",
+			body:         Trigger + "label peel: demo",
 			expectedType: "",
 			expectedVal:  "",
 		},
@@ -159,25 +159,25 @@ func TestParsingTitles(t *testing.T) {
 	}{
 		{
 			title:        "Set Title",
-			body:         Trigger + "set title: This is a really great Title!",
+			body:         Trigger + "title set: This is a really great Title!",
 			expectedType: setTitleConst,
 			expectedVal:  "This is a really great Title!",
 		},
 		{
 			title:        "Mis-spelling of title",
-			body:         Trigger + "set titel: This is a really great Title!",
+			body:         Trigger + "titel set: This is a really great Title!",
 			expectedType: "",
 			expectedVal:  "",
 		},
 		{
 			title:        "Empty Title",
-			body:         Trigger + "set title: ",
+			body:         Trigger + "title set: ",
 			expectedType: "", //blank because it should fail isValidCommand
 			expectedVal:  "",
 		},
 		{
 			title:        "Empty Title (Double Space)",
-			body:         Trigger + "set title:  ",
+			body:         Trigger + "title set:  ",
 			expectedType: setTitleConst,
 			expectedVal:  "",
 		},

@@ -1,38 +1,48 @@
-# derek
+# Dreck
 
 [![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
 It's dreck. Nice to meet you. I'd like to help you with Pull Requests and Issues on your GitHub project.
 
 Dreck is a fork of [Derek](https:/github.com/alexellis/derek). It adds Caddy integration, so you can
-just run it.
+just run it as a plugin in Caddy.
+
+For this all to work, you'll need to have an Github App that allows access to your repo - setting
+this up is beyond scope of this documentation.
 
 > Please show support for the project and **Star** the repo.
 
-# Config in caddy
+## Config in caddy
 
+~~~
 dreck {
+    client_id ID // client id
+    key PATH // private key path
     owners NAME // owners file
     secret SECRET // webhook secret
     path PATH // when to trigger
-    key PATH // private key path
-    client_id ID // client id
 }
+~~~
+
+* `client_id` is mandatory and must be the client **ID** of the Github App.
+* `key` specifies the **PATH** of the private key of the Github App. This is mandatory.
+* `secret` can optionally specify a **SECRET** for the webhook.
+* `owners` can optionally specify an OWNERS file that is named differently, defaults to "OWNERS".
+* `path` will trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
+
+## OWNERS File Syntax
 
 
-
-## How to use
-
-* Build with Caddy
-* Add a webhook content/type: application/json
 
 ## What can I do?
 
 * Check that commits are signed-off
 
-When someone sends a PR without a sign-off, I'll apply a label `no-dco` and also send them a comment pointing them to the contributor guide. Most of the time when I've been helping the OpenFaaS project - people read my message and fix things up without you having to get involved.
+When someone sends a PR without a sign-off, I'll apply a label `no-dco` and also send them a comment
+pointing them to the contributor guide. Most of the time when I've been helping the OpenFaaS project
+- people read my message and fix things up without you having to get involved.
 
-* Allow users in a specified .dreck.yml file to manage issues and pull-requests
+* Allow users in a specified `OWNERS` file to manage issues and pull-requests
 
 You don't have to give people full write access anymore to help you manage issues and pull-requests.
 I'll do that for you, just put them in a .dreck.yml file in the root and when they comment on an
@@ -56,11 +66,31 @@ curators:
 - rgee0
 ```
 
-* What about roles?
-
-We are planning to add roles in the ROADMAP which will mean you can get even more granular and have folks who can only add labels but not close issues for instance. If you feel you need to make that distinction. It will also let you call the roles whatever you think makes sense.
-
 > Note that the assign/unassign commands provides the shortcut `me` to assign to the commenter
+
+## Supported Commands
+
+### Comments
+
+~~~
+		/"label: ":        addLabelConst,
+		/"label add: ":    addLabelConst,
+		/"label remove: ": removeLabelConst,
+		/"label rm: ":     removeLabelConst,
+		/"assign: ":       assignConst,
+		/"unassign: ":     unassignConst,
+		/"close":          closeConst,
+		/"reopen":         reopenConst,
+		/"title: ":        setTitleConst,
+		/"title set: ":    setTitleConst,
+		/"title edit: ":   setTitleConst,
+		/"lock":           lockConst,
+        /"unlock":         unlockConst,
+~~~
+
+### Pull Requests
+
+* auto assign??
 
 ### Examples:
 

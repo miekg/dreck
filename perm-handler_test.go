@@ -8,25 +8,25 @@ import (
 
 func Test_maintainersparsed(t *testing.T) {
 	config := types.DerekConfig{}
-	parseConfig([]byte(`maintainers:
+	parseConfig([]byte(`approvers:
 - alexellis
 - rgee0
 `), &config)
-	actual := len(config.Maintainers)
+	actual := len(config.Approvers)
 	if actual != 2 {
-		t.Errorf("want: %d maintainers, got: %d", 2, actual)
+		t.Errorf("want: %d approvers, got: %d", 2, actual)
 	}
 }
 
 func Test_curatorequalsmaintainer(t *testing.T) {
 	config := types.DerekConfig{}
-	parseConfig([]byte(`curators:
+	parseConfig([]byte(`reviewers:
 - alexellis
 - rgee0
 `), &config)
-	actual := len(config.Maintainers)
+	actual := len(config.Reviewers)
 	if actual != 2 {
-		t.Errorf("want: %d maintainers, got: %d", 2, actual)
+		t.Errorf("want: %d reviewers, got: %d", 2, actual)
 	}
 }
 
@@ -109,8 +109,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "comment",
 			user:             "Burt",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: true,
 		},
@@ -119,8 +119,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "comment",
 			user:             "burt",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: true,
 		},
@@ -129,8 +129,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "comment",
 			user:             "ernie",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: false,
 		},
@@ -139,8 +139,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "Comment",
 			user:             "ernie",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: false,
 		},
@@ -149,8 +149,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "invalid",
 			user:             "Burt",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: false,
 		},
@@ -159,8 +159,8 @@ func TestPermittedUserFeature(t *testing.T) {
 			attemptedFeature: "invalid",
 			user:             "burt",
 			config: types.DerekConfig{
-				Features:    []string{"comment"},
-				Maintainers: []string{"Burt", "Tarquin", "Blanche"},
+				Features:  []string{"comment"},
+				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
 			expectedVal: false,
 		},

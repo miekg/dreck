@@ -29,18 +29,22 @@ func enabledFeature(attemptedFeature string, config *types.DerekConfig) bool {
 
 func permittedUserFeature(attemptedFeature string, config *types.DerekConfig, user string) bool {
 
-	permitted := false
-
 	if enabledFeature(attemptedFeature, config) {
 		for _, reviewer := range config.Reviewers {
 			if strings.EqualFold(user, reviewer) {
-				permitted = true
-				break
+				return true
+			}
+		}
+	}
+	if enabledFeature(attemptedFeature, config) {
+		for _, approver := range config.Approvers {
+			if strings.EqualFold(user, approver) {
+				return true
 			}
 		}
 	}
 
-	return permitted
+	return false
 }
 
 func getConfig(owner string, repository string) (*types.DerekConfig, error) {
