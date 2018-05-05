@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alexellis/derek/types"
+	"github.com/miekg/dreck/types"
 )
 
 func IsCustomer(repo types.Repository) (bool, error) {

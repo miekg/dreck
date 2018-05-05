@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexellis/derek/types"
+	"github.com/miekg/dreck/types"
 
 	log "github.com/Sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"

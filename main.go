@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/alexellis/derek/auth"
-	"github.com/alexellis/derek/types"
+	"github.com/miekg/dreck/auth"
+	"github.com/miekg/dreck/types"
 
 	log "github.com/Sirupsen/logrus"
 )

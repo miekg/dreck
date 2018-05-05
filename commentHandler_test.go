@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/alexellis/derek/types"
+	"github.com/miekg/dreck/types"
 )
 
 var actionOptions = []struct {
