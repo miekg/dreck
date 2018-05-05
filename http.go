@@ -35,6 +35,10 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	}
 	r.Body.Close()
 
+	// HMAC Validated or not turned on.
+	// eventType := os.Getenv("Http_X_Github_Event")
+	// Check if this header exists and if not, call next plugin.
+
 	xHubSignature := os.Getenv("Http_X_Hub_Signature")
 
 	if hmacValidation() && len(xHubSignature) == 0 {

@@ -1,6 +1,6 @@
 all: test build
-build: godeps
-	go build -o derek
+build:
+	go build
 
 test: godeps
 	go test -race -cover
