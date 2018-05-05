@@ -47,7 +47,7 @@ func getConfig(owner string, repository string) (*types.DerekConfig, error) {
 
 	var config types.DerekConfig
 
-	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, configFile)
+	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, Owners)
 
 	client := http.Client{
 		Timeout: 30 * time.Second,

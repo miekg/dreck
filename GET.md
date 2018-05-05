@@ -1,4 +1,4 @@
-## Get your own  robot
+# Get your own robot
 
 * The easy way
 
@@ -8,7 +8,7 @@ To use our hosted/managed Derek robot service for free then get in touch with [A
 
 * The harder way
 
-Read on if you want to setup your own cluster, OpenFaaS and a private GitHub App. (est. setup time 30-60mins depending on your experience-level)
+There is no harder way.
 
 ### Ready.. Set.. Derek!
 

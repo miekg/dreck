@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -59,7 +60,11 @@ func handleEvent(eventType string, body []byte) error {
 	case "pull_request":
 		req := types.PullRequestOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
-			return fmt.Errorf("Cannot parse input %s", err.Error())
+			if e, ok := err.(*json.SyntaxError); ok {
+				log.Printf("syntax error at byte offset %d", e.Offset)
+			}
+			log.Printf("sakura response: %q", body)
+			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
@@ -76,7 +81,11 @@ func handleEvent(eventType string, body []byte) error {
 	case "issue_comment":
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
-			return fmt.Errorf("Cannot parse input %s", err.Error())
+			if e, ok := err.(*json.SyntaxError); ok {
+				log.Printf("syntax error at byte offset %d", e.Offset)
+			}
+			log.Printf("sakura response: %q", body)
+			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
@@ -90,8 +99,16 @@ func handleEvent(eventType string, body []byte) error {
 			}
 		}
 		break
+
+	case "ping":
+		fallthrough
+
+	case "status":
+		log.Printf("[INFO] Seen %s", eventType)
+		return nil
+
 	default:
-		return fmt.Errorf("X_Github_Event want: ['pull_request', 'issue_comment'], got: " + eventType)
+		return fmt.Errorf("unsupported event: %s", eventType)
 	}
 
 	return nil

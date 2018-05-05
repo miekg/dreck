@@ -9,6 +9,21 @@ just run it.
 
 > Please show support for the project and **Star** the repo.
 
+# Config in caddy
+
+dreck {
+    owners NAME // owners file
+    secret SECRET // webhook secret
+    path PATH // when to trigger
+}
+
+
+
+## How to use
+
+* Build with Caddy
+* Add a webhook content/type: application/json
+
 ## What can I do?
 
 * Check that commits are signed-off
@@ -52,11 +67,11 @@ We are planning to add roles in the ROADMAP which will mean you can get even mor
 Let's say a user raised an issue with the title `I can't get it to work on my computer`
 
 ```
-//set title: Question - does this work on Windows 10?
+/set title: Question - does this work on Windows 10?
 ```
 or
 ```
-//edit title: Question - does this work on Windows 10?
+/edit title: Question - does this work on Windows 10?
 ```
 
 * Triage and organise work through labels
@@ -64,9 +79,9 @@ or
 Labels can be used to triage work or help sort it.
 
 ```
-//add label: proposal
-//add label: help wanted
-//remove label: bug
+/add label: proposal
+/add label: help wanted
+/remove label: bug
 ```
 
 * Assign work
@@ -74,8 +89,8 @@ Labels can be used to triage work or help sort it.
 You can assign work to people too
 
 ```
-//assign: alexellis
-//unassign: me
+/assign: alexellis
+/unassign: me
 ```
 
 * Open and close issues and PRs
@@ -83,8 +98,8 @@ You can assign work to people too
 Sometimes you may want to close or re-open issues or Pull Requests:
 
 ```
-//close
-//reopen
+/close
+/reopen
 ```
 
 * Lock/un-lock conversation/threads
@@ -92,8 +107,8 @@ Sometimes you may want to close or re-open issues or Pull Requests:
 This is useful for when conversations are going off topic or an old thread receives a lot of comments that are better placed in a new issue.
 
 ```
-//lock
-//unlock
+/lock
+/unlock
 ```
 
 ### Backlog:
