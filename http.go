@@ -12,7 +12,6 @@ import (
 	"github.com/miekg/dreck/types"
 
 	"github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
 func init() {
@@ -20,11 +19,6 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
-}
-
-type Dreck struct {
-	Next httpserver.Handler
-	// more
 }
 
 func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {

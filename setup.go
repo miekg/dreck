@@ -22,8 +22,9 @@ func setup(c *caddy.Controller) error {
 }
 
 func parseDreck(c *caddy.Controller) (Dreck, error) {
+	d := Dreck{path: "/dreck"}
 	for c.Next() {
 		// get configuration
 	}
-	return Dreck{}, nil
+	return d, nil
 }
