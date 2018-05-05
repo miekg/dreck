@@ -32,8 +32,8 @@ func permittedUserFeature(attemptedFeature string, config *types.DerekConfig, us
 	permitted := false
 
 	if enabledFeature(attemptedFeature, config) {
-		for _, maintainer := range config.Maintainers {
-			if strings.EqualFold(user, maintainer) {
+		for _, reviewer := range config.Reviewers {
+			if strings.EqualFold(user, reviewer) {
 				permitted = true
 				break
 			}

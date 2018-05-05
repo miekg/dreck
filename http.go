@@ -69,7 +69,7 @@ func handleEvent(eventType string, body []byte) error {
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
-			return fmt.Errorf("Unable to access maintainers file at: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
+			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 		if req.Action != closedConst {
 			if enabledFeature(dcoCheck, derekConfig) {
@@ -90,7 +90,7 @@ func handleEvent(eventType string, body []byte) error {
 
 		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
-			return fmt.Errorf("Unable to access maintainers file at: %s/%s", req.Repository.Owner.Login, req.Repository.Name)
+			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 
 		if req.Action != deleted {
