@@ -66,16 +66,15 @@ func handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
-		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
+		conf, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 		if req.Action != closedConst {
-			if enabledFeature(dcoCheck, derekConfig) {
+			if enabledFeature(dcoCheck, conf) {
 				handlePullRequest(req)
 			}
 		}
-		break
 
 	case "issue_comment":
 		req := types.IssueCommentOuter{}
@@ -86,17 +85,16 @@ func handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
-		derekConfig, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
+		conf, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 
 		if req.Action != deleted {
-			if permittedUserFeature(comments, derekConfig, req.Comment.User.Login) {
+			if permittedUserFeature(comments, conf, req.Comment.User.Login) {
 				handleComment(req)
 			}
 		}
-		break
 
 	case "ping":
 		fallthrough
