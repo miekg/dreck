@@ -15,7 +15,8 @@ dreck {
     owners NAME // owners file
     secret SECRET // webhook secret
     path PATH // when to trigger
-    key PATH
+    key PATH // private key path
+    client_id ID // client id
 }
 
 
@@ -68,11 +69,11 @@ We are planning to add roles in the ROADMAP which will mean you can get even mor
 Let's say a user raised an issue with the title `I can't get it to work on my computer`
 
 ```
-/set title: Question - does this work on Windows 10?
+/title set: Question - does this work on Windows 10?
 ```
 or
 ```
-/edit title: Question - does this work on Windows 10?
+/title edit: Question - does this work on Windows 10?
 ```
 
 * Triage and organise work through labels
@@ -80,9 +81,10 @@ or
 Labels can be used to triage work or help sort it.
 
 ```
-/add label: proposal
-/add label: help wanted
-/remove label: bug
+/label: proposal
+/label add: help wanted
+/label remove: bug
+/label rm: bug
 ```
 
 * Assign work
@@ -111,17 +113,3 @@ This is useful for when conversations are going off topic or an old thread recei
 /lock
 /unlock
 ```
-
-### Backlog:
-
-* [x] Derek as a managed GitHub App
-* [x] Lock thread
-* [x] Edit title
-* [x] Toggle the DCO-feature
-
-Future work:
-
-* [ ] Caching .dreck.yml file
-* [ ] Observability of GitHub API Token rate limit
-* [ ] Add roles & actions
-* [ ] Branch Checking

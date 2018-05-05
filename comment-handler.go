@@ -33,9 +33,7 @@ func makeClient(installation int) (*github.Client, context.Context, error) {
 	token := os.Getenv("access_token")
 	if len(token) == 0 {
 
-		applicationID := os.Getenv("application")
-
-		newToken, tokenErr := auth.MakeAccessTokenForInstallation(applicationID, installation)
+		newToken, tokenErr := auth.MakeAccessTokenForInstallation(ApplicationID, PrivateKeyPath, installation)
 		if tokenErr != nil {
 			return nil, ctx, tokenErr
 		}
@@ -259,14 +257,17 @@ func parse(body string) *types.CommentAction {
 	commentAction := types.CommentAction{}
 
 	commands := map[string]string{
-		Trigger + "add label: ":    addLabelConst,
-		Trigger + "remove label: ": removeLabelConst,
+		Trigger + "label: ":        addLabelConst,
+		Trigger + "label add: ":    addLabelConst,
+		Trigger + "label remove: ": removeLabelConst,
+		Trigger + "label rm: ":     removeLabelConst,
 		Trigger + "assign: ":       assignConst,
 		Trigger + "unassign: ":     unassignConst,
 		Trigger + "close":          closeConst,
 		Trigger + "reopen":         reopenConst,
-		Trigger + "set title: ":    setTitleConst,
-		Trigger + "edit title: ":   setTitleConst,
+		Trigger + "title: ":        setTitleConst,
+		Trigger + "title set: ":    setTitleConst,
+		Trigger + "title edit: ":   setTitleConst,
 		Trigger + "lock":           lockConst,
 		Trigger + "unlock":         unlockConst,
 	}
