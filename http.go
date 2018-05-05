@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -39,16 +38,14 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	xHubSignature := os.Getenv("Http_X_Hub_Signature")
 
 	if hmacValidation() && len(xHubSignature) == 0 {
-		log.Fatal("must provide X_Hub_Signature")
-		return 0, nil
+		return 0, fmt.Errorf("must provide X_Hub_Signature")
 	}
 
 	if len(xHubSignature) > 0 {
 
 		err := auth.ValidateHMAC(body, xHubSignature)
 		if err != nil {
-			log.Fatal(err.Error())
-			return 0, nil
+			return 0, err
 		}
 	}
 
