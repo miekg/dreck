@@ -63,7 +63,6 @@ func handleEvent(eventType string, body []byte) error {
 			if e, ok := err.(*json.SyntaxError); ok {
 				log.Printf("syntax error at byte offset %d", e.Offset)
 			}
-			log.Printf("sakura response: %q", body)
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
@@ -84,7 +83,6 @@ func handleEvent(eventType string, body []byte) error {
 			if e, ok := err.(*json.SyntaxError); ok {
 				log.Printf("syntax error at byte offset %d", e.Offset)
 			}
-			log.Printf("sakura response: %q", body)
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 

@@ -15,6 +15,7 @@ dreck {
     owners NAME // owners file
     secret SECRET // webhook secret
     path PATH // when to trigger
+    key PATH
 }
 
 
