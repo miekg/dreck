@@ -3,12 +3,8 @@ sudo: false
 go:
   - 1.10.x
 
-env:
-  - TESTS="-race -v -bench=. -coverprofile=coverage.txt -covermode=atomic"
-  - TESTS="-race -v ./..."
-
 script:
-  - go test $TESTS
+  - make test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

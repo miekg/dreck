@@ -3,7 +3,7 @@ build: godeps
 	go build -o derek
 
 test: godeps
-	go test -cover
+	go test -race -cover
 
 .PHONY: godeps
 godeps:
