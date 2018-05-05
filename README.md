@@ -52,11 +52,11 @@ We are planning to add roles in the ROADMAP which will mean you can get even mor
 Let's say a user raised an issue with the title `I can't get it to work on my computer`
 
 ```
-Derek set title: Question - does this work on Windows 10?
+//set title: Question - does this work on Windows 10?
 ```
 or
 ```
-Derek edit title: Question - does this work on Windows 10?
+//edit title: Question - does this work on Windows 10?
 ```
 
 * Triage and organise work through labels
@@ -64,9 +64,9 @@ Derek edit title: Question - does this work on Windows 10?
 Labels can be used to triage work or help sort it.
 
 ```
-Derek add label: proposal
-Derek add label: help wanted
-Derek remove label: bug
+//add label: proposal
+//add label: help wanted
+//remove label: bug
 ```
 
 * Assign work
@@ -74,8 +74,8 @@ Derek remove label: bug
 You can assign work to people too
 
 ```
-Derek assign: alexellis
-Derek unassign: me
+//assign: alexellis
+//unassign: me
 ```
 
 * Open and close issues and PRs
@@ -83,8 +83,8 @@ Derek unassign: me
 Sometimes you may want to close or re-open issues or Pull Requests:
 
 ```
-Derek close
-Derek reopen
+//close
+//reopen
 ```
 
 * Lock/un-lock conversation/threads
@@ -92,8 +92,8 @@ Derek reopen
 This is useful for when conversations are going off topic or an old thread receives a lot of comments that are better placed in a new issue.
 
 ```
-Derek lock
-Derek unlock
+//lock
+//unlock
 ```
 
 ### Backlog:
@@ -105,60 +105,7 @@ Derek unlock
 
 Future work:
 
-* [ ] Caching of customers / .DEREK.yml file
+* [ ] Caching .dreck.yml file
 * [ ] Observability of GitHub API Token rate limit
 * [ ] Add roles & actions
 * [ ] Branch Checking
-
-[Live demo here](https://twitter.com/alexellisuk/status/905694832445804544)
-
-Examples on real-world projects:
-
-Docker / Moby:
-
-https://github.com/moby/moby/issues/35736
-
-OpenFaaS CLI:
-
-https://github.com/openfaas/faas-cli/issues/85
-
-## How do I work?
-
-I'm designed to be installed as a [GitHub App](https://developer.github.com/apps/building-integrations/setting-up-and-registering-github-apps/), but don't worry - I don't need a lot of permissions. Just access to issues and Pull Requests will do.
-
-I'm not a long-running daemon.. I'd get bored that way. I work with webhooks - so stick me in a serverless framework like [OpenFaaS](https://github.com/alexellis/faas) and forget about me. Just apply oil from time to time.
-
-This is me in action! Normally contributors edit and re-push within a few minutes after re-reading the contribution guide.
-
-![](https://user-images.githubusercontent.com/6358735/29704343-542a36da-8971-11e7-871e-da30c8e86cae.png)
-
-*Inspiration for Derek*
-
-The idea for a bot that could comment on issues or respond to activity is from the docker/docker or Moby project's bot called [Poule](https://github.com/icecrime/poule). It's a much more complex long-running daemon which uses Personal Access Tokens (so needs to run as a full GitHub login). Derek is much simpler (so hackable) and can be installed with granular permissions.
-
-### Where is Derek working now?
-
-Derek is active and operating 24/7 helping the award-winning OpenFaaS project!
-
-* https://github.com/moby/moby
-* http://github.com/openfaas/faas
-* http://github.com/openfaas/faas-netes
-* http://github.com/openfaas/faas-cli
-
-### Maintainers / contributors
-
-* Alex Ellis - author
-* Richard Gee (@rgee0) - co-maintainer
-* John Mccabe (@johnmccabe) - contributor
-
-Alex Ellis created Derek to automate project maintainer duties around licensing and to help bring granular permissions back to GitHub. Derek has empowered contributors in the OpenFaaS community to run and maintain the project without needing full write access. OpenFaaS contributors continue to improve Derek so they can get the job done without fuss.
-
-### Contributions
-
-Please follow the [OpenFaaS contribution guide](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md).
-
-## Get your own Derek robot
-
-To use our managed service (recommended) get in touch with [Alex Ellis](mailto:alex@openfaas.com) for more info. Once you have installed the GitHub App you will need to send a PR to the [customers file](https://github.com/alexellis/derek/blob/master/.CUSTOMERS) with your username or organisation. The final step is to add your .DEREK.yml - you can use the file from this repository as an example.
-
-You can host and manage your own Derek robot using [these instuctions](GET.md), or use our managed service.

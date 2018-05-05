@@ -1,6 +1,8 @@
-## Get your own Derek robot
+## Get your own  robot
 
 * The easy way
+
+Caddy
 
 To use our hosted/managed Derek robot service for free then get in touch with [Alex Ellis](mailto:alex@openfaas.com) for more information. (setup time 5 minutes)
 
@@ -19,7 +21,7 @@ Read on if you want to setup your own cluster, OpenFaaS and a private GitHub App
 * It is also recommended that you set a webhook secret within the GitHub application settings. If applying secrets from files, store this in a file called "derek-secret-key".
 
 ### Add your secrets :
-  
+
 Using the method appropriate to the orchestrator chosen during the OpenFaaS setup add `derek.pem` and the GitHub webhook secret as `derek-private-key` and `derek-secret-key` respectively.
 
 Using Docker with files:
@@ -36,46 +38,15 @@ $ kubectl create secret generic derek-private-key --from-file=path/to/derek.pem 
 
 ### Configure Docker image:
 
-Most of the configuration is outside of the image, the exception being the version of the OpenFaaS watchdog which is pulled from [GitHub](https://github.com/openfaas/faas/releases); check the desired version is being pulled into the image and go ahead and build:  
+Most of the configuration is outside of the image, the exception being the version of the OpenFaaS watchdog which is pulled from [GitHub](https://github.com/openfaas/faas/releases); check the desired version is being pulled into the image and go ahead and build:
 
 ```
 $ docker build -t derek .
 ```
 
-### Configure stack.yml:
-
-This is where Derek finds the details he needs to do the work he does.  The main area that will need to be updated is the application variable.  The gateway value may also need amending if the gateway is remote.
-
-``` yml
-provider:
-  name: faas
-  gateway: http://localhost:8080  \# can be a remote server
-  
-functions:
-  derek:
-    handler: ./derek
-    image: derek
-    lang: Dockerfile
-  environment:
-    application: <your_GH_applicationID>
-    validate_hmac: true
-    debug: true
-  secrets:
-    - derek-secret-key
-    - derek-private-key
-```
-Fill out the `application` variable with the ID of the registered Derek GitHub App.
-
-Validating via a symmetric key is also known as HMAC. If the webhook secret wasn't set earlier and you want to turn this off (to edit and debug) then set `validate_hmac="false"`
-
-Now deploy Derek:
-```
-$ faas-cli deploy
-```
-
 ### Configure GitHub Repo:
 
-Finally configure the features that you want to enable within your GitHub repo by creating a `.DEREK.yml` file.
+Finally configure the features that you want to enable within your GitHub repo by creating a `.dreck.yml` file.
 
 The file should detail which features you wish to enable and the maintainer names; for example this repo would look as follows:
 ```yml
@@ -92,5 +63,5 @@ features:
 **Testing**
 
 Create a label of "no-dco" within every project you want Derek to help you with.
- 
+
 Head over to your GitHub repository and raise a Pull Request from the web-UI for your README file. This will not sign-off the commit, so you'll have Derek on your case.
