@@ -3,7 +3,6 @@ package dreck
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/miekg/dreck/auth"
@@ -12,19 +11,12 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func handlePullRequest(req types.PullRequestOuter) error {
+func (d Dreck) handlePullRequest(req types.PullRequestOuter) error {
 	ctx := context.Background()
 
-	token := os.Getenv("access_token")
-	if len(token) == 0 {
-
-		newToken, tokenErr := auth.MakeAccessTokenForInstallation(ApplicationID, PrivateKeyPath, req.Installation.ID)
-
-		if tokenErr != nil {
-			return tokenErr
-		}
-
-		token = newToken
+	token, err := auth.MakeAccessTokenForInstallation(d.clientID, d.key, req.Installation.ID)
+	if err != nil {
+		return err
 	}
 
 	client := auth.MakeClient(ctx, token)
@@ -56,9 +48,7 @@ func handlePullRequest(req types.PullRequestOuter) error {
 			body := `Thank you for your contribution. I've just checked and your commit doesn't appear to be signed-off.
 That's something we need before your Pull Request can be merged. Please see our [contributing guide](` + link + `).`
 
-			comment := &github.IssueComment{
-				Body: &body,
-			}
+			comment := githubIssueComment(body)
 
 			comment, resp, err := client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 			if err != nil {

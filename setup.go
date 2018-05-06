@@ -14,17 +14,17 @@ func setup(c *caddy.Controller) error {
 		return err
 	}
 	if dr.clientID == "" {
-		return fmt.Errorf("Need a valid client_id")
+		return fmt.Errorf("need a valid client_id")
 	}
 	if dr.key == "" {
-		return fmt.Errorf("Need a private_key for a path to a private key file")
+		return fmt.Errorf("need a path to a private key file")
 	}
 
-	mid := func(next httpserver.Handler) httpserver.Handler {
+	dreck := func(next httpserver.Handler) httpserver.Handler {
 		dr.Next = next
 		return dr
 	}
-	httpserver.GetConfig(c).AddMiddleware(mid)
+	httpserver.GetConfig(c).AddMiddleware(dreck)
 
 	return nil
 }
@@ -64,6 +64,12 @@ func parseDreck(c *caddy.Controller) (Dreck, error) {
 					return d, c.ArgErr()
 				}
 				d.path = args[0]
+			case "hmac":
+				args := c.RemainingArgs()
+				if len(args) != 0 {
+					return d, c.ArgErr()
+				}
+				d.hmac = true
 			}
 		}
 	}

@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	"strings"
 
 	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/types"
@@ -22,6 +22,16 @@ func init() {
 }
 
 func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+	// Give up if we can't find this header in the event.
+	event := r.Header.Get("X-GitHub-Event")
+	if event == "" {
+		return d.Next.ServeHTTP(w, r)
+	}
+
+	// Not the correct path.
+	if !strings.HasPrefix(r.URL.Path, d.path) {
+		return d.Next.ServeHTTP(w, r)
+	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -29,32 +39,22 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	}
 	r.Body.Close()
 
-	// Give up if we can't find this event
-	event := r.Header.Get("X-GitHub-Event")
-	if event == "" {
-		return d.Next.ServeHTTP(w, r)
-	}
-
-	// HMAC Validated or not turned on.
-	xHubSignature := os.Getenv("Http_X_Hub_Signature")
-
-	if hmacValidation() && len(xHubSignature) == 0 {
-		return 0, fmt.Errorf("must provide X_Hub_Signature")
-	}
-
-	if len(xHubSignature) > 0 {
-
-		err := auth.ValidateHMAC(body, xHubSignature)
+	hubSignature := r.Header.Get("X-Hub-Signature")
+	if d.hmac {
+		if hubSignature == "" {
+			return 0, fmt.Errorf("must provide X-Hub-Signature")
+		}
+		err := auth.ValidateHMAC(body, hubSignature)
 		if err != nil {
 			return 0, err
 		}
 	}
 
-	err = handleEvent(event, body)
+	err = d.handleEvent(event, body)
 	return 0, err
 }
 
-func handleEvent(eventType string, body []byte) error {
+func (d Dreck) handleEvent(eventType string, body []byte) error {
 
 	switch eventType {
 	case "pull_request":
@@ -66,13 +66,13 @@ func handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
-		conf, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
+		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 		if req.Action != closedConst {
-			if enabledFeature(dcoCheck, conf) {
-				handlePullRequest(req)
+			if enabledFeature(featureDCO, conf) {
+				d.handlePullRequest(req)
 			}
 		}
 
@@ -85,15 +85,18 @@ func handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
-		conf, err := getConfig(req.Repository.Owner.Login, req.Repository.Name)
+		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 
-		if req.Action != deleted {
-			if permittedUserFeature(comments, conf, req.Comment.User.Login) {
-				handleComment(req)
-			}
+		// Do nothing when the comment in deleted
+		if req.Action == "deleted" {
+			return nil
+		}
+
+		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {
+			d.handleComment(req)
 		}
 
 	case "ping":
@@ -109,14 +112,3 @@ func handleEvent(eventType string, body []byte) error {
 
 	return nil
 }
-
-func hmacValidation() bool {
-	val := os.Getenv("validate_hmac")
-	return len(val) > 0 && (val == "1" || val == "true")
-}
-
-const (
-	dcoCheck = "dco_check"
-	comments = "comments"
-	deleted  = "deleted"
-)

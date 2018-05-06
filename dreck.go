@@ -5,12 +5,8 @@ import "github.com/mholt/caddy/caddyhttp/httpserver"
 const (
 	// Trigger is the prefix that triggers action from this bot.
 	Trigger = "/"
-	// Owners is the main file for the permissions.
-	Owners = "OWNERS"
 	// The App's private key to access Github.
-	PrivateKeyPath = "/home/miek/dreck.2018-05-05.private-key.pem"
-	// Our application ID.
-	ApplicationID = "11824"
+	//PrivateKeyPath = "/home/miek/dreck.2018-05-05.private-key.pem"
 )
 
 type Dreck struct {
@@ -22,6 +18,7 @@ type Dreck struct {
 	owners string
 	secret string
 	path   string // when should dreck trigger, default to '/dreck'
+	hmac   bool   // validate HMAC on the webhook
 }
 
 func New() Dreck {
@@ -31,3 +28,10 @@ func New() Dreck {
 
 	return d
 }
+
+const (
+	// featureDCO enables the "Signed-off-by" checking of PRs.
+	featureDCO = "dco"
+	// featureComments allows commands to be given in comments.
+	featureComments = "comments"
+)

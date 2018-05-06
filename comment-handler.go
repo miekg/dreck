@@ -2,11 +2,9 @@ package dreck
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"strings"
 
-	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/types"
 
 	"github.com/google/go-github/github"
@@ -26,20 +24,7 @@ const (
 	addLabelConst    string = "AddLabel"
 )
 
-func makeClient(installation int) (*github.Client, context.Context, error) {
-	ctx := context.Background()
-
-	token, err := auth.MakeAccessTokenForInstallation(ApplicationID, PrivateKeyPath, installation)
-	if err != nil {
-		return nil, ctx, err
-	}
-
-	client := auth.MakeClient(ctx, token)
-
-	return client, ctx, nil
-}
-
-func handleComment(req types.IssueCommentOuter) {
+func (d Dreck) handleComment(req types.IssueCommentOuter) {
 
 	var feedback string
 	var err error
@@ -50,27 +35,27 @@ func handleComment(req types.IssueCommentOuter) {
 
 	case addLabelConst, removeLabelConst:
 
-		feedback, err = manageLabel(req, command.Type, command.Value)
+		feedback, err = d.manageLabel(req, command.Type, command.Value)
 		break
 
 	case assignConst, unassignConst:
 
-		feedback, err = manageAssignment(req, command.Type, command.Value)
+		feedback, err = d.manageAssignment(req, command.Type, command.Value)
 		break
 
 	case closeConst, reopenConst:
 
-		feedback, err = manageState(req, command.Type)
+		feedback, err = d.manageState(req, command.Type)
 		break
 
 	case setTitleConst:
 
-		feedback, err = manageTitle(req, command.Type, command.Value)
+		feedback, err = d.manageTitle(req, command.Type, command.Value)
 		break
 
 	case lockConst, unlockConst:
 
-		feedback, err = manageLocking(req, command.Type)
+		feedback, err = d.manageLocking(req, command.Type)
 		break
 
 	default:
@@ -96,7 +81,7 @@ func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {
 	return false
 }
 
-func manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string) (string, error) {
+func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string) (string, error) {
 
 	var buffer bytes.Buffer
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
@@ -110,7 +95,7 @@ func manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string)
 		return buffer.String(), nil
 	}
 
-	client, ctx, err := makeClient(req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return "", err
 	}
@@ -129,7 +114,7 @@ func manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string)
 	return buffer.String(), nil
 }
 
-func manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
+func (d Dreck) manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
 
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number))
@@ -141,7 +126,7 @@ func manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (
 		return buffer.String(), nil
 	}
 
-	client, ctx, err := makeClient(req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return "", err
 	}
@@ -156,13 +141,13 @@ func manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (
 	return buffer.String(), nil
 }
 
-func manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
+func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
 
 	var buffer bytes.Buffer
 
 	buffer.WriteString(fmt.Sprintf("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number))
 
-	client, ctx, err := makeClient(req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return "", err
 	}
@@ -185,7 +170,7 @@ func manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue stri
 	return buffer.String(), nil
 }
 
-func manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
+func (d Dreck) manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
 
 	var buffer bytes.Buffer
 
@@ -198,7 +183,7 @@ func manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
 		return buffer.String(), nil
 	}
 
-	client, ctx, err := makeClient(req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return "", err
 	}
@@ -213,7 +198,7 @@ func manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
 
 }
 
-func manageLocking(req types.IssueCommentOuter, cmdType string) (string, error) {
+func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) (string, error) {
 
 	var buffer bytes.Buffer
 
@@ -226,7 +211,7 @@ func manageLocking(req types.IssueCommentOuter, cmdType string) (string, error) 
 		return buffer.String(), nil
 	}
 
-	client, ctx, err := makeClient(req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return "", err
 	}

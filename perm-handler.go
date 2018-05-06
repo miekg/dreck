@@ -45,11 +45,11 @@ func permittedUserFeature(attemptedFeature string, config *types.DerekConfig, us
 	return false
 }
 
-func getConfig(owner string, repository string) (*types.DerekConfig, error) {
+func (d Dreck) getConfig(owner string, repository string) (*types.DerekConfig, error) {
 
 	var config types.DerekConfig
 
-	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, Owners)
+	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
 
 	client := http.Client{
 		Timeout: 30 * time.Second,

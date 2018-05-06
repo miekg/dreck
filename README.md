@@ -21,6 +21,7 @@ dreck {
     owners NAME // owners file
     secret SECRET // webhook secret
     path PATH // when to trigger
+    validate // validate the HMAC
 }
 ~~~
 
@@ -34,7 +35,9 @@ dreck {
 
 ### Features
 
-
+* `comments` - allow commands (see below) in comments.
+* `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done. Needs a "no-dco" label
+  in the repository.
 
 ## What can I do?
 
