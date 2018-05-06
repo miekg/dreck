@@ -62,7 +62,7 @@ type CommentAction struct {
 	Value string
 }
 
-type DerekConfig struct {
+type DreckConfig struct {
 	Features  []string
 	Reviewers []string
 	Approvers []string

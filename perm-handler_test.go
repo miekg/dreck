@@ -7,7 +7,7 @@ import (
 )
 
 func Test_maintainersparsed(t *testing.T) {
-	config := types.DerekConfig{}
+	config := types.DreckConfig{}
 	parseConfig([]byte(`approvers:
 - alexellis
 - rgee0
@@ -19,7 +19,7 @@ func Test_maintainersparsed(t *testing.T) {
 }
 
 func Test_curatorequalsmaintainer(t *testing.T) {
-	config := types.DerekConfig{}
+	config := types.DreckConfig{}
 	parseConfig([]byte(`reviewers:
 - alexellis
 - rgee0
@@ -84,7 +84,7 @@ func TestEnabledFeature(t *testing.T) {
 	for _, test := range enableFeatureOpts {
 		t.Run(test.title, func(t *testing.T) {
 
-			inputConfig := &types.DerekConfig{Features: test.configFeatures}
+			inputConfig := &types.DreckConfig{Features: test.configFeatures}
 
 			featureEnabled := enabledFeature(test.attemptedFeature, inputConfig)
 
@@ -101,14 +101,14 @@ func TestPermittedUserFeature(t *testing.T) {
 		title            string
 		attemptedFeature string
 		user             string
-		config           types.DerekConfig
+		config           types.DreckConfig
 		expectedVal      bool
 	}{
 		{
 			title:            "Valid feature with valid maintainer",
 			attemptedFeature: "comment",
 			user:             "Burt",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
@@ -118,7 +118,7 @@ func TestPermittedUserFeature(t *testing.T) {
 			title:            "Valid feature with valid maintainer case insensitive",
 			attemptedFeature: "comment",
 			user:             "burt",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
@@ -128,7 +128,7 @@ func TestPermittedUserFeature(t *testing.T) {
 			title:            "Valid feature with invalid maintainer",
 			attemptedFeature: "comment",
 			user:             "ernie",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
@@ -138,7 +138,7 @@ func TestPermittedUserFeature(t *testing.T) {
 			title:            "Valid feature with invalid maintainer case insensitive",
 			attemptedFeature: "Comment",
 			user:             "ernie",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
@@ -148,7 +148,7 @@ func TestPermittedUserFeature(t *testing.T) {
 			title:            "Invalid feature with valid maintainer",
 			attemptedFeature: "invalid",
 			user:             "Burt",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},
@@ -158,7 +158,7 @@ func TestPermittedUserFeature(t *testing.T) {
 			title:            "Invalid feature with valid maintainer case insensitive",
 			attemptedFeature: "invalid",
 			user:             "burt",
-			config: types.DerekConfig{
+			config: types.DreckConfig{
 				Features:  []string{"comment"},
 				Approvers: []string{"Burt", "Tarquin", "Blanche"},
 			},

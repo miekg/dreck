@@ -39,6 +39,9 @@ dreck {
 * `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done. Needs a "no-dco" label
   in the repository.
 
+When emailing command the email must start with the command, i.e. `/label rm: bug` and include no
+lines above that.
+
 ## What can I do?
 
 * Check that commits are signed-off
@@ -52,24 +55,6 @@ pointing them to the contributor guide. Most of the time when I've been helping 
 You don't have to give people full write access anymore to help you manage issues and pull-requests.
 I'll do that for you, just put them in a .dreck.yml file in the root and when they comment on an
 issue then I'll use my granular permissions instead.
-
-* Wait.. doesn't the term "maintainer" mean write access in GitHub?
-
-No this is what Derek sets out to resolve. The users in your maintainers list have granular permissions which you'll see in detail when you add the app to your repo org.
-
-```
-maintainers:
-- alexellis
-- rgee0
-```
-
-You can use the alias "curators" instead for the exact same behaviour:
-
-```
-curators:
-- alexellis
-- rgee0
-```
 
 > Note that the assign/unassign commands provides the shortcut `me` to assign to the commenter
 

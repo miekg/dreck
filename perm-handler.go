@@ -12,7 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func enabledFeature(attemptedFeature string, config *types.DerekConfig) bool {
+func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
 
 	featureEnabled := false
 
@@ -25,7 +25,7 @@ func enabledFeature(attemptedFeature string, config *types.DerekConfig) bool {
 	return featureEnabled
 }
 
-func permittedUserFeature(attemptedFeature string, config *types.DerekConfig, user string) bool {
+func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, user string) bool {
 
 	if enabledFeature(attemptedFeature, config) {
 		for _, reviewer := range config.Reviewers {
@@ -45,9 +45,9 @@ func permittedUserFeature(attemptedFeature string, config *types.DerekConfig, us
 	return false
 }
 
-func (d Dreck) getConfig(owner string, repository string) (*types.DerekConfig, error) {
+func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
 
-	var config types.DerekConfig
+	var config types.DreckConfig
 
 	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
 
@@ -79,7 +79,7 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DerekConfig, e
 	return &config, nil
 }
 
-func parseConfig(bytesOut []byte, config *types.DerekConfig) error {
+func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
 	err := yaml.Unmarshal(bytesOut, &config)
 
 	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
