@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
 	"github.com/google/go-github/github"
@@ -24,7 +25,7 @@ const (
 	addLabelConst    string = "AddLabel"
 )
 
-func (d Dreck) handleComment(req types.IssueCommentOuter) {
+func (d Dreck) handleComment(req types.IssueCommentOuter) error {
 
 	var feedback string
 	var err error
@@ -36,39 +37,31 @@ func (d Dreck) handleComment(req types.IssueCommentOuter) {
 	case addLabelConst, removeLabelConst:
 
 		feedback, err = d.manageLabel(req, command.Type, command.Value)
-		break
 
 	case assignConst, unassignConst:
 
 		feedback, err = d.manageAssignment(req, command.Type, command.Value)
-		break
 
 	case closeConst, reopenConst:
 
 		feedback, err = d.manageState(req, command.Type)
-		break
 
 	case setTitleConst:
 
 		feedback, err = d.manageTitle(req, command.Type, command.Value)
-		break
 
 	case lockConst, unlockConst:
 
 		feedback, err = d.manageLocking(req, command.Type)
-		break
 
 	default:
 		feedback = "Unable to work with comment: " + req.Comment.Body
 		err = nil
-		break
 	}
 
-	fmt.Print(feedback)
+	log.Info(feedback)
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	return err
 }
 
 func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {

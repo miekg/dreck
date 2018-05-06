@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/miekg/dreck/auth"
+	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
 	"github.com/google/go-github/github"
@@ -28,17 +29,15 @@ func (d Dreck) handlePullRequest(req types.PullRequestOuter) error {
 	}
 
 	if hasUnsignedCommits {
-		fmt.Println("May need to apply labels on item.")
-
 		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
 		if labelErr != nil {
 			return labelErr
 		}
-		fmt.Println("Current labels ", issue.Labels)
+		log.Infof("Current labels: %s", issue.Labels)
 
 		if hasNoDcoLabel(issue) == false {
-			fmt.Println("Applying label")
+			log.Info("Applying label")
 			_, _, assignLabelErr := client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"no-dco"})
 			if assignLabelErr != nil {
 				return assignLabelErr
@@ -54,10 +53,9 @@ That's something we need before your Pull Request can be merged. Please see our 
 			if err != nil {
 				return err
 			}
-			fmt.Println(comment, resp.Rate)
+			log.Infof("%s %s", comment, resp.Rate)
 		}
 	} else {
-		fmt.Println("Things look OK right now.")
 		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
 		if labelErr != nil {
@@ -65,7 +63,7 @@ That's something we need before your Pull Request can be merged. Please see our 
 		}
 
 		if hasNoDcoLabel(issue) {
-			fmt.Println("Removing label")
+			log.Info("Removing label")
 			_, removeLabelErr := client.Issues.RemoveLabelForIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, "no-dco")
 			if removeLabelErr != nil {
 				return removeLabelErr
@@ -100,7 +98,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 		return hasUnsigned, fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
-	fmt.Println("Rate limiting", resp.Rate)
+	log.Warningf("Rate limiting: %s", resp.Rate)
 
 	for _, commit := range commits {
 		if commit.Commit != nil && commit.Commit.Message != nil {

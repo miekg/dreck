@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/miekg/dreck/auth"
+	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
 	"github.com/mholt/caddy"
@@ -61,7 +61,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		req := types.PullRequestOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
 			if e, ok := err.(*json.SyntaxError); ok {
-				log.Printf("syntax error at byte offset %d", e.Offset)
+				log.Errorf("Syntax error at byte offset %d", e.Offset)
 			}
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
@@ -72,7 +72,10 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 		if req.Action != closedConst {
 			if enabledFeature(featureDCO, conf) {
-				d.handlePullRequest(req)
+				err := d.handlePullRequest(req)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -80,7 +83,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
 			if e, ok := err.(*json.SyntaxError); ok {
-				log.Printf("syntax error at byte offset %d", e.Offset)
+				log.Errorf("Syntax error at byte offset %d", e.Offset)
 			}
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
@@ -96,14 +99,17 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 
 		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {
-			d.handleComment(req)
+			err := d.handleComment(req)
+			if err != nil {
+				return err
+			}
 		}
 
 	case "ping":
 		fallthrough
 
 	case "status":
-		log.Printf("[INFO] Seen %s", eventType)
+		log.Infof("Seen %s", eventType)
 		return nil
 
 	default:
