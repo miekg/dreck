@@ -13,6 +13,7 @@ import (
 
 const (
 	openConst        string = "open"
+	openPRConst      string = "opened"
 	closedConst      string = "closed"
 	closeConst       string = "close"
 	reopenConst      string = "reopen"

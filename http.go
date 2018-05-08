@@ -82,10 +82,11 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 
 			// Reviewers, only on PR opens
-			if req.Action == openConst && enabledFeature(featureReviewers, conf) {
-				println("YES")
-				if err := d.handlePullRequestReviewers(req); err != nil {
-					return err
+			if req.Action == openPRConst {
+				if enabledFeature(featureReviewers, conf) {
+					if err := d.handlePullRequestReviewers(req); err != nil {
+						return err
+					}
 				}
 			}
 		}

@@ -9,16 +9,12 @@ import (
 )
 
 func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
-
-	featureEnabled := false
-
 	for _, availableFeature := range config.Features {
 		if strings.EqualFold(attemptedFeature, availableFeature) {
-			featureEnabled = true
-			break
+			return true
 		}
 	}
-	return featureEnabled
+	return false
 }
 
 func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, user string) bool {

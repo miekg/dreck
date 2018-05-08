@@ -121,12 +121,16 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
+	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
+	if err != nil {
+		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+	}
+
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
 	victims := make(map[string]bool) // possible reviewers
 
 	for _, f := range files {
-		log.Infof("Files %s", *f.Filename)
 		paths := ownersPaths(*f.Filename, d.owners)
 		for _, p := range paths {
 
@@ -145,29 +149,35 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 		}
 	}
 
-	log.Infof("Reviews", victims)
+	log.Infof("Looking for reviewers in %v, excluding %s", victims, *pull.User.Login)
 	// This randomizes for us, pick first non PR author
 	victim := ""
 	for v, _ := range victims {
-		//		println(req.PullRequest.User.Login)
-		if v != "miekg" {
+		if v != *pull.User.Login {
 			victim = v
 			break
 		}
 	}
 
-	if victim == "" {
-		return fmt.Errorf("No victims found in %v", victims)
+	if victim != "" {
+		rev := github.ReviewersRequest{Reviewers: []string{victim}}
+		if _, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, rev); err != nil {
+			// set comment?
+			return err
+		}
 	}
 
-	rev := github.ReviewersRequest{Reviewers: []string{victim}}
-
-	// Assign a person, here miekg as test.
-	if _, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, rev); err != nil {
-		return err
+	body := "Thank you for your contribution. I've just checked the %s files to find a suitable reviewer."
+	if victim != "" {
+		body += " This search was succesful and I've asked %s for a review."
+		body = fmt.Sprintf(body, d.owners, victim)
+	} else {
+		body += " Alas, this search was not succesful."
+		body = fmt.Sprintf(body, d.owners)
 	}
 
-	// Set comment on how we reached this conclusion.
-
-	return nil
+	comment := githubIssueComment(body)
+	comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
+	log.Infof("%s", resp.Rate)
+	return err
 }

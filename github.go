@@ -52,6 +52,5 @@ func githubFile(owner, repository, path string) ([]byte, error) {
 		defer res.Body.Close()
 	}
 
-	buf, _ := ioutil.ReadAll(res.Body)
-	return buf, nil
+	return ioutil.ReadAll(res.Body)
 }
