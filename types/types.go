@@ -10,8 +10,13 @@ type Owner struct {
 	Type  string `json:"type"`
 }
 
+type User struct {
+	Login string `json:"login,omitempty"`
+}
+
 type PullRequest struct {
-	Number int `json:"number"`
+	Number int  `json:"number"`
+	User   User `json:"user,omitempty"`
 }
 
 type InstallationRequest struct {

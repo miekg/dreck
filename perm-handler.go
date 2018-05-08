@@ -45,7 +45,7 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 
 	var config types.DreckConfig
 
-	buf, err := d.githubFile(owner, repository)
+	buf, err := githubFile(owner, repository, d.owners)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
@@ -14,17 +13,12 @@ import (
 
 // handlePullRequestDCO handles the DCO check. I.e. a PR must have commits for Signed-off-by.
 func (d Dreck) handlePullRequestDCO(req types.PullRequestOuter) error {
-	ctx := context.Background()
-
-	token, err := auth.MakeAccessTokenForInstallation(d.clientID, d.key, req.Installation.ID)
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
 	}
 
-	client := auth.MakeClient(ctx, token)
-
 	hasUnsignedCommits, err := hasUnsigned(req, client)
-
 	if err != nil {
 		return err
 	}
@@ -129,19 +123,48 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
+	victims := make(map[string]bool) // possible reviewers
+
 	for _, f := range files {
 		log.Infof("Files %s", *f.Filename)
 		paths := ownersPaths(*f.Filename, d.owners)
-		log.Infof("Files %v", paths)
+		for _, p := range paths {
+
+			var config types.DreckConfig
+
+			buf, err := githubFile(req.Repository.Owner.Login, req.Repository.Name, p)
+			if err != nil {
+				continue
+			}
+			if err := parseConfig(buf, &config); err != nil {
+				continue
+			}
+			for _, r := range config.Reviewers {
+				victims[r] = true
+			}
+		}
+	}
+	// This randomizes for us, pick first non PR author
+	victim := ""
+	for v, _ := range victims {
+		println(req.PullRequest.User.Login)
+		if v != req.PullRequest.User.Login {
+			victim = v
+			break
+		}
 	}
 
-	user := "miekg"
-	rev := github.ReviewersRequest{Reviewers: []string{user}}
+	if victim == "" {
+		return fmt.Errorf("No victims found in %v", victims)
+	}
+
+	rev := github.ReviewersRequest{Reviewers: []string{victim}}
 
 	// Assign a person, here miekg as test.
 	if _, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, rev); err != nil {
 		return err
 	}
+
 	// Set comment on how we reached this conclusion.
 
 	return nil

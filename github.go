@@ -32,9 +32,9 @@ func (d Dreck) newClient(installation int) (*github.Client, context.Context, err
 }
 
 // githubFile returns the file from github or an error if nothing is found.
-func (d Dreck) githubFile(owner, repository string) ([]byte, error) {
+func githubFile(owner, repository, path string) ([]byte, error) {
 
-	file := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
+	file := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, path)
 
 	client := http.Client{Timeout: 30 * time.Second}
 
