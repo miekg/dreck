@@ -135,8 +135,11 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 		log.Infof("Files %v", paths)
 	}
 
+	user := "miekg"
+	rev := github.ReviewersRequest{Reviewers: []string{user}}
+
 	// Assign a person, here miekg as test.
-	if _, _, err := client.Issues.AddAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"miekg"}); err != nil {
+	if _, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, rev); err != nil {
 		return err
 	}
 	// Set comment on how we reached this conclusion.

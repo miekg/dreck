@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	openConst        string = "Open"
-	closedConst      string = "Closed"
-	closeConst       string = "Close"
-	reopenConst      string = "Reopen"
+	openConst        string = "open"
+	closedConst      string = "closed"
+	closeConst       string = "close"
+	reopenConst      string = "reopen"
 	lockConst        string = "Lock"
 	unlockConst      string = "Unlock"
 	setTitleConst    string = "SetTitle"
