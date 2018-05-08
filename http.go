@@ -71,9 +71,16 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 		if req.Action != closedConst {
+			// DCO
 			if enabledFeature(featureDCO, conf) {
-				err := d.handlePullRequest(req)
-				if err != nil {
+				if err := d.handlePullRequestDCO(req); err != nil {
+					return err
+				}
+			}
+
+			// Reviewers
+			if enabledFeature(featureReviewers, conf) {
+				if err := d.handlePullRequestReviewers(req); err != nil {
 					return err
 				}
 			}

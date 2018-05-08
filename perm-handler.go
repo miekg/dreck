@@ -1,11 +1,7 @@
 package dreck
 
 import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
-	"time"
 
 	"github.com/miekg/dreck/types"
 
@@ -49,30 +45,12 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 
 	var config types.DreckConfig
 
-	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
-
-	client := http.Client{
-		Timeout: 30 * time.Second,
-	}
-
-	req, _ := http.NewRequest(http.MethodGet, maintainersFile, nil)
-
-	res, resErr := client.Do(req)
-	if resErr != nil {
-		return nil, resErr
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP Status code: %d while fetching maintainers list (%s)", res.StatusCode, maintainersFile)
-	}
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	bytesOut, _ := ioutil.ReadAll(res.Body)
-
-	err := parseConfig(bytesOut, &config)
+	buf, err := d.githubFile(owner, repository)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := parseConfig(buf, &config); err != nil {
 		return nil, err
 	}
 

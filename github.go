@@ -2,6 +2,10 @@ package dreck
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
 
 	"github.com/miekg/dreck/auth"
 
@@ -27,27 +31,27 @@ func (d Dreck) newClient(installation int) (*github.Client, context.Context, err
 	return client, ctx, nil
 }
 
-
 // githubFile returns the file from github or an error if nothing is found.
-func (d Dreck) githubFile(owner, repository string) ([]byte, error)
-	maintainersFile := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
+func (d Dreck) githubFile(owner, repository string) ([]byte, error) {
 
-	client := http.Client{
-		Timeout: 30 * time.Second,
-	}
+	file := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, d.owners)
 
-	req, _ := http.NewRequest(http.MethodGet, maintainersFile, nil)
+	client := http.Client{Timeout: 30 * time.Second}
 
-	res, resErr := client.Do(req)
-	if resErr != nil {
-		return nil, resErr
+	req, _ := http.NewRequest(http.MethodGet, file, nil)
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP Status code: %d while fetching maintainers list (%s)", res.StatusCode, maintainersFile)
+		return nil, fmt.Errorf("error: %d while fetching maintainers list (%s)", res.StatusCode, file)
 	}
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
 
-	bytesOut, _ := ioutil.ReadAll(res.Body)
+	buf, _ := ioutil.ReadAll(res.Body)
+	return buf, nil
+}

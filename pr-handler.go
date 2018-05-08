@@ -12,7 +12,8 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func (d Dreck) handlePullRequest(req types.PullRequestOuter) error {
+// handlePullRequestDCO handles the DCO check. I.e. a PR must have commits for Signed-off-by.
+func (d Dreck) handlePullRequestDCO(req types.PullRequestOuter) error {
 	ctx := context.Background()
 
 	token, err := auth.MakeAccessTokenForInstallation(d.clientID, d.key, req.Installation.ID)
@@ -88,10 +89,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 	hasUnsigned := false
 	ctx := context.Background()
 
-	var err error
-	listOpts := &github.ListOptions{
-		Page: 0,
-	}
+	listOpts := &github.ListOptions{Page: 0}
 
 	commits, resp, err := client.PullRequests.ListCommits(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if err != nil {
@@ -108,19 +106,32 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 		}
 	}
 
-	return hasUnsigned, err
+	return hasUnsigned, nil
 }
 
 func isSigned(msg string) bool {
 	return strings.Contains(msg, "Signed-off-by:")
 }
 
-// handlePullRequestReview will look at the (first 10) files of a PR, retrieve the nearest OWNERS files
+// handlePullRequestReview will look at the (first 5) files of a PR, retrieve the nearest OWNERS files
 // merge all the reviewers and randomly pick a reviewer that should be assigned for this PR.
-func (d Dreck) handlePullRequestReview(req types.PullRequestOuter) error {
-	client, err := newClient(d.clientID)
+func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
 	}
 
+	listOpts := &github.ListOptions{Page: 0}
+	files, resp, err := client.PullRequests.ListFiles(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
+	if err != nil {
+		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+	}
+
+	log.Warningf("Rate limiting: %s", resp.Rate)
+
+	for _, f := range files {
+		log.Infof("Files %s", f.Filename)
+	}
+
+	return nil
 }
