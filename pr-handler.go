@@ -130,8 +130,16 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
 	for _, f := range files {
-		log.Infof("Files %s", f.Filename)
+		log.Infof("Files %s", *f.Filename)
+		paths := ownersPaths(*f.Filename, d.owners)
+		log.Infof("Files %v", paths)
 	}
+
+	// Assign a person, here miekg as test.
+	if _, _, err := client.Issues.AddAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"miekg"}); err != nil {
+		return err
+	}
+	// Set comment on how we reached this conclusion.
 
 	return nil
 }
