@@ -70,6 +70,8 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
+
+		log.Infof("Action %s", req.Action)
 		if req.Action != closedConst {
 			// DCO
 			if enabledFeature(featureDCO, conf) {
