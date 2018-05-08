@@ -147,8 +147,8 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 	// This randomizes for us, pick first non PR author
 	victim := ""
 	for v, _ := range victims {
-		println(req.PullRequest.User.Login)
-		if v != req.PullRequest.User.Login {
+		//		println(req.PullRequest.User.Login)
+		if v != "miekg" {
 			victim = v
 			break
 		}
