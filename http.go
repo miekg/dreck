@@ -72,6 +72,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 
 		log.Infof("Action %s", req.Action)
+
 		if req.Action != closedConst {
 			// DCO
 			if enabledFeature(featureDCO, conf) {
@@ -82,6 +83,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 
 			// Reviewers, only on PR opens
 			if req.Action == openConst && enabledFeature(featureReviewers, conf) {
+				println("YES")
 				if err := d.handlePullRequestReviewers(req); err != nil {
 					return err
 				}

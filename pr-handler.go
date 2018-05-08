@@ -144,6 +144,8 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 			}
 		}
 	}
+
+	log.Infof("Reviews", victims)
 	// This randomizes for us, pick first non PR author
 	victim := ""
 	for v, _ := range victims {
