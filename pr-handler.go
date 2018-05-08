@@ -128,24 +128,29 @@ func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
 
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
-	victims := make(map[string]bool) // possible reviewers
+	victims := make(map[string]bool)    // possible reviewers
+	toDownload := make(map[string]bool) // files to get
 
 	for _, f := range files {
 		paths := ownersPaths(*f.Filename, d.owners)
 		for _, p := range paths {
+			toDownload[p] = true
+		}
+	}
 
-			var config types.DreckConfig
+	for p, _ := range toDownload {
 
-			buf, err := githubFile(req.Repository.Owner.Login, req.Repository.Name, p)
-			if err != nil {
-				continue
-			}
-			if err := parseConfig(buf, &config); err != nil {
-				continue
-			}
-			for _, r := range config.Reviewers {
-				victims[r] = true
-			}
+		var config types.DreckConfig
+
+		buf, err := githubFile(req.Repository.Owner.Login, req.Repository.Name, p)
+		if err != nil {
+			continue
+		}
+		if err := parseConfig(buf, &config); err != nil {
+			continue
+		}
+		for _, r := range config.Reviewers {
+			victims[r] = true
 		}
 	}
 
