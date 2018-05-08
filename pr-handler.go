@@ -114,3 +114,13 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 func isSigned(msg string) bool {
 	return strings.Contains(msg, "Signed-off-by:")
 }
+
+// handlePullRequestReview will look at the (first 10) files of a PR, retrieve the nearest OWNERS files
+// merge all the reviewers and randomly pick a reviewer that should be assigned for this PR.
+func (d Dreck) handlePullRequestReview(req types.PullRequestOuter) error {
+	client, err := newClient(d.clientID)
+	if err != nil {
+		return err
+	}
+
+}
