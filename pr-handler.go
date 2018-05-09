@@ -48,7 +48,7 @@ That's something we need before your Pull Request can be merged. Please see our 
 			if err != nil {
 				return err
 			}
-			log.Infof("%s %s", comment, resp.Rate)
+			log.Infof("%s", resp.Rate)
 		}
 	} else {
 		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)

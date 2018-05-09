@@ -25,7 +25,6 @@ const (
 )
 
 func (d Dreck) handleComment(req types.IssueCommentOuter) (err error) {
-
 	command := parse(req.Comment.Body)
 
 	switch command.Type {
