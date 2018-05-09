@@ -152,7 +152,7 @@ File:
 	}
 
 	log.Infof("Looking for reviewers in %v, excluding %s", victims, *pull.User.Login)
-	// This randomizes for us, pick first non PR author
+	// This randomizes for us, pick first non PR author.
 	victim := ""
 	for v, _ := range victims {
 		if v != *pull.User.Login {
@@ -169,12 +169,12 @@ File:
 		}
 	}
 
-	body := "Thank you for your contribution. I've just checked the %s files to find a suitable reviewer."
+	body := "Thank you for your contribution. I've just checked the *%s* files to find a suitable reviewer."
 	if victim != "" {
-		body += " This search was succesful and I've asked %s for a review."
+		body += " This search was succesful and I've asked **%s** for a review."
 		body = fmt.Sprintf(body, d.owners, victim)
 	} else {
-		body += " Alas, this search was not succesful."
+		body += " Alas, this search was *not* succesful."
 		body = fmt.Sprintf(body, d.owners)
 	}
 
