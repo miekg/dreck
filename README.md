@@ -16,12 +16,12 @@ this up is beyond scope of this documentation.
 
 ~~~
 dreck {
-    client_id ID // client id
-    private_key PATH // private key path
-    owners NAME // owners file
-    secret SECRET // webhook secret
-    path PATH // when to trigger
-    validate // validate the HMAC
+    client_id ID
+    private_key PATH
+    owners NAME
+    secret SECRET
+    path PAT
+    validate
 }
 ~~~
 
@@ -30,8 +30,23 @@ dreck {
 * `secret` can optionally specify a **SECRET** for the webhook.
 * `owners` can optionally specify an OWNERS file that is named differently, defaults to "OWNERS".
 * `path` will trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
+* `validate` will enable HMAC validation of the request.
 
 ## OWNERS File Syntax
+
+```
+approvers:
+- name1
+- name2
+
+reviewers:
+- name3
+- name4
+
+features:
+- feature1
+- feature2
+```
 
 ### Features
 
