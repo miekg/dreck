@@ -1,8 +1,6 @@
 package dreck
 
 import (
-	"bytes"
-	"fmt"
 	"strings"
 
 	"github.com/miekg/dreck/log"
@@ -26,10 +24,7 @@ const (
 	addLabelConst    string = "AddLabel"
 )
 
-func (d Dreck) handleComment(req types.IssueCommentOuter) error {
-
-	var feedback string
-	var err error
+func (d Dreck) handleComment(req types.IssueCommentOuter) (err error) {
 
 	command := parse(req.Comment.Body)
 
@@ -37,30 +32,28 @@ func (d Dreck) handleComment(req types.IssueCommentOuter) error {
 
 	case addLabelConst, removeLabelConst:
 
-		feedback, err = d.manageLabel(req, command.Type, command.Value)
+		err = d.manageLabel(req, command.Type, command.Value)
 
 	case assignConst, unassignConst:
 
-		feedback, err = d.manageAssignment(req, command.Type, command.Value)
+		err = d.manageAssignment(req, command.Type, command.Value)
 
 	case closeConst, reopenConst:
 
-		feedback, err = d.manageState(req, command.Type)
+		err = d.manageState(req, command.Type)
 
 	case setTitleConst:
 
-		feedback, err = d.manageTitle(req, command.Type, command.Value)
+		err = d.manageTitle(req, command.Type, command.Value)
 
 	case lockConst, unlockConst:
 
-		feedback, err = d.manageLocking(req, command.Type)
+		err = d.manageLocking(req, command.Type)
 
 	default:
-		feedback = "Unable to work with comment: " + req.Comment.Body
-		err = nil
+		log.Warningf("Unable to work with comment: %s" + req.Comment.Body)
+		return nil
 	}
-
-	log.Info(feedback)
 
 	return err
 }
@@ -75,23 +68,22 @@ func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {
 	return false
 }
 
-func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string) (string, error) {
+func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string) error {
 
-	var buffer bytes.Buffer
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
 
-	buffer.WriteString(fmt.Sprintf("%s wants to %s label of '%s' on issue #%d \n", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number))
+	log.Infof("%s wants to %s label of '%s' on issue #%d \n", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
 
 	found := findLabel(req.Issue.Labels, labelValue)
 
 	if !validAction(found, cmdType, addLabelConst, removeLabelConst) {
-		buffer.WriteString(fmt.Sprintf("Request to %s label of '%s' on issue #%d was unnecessary.", labelAction, labelValue, req.Issue.Number))
-		return buffer.String(), nil
+		log.Errorf("Request to %s label of '%s' on issue #%d was unnecessary.", labelAction, labelValue, req.Issue.Number)
+		return nil
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if cmdType == addLabelConst {
@@ -101,49 +93,47 @@ func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelVal
 	}
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	buffer.WriteString(fmt.Sprintf("Request to %s label of '%s' on issue #%d was successfully completed.", labelAction, labelValue, req.Issue.Number))
-	return buffer.String(), nil
+	log.Infof("Request to %s label of '%s' on issue #%d was successfully completed.", labelAction, labelValue, req.Issue.Number)
+
+	return nil
 }
 
-func (d Dreck) manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
+func (d Dreck) manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
 
-	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number))
+	log.Infof("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number)
 
 	newTitle := cmdValue
 
 	if newTitle == req.Issue.Title || len(newTitle) == 0 {
-		buffer.WriteString(fmt.Sprintf("Setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged.\n", req.Issue.Number, req.Comment.User.Login))
-		return buffer.String(), nil
+		log.Errorf("Setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged.\n", req.Issue.Number, req.Comment.User.Login)
+		return nil
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	input := &github.IssueRequest{Title: &newTitle}
 
 	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
-		return buffer.String(), err
+		return err
 	}
 
-	buffer.WriteString(fmt.Sprintf("Request to set the title of issue #%d by %s was successful.\n", req.Issue.Number, req.Comment.User.Login))
-	return buffer.String(), nil
+	log.Infof("Request to set the title of issue #%d by %s was successful.\n", req.Issue.Number, req.Comment.User.Login)
+	return nil
 }
 
-func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue string) (string, error) {
+func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
 
-	var buffer bytes.Buffer
-
-	buffer.WriteString(fmt.Sprintf("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number))
+	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if cmdValue == "me" {
@@ -157,57 +147,53 @@ func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmd
 	}
 
 	if err != nil {
-		return buffer.String(), err
+		return err
 	}
 
-	buffer.WriteString(fmt.Sprintf("%s %sed successfully or already %sed.\n", cmdValue, strings.ToLower(cmdType), strings.ToLower(cmdType)))
-	return buffer.String(), nil
+	log.Infof("%s %sed successfully or already %sed.\n", cmdValue, strings.ToLower(cmdType), strings.ToLower(cmdType))
+
+	return nil
 }
 
-func (d Dreck) manageState(req types.IssueCommentOuter, cmdType string) (string, error) {
+func (d Dreck) manageState(req types.IssueCommentOuter, cmdType string) error {
 
-	var buffer bytes.Buffer
-
-	buffer.WriteString(fmt.Sprintf("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number))
+	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
 
 	if !validTransition {
-		buffer.WriteString(fmt.Sprintf("Request to %s issue #%d by %s was invalid.\n", cmdType, req.Issue.Number, req.Comment.User.Login))
-		return buffer.String(), nil
+		log.Errorf("Request to %s issue #%d by %s was invalid.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
+		return nil
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
-		return "", err
+		return err
 	}
 	input := &github.IssueRequest{State: &newState}
 
 	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
-		return buffer.String(), err
+		return err
 	}
 
-	buffer.WriteString(fmt.Sprintf("Request to %s issue #%d by %s was successful.\n", cmdType, req.Issue.Number, req.Comment.User.Login))
-	return buffer.String(), nil
+	log.Infof("Request to %s issue #%d by %s was successful.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
+
+	return nil
 
 }
 
-func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) (string, error) {
+func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) error {
 
-	var buffer bytes.Buffer
-
-	buffer.WriteString(fmt.Sprintf("%s wants to %s issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number))
+	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
 
 	if !validAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
-
-		buffer.WriteString(fmt.Sprintf("Issue #%d is already %sed\n", req.Issue.Number, strings.ToLower(cmdType)))
-
-		return buffer.String(), nil
+		log.Errorf("Issue #%d is already %sed\n", req.Issue.Number, strings.ToLower(cmdType))
+		return nil
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if cmdType == lockConst {
@@ -217,45 +203,25 @@ func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) (strin
 	}
 
 	if err != nil {
-		return buffer.String(), err
+		return err
 	}
 
-	buffer.WriteString(fmt.Sprintf("Request to %s issue #%d by %s was successful.\n", strings.ToLower(cmdType), req.Issue.Number, req.Comment.User.Login))
-	return buffer.String(), nil
+	log.Infof("Request to %s issue #%d by %s was successful.\n", strings.ToLower(cmdType), req.Issue.Number, req.Comment.User.Login)
+	return nil
 }
 
 func parse(body string) *types.CommentAction {
-
-	commentAction := types.CommentAction{}
-
-	commands := map[string]string{
-		Trigger + "label: ":        addLabelConst,
-		Trigger + "label add: ":    addLabelConst,
-		Trigger + "label remove: ": removeLabelConst,
-		Trigger + "label rm: ":     removeLabelConst,
-		Trigger + "assign: ":       assignConst,
-		Trigger + "unassign: ":     unassignConst,
-		Trigger + "close":          closeConst,
-		Trigger + "reopen":         reopenConst,
-		Trigger + "title: ":        setTitleConst,
-		Trigger + "title set: ":    setTitleConst,
-		Trigger + "title edit: ":   setTitleConst,
-		Trigger + "lock":           lockConst,
-		Trigger + "unlock":         unlockConst,
-	}
-
-	for trigger, commandType := range commands {
+	for trigger, commandType := range IssueCommands {
 
 		if isValidCommand(body, trigger) {
 			val := body[len(trigger):]
 			val = strings.Trim(val, " \t.,\n\r")
-			commentAction.Type = commandType
-			commentAction.Value = val
-			break
+
+			return &types.CommentAction{Type: commandType, Value: val}
 		}
 	}
 
-	return &commentAction
+	return &types.CommentAction{}
 }
 
 func isValidCommand(body string, trigger string) bool {
@@ -264,13 +230,10 @@ func isValidCommand(body string, trigger string) bool {
 }
 
 func validAction(running bool, requestedAction string, start string, stop string) bool {
-
 	return !running && requestedAction == start || running && requestedAction == stop
-
 }
 
 func checkTransition(requestedAction string, currentState string) (string, bool) {
-
 	if requestedAction == closeConst && currentState != closedConst {
 		return closedConst, true
 	} else if requestedAction == reopenConst && currentState != openConst {
@@ -278,4 +241,21 @@ func checkTransition(requestedAction string, currentState string) (string, bool)
 	}
 
 	return "", false
+}
+
+// IssueCommands are all commands we support in issues.
+var IssueCommands = map[string]string{
+	Trigger + "label: ":        addLabelConst,
+	Trigger + "label add: ":    addLabelConst,
+	Trigger + "label remove: ": removeLabelConst,
+	Trigger + "label rm: ":     removeLabelConst,
+	Trigger + "assign: ":       assignConst,
+	Trigger + "unassign: ":     unassignConst,
+	Trigger + "close":          closeConst,
+	Trigger + "reopen":         reopenConst,
+	Trigger + "title: ":        setTitleConst,
+	Trigger + "title set: ":    setTitleConst,
+	Trigger + "title edit: ":   setTitleConst,
+	Trigger + "lock":           lockConst,
+	Trigger + "unlock":         unlockConst,
 }
