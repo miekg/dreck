@@ -43,20 +43,6 @@ dreck {
 When emailing command the email must start with the command, i.e. `/label rm: bug` and include no
 lines above that.
 
-## What can I do?
-
-* Check that commits are signed-off
-
-When someone sends a PR without a sign-off, I'll apply a label `no-dco` and also send them a comment
-pointing them to the contributor guide. Most of the time when I've been helping the OpenFaaS project
-- people read my message and fix things up without you having to get involved.
-
-* Allow users in a specified `OWNERS` file to manage issues and pull-requests
-
-You don't have to give people full write access anymore to help you manage issues and pull-requests.
-I'll do that for you, just put them in a .dreck.yml file in the root and when they comment on an
-issue then I'll use my granular permissions instead.
-
 > Note that the assign/unassign commands provides the shortcut `me` to assign to the commenter
 
 ## Supported Commands
@@ -81,7 +67,9 @@ issue then I'll use my granular permissions instead.
 
 ### Pull Requests
 
-* auto assign??
+For pull requests all modified, addded and removed files are checked. We crawl the path upwards
+until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
+PR.
 
 ### Examples:
 
@@ -134,3 +122,7 @@ This is useful for when conversations are going off topic or an old thread recei
 /lock
 /unlock
 ```
+
+# Bugs
+
+Documentation can be much better. Code can also be refactored quite a bit.
