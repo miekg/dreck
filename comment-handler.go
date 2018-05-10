@@ -47,7 +47,11 @@ func (d Dreck) comment(req types.IssueCommentOuter) error {
 		//		return d.merge(req)
 	}
 
-	log.Warningf("Unable to work with comment: %s" + req.Comment.Body)
+	if len(req.Comment.Body) > 25 {
+		log.Warningf("Unable to work with comment: %s" + req.Comment.Body[:25])
+	} else {
+		log.Warningf("Unable to work with comment: %s" + req.Comment.Body)
+	}
 	return nil
 }
 
