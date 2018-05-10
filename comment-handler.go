@@ -210,12 +210,14 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
 
-	/*
-		client, ctx, err := d.newClient(req.Installation.ID)
-		if err != nil {
-			return err
-		}
-	*/
+	client, ctx, err := d.newClient(req.Installation.ID)
+	if err != nil {
+		return err
+	}
+
+	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+
+	log.Infof("lgtm pull %v", pull)
 
 	return nil
 }
