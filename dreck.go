@@ -9,6 +9,7 @@ const (
 	//PrivateKeyPath = "/home/miek/dreck.2018-05-05.private-key.pem"
 )
 
+// Dreck is a plugin that handles Github Issues and Pull Requests for you.
 type Dreck struct {
 	Next httpserver.Handler
 
@@ -21,6 +22,7 @@ type Dreck struct {
 	hmac   bool   // validate HMAC on the webhook
 }
 
+// New returns a new, initialzed Dreck.
 func New() Dreck {
 	d := Dreck{}
 	d.owners = "OWNERS"

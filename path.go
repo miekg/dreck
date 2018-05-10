@@ -13,5 +13,4 @@ func ownersPaths(p, owner string) []string {
 		}
 		s = append(s, path.Join(p1, owner))
 	}
-	return nil
 }

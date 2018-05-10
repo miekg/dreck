@@ -154,7 +154,7 @@ File:
 	log.Infof("Looking for reviewers in %v, excluding %s", victims, *pull.User.Login)
 	// This randomizes for us, pick first non PR author.
 	victim := ""
-	for v, _ := range victims {
+	for v := range victims {
 		if v != *pull.User.Login {
 			victim = v
 			break

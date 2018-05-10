@@ -235,7 +235,8 @@ func validAction(running bool, requestedAction string, start string, stop string
 func checkTransition(requestedAction string, currentState string) (string, bool) {
 	if requestedAction == closeConst && currentState != closedConst {
 		return closedConst, true
-	} else if requestedAction == reopenConst && currentState != openConst {
+	}
+	if requestedAction == reopenConst && currentState != openConst {
 		return openConst, true
 	}
 
