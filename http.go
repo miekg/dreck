@@ -65,6 +65,9 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
+		if req.Action != closedConst {
+			return nil
+		}
 
 		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
@@ -73,25 +76,23 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 
 		log.Infof("Action %s", req.Action)
 
-		if req.Action != closedConst {
-			// DCO
-			if enabledFeature(featureDCO, conf) {
-				if err := d.pullRequestDCO(req); err != nil {
-					return err
-				}
+		// DCO
+		if enabledFeature(featureDCO, conf) {
+			if err := d.pullRequestDCO(req); err != nil {
+				return err
 			}
+		}
 
-			// Reviewers, only on PR opens
-			if req.Action == openPRConst {
-				if enabledFeature(featureReviewers, conf) {
-					if err := d.pullRequestReviewers(req); err != nil {
-						return err
-					}
+		// Reviewers, only on PR opens
+		if req.Action == openPRConst {
+			if enabledFeature(featureReviewers, conf) {
+				if err := d.pullRequestReviewers(req); err != nil {
+					return err
 				}
 			}
 		}
 
-	case "issue_comment":
+	case "issue_comment", "pull_request_review":
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
 			if e, ok := err.(*json.SyntaxError); ok {
@@ -100,14 +101,14 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
 		}
 
-		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
-		if err != nil {
-			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
-		}
-
 		// Do nothing when the comment in deleted
 		if req.Action == "deleted" {
 			return nil
+		}
+
+		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
+		if err != nil {
+			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
 
 		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {

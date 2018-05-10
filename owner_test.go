@@ -8,9 +8,8 @@ import (
 )
 
 func TestOwnersSingle(t *testing.T) {
-	t1 := "/home/example/test.txt"
 	files := []*github.CommitFile{
-		&github.CommitFile{Filename: &t1},
+		&github.CommitFile{Filename: String("/home/example/test.txt")},
 	}
 	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
 		return []byte(`reviewers:
@@ -30,11 +29,9 @@ func TestOwnersSingle(t *testing.T) {
 }
 
 func TestOwnersMultiple(t *testing.T) {
-	t1 := "/home/example/a/test.txt"
-	t2 := "/home/example/b/test.txt"
 	files := []*github.CommitFile{
-		&github.CommitFile{Filename: &t1},
-		&github.CommitFile{Filename: &t2},
+		&github.CommitFile{Filename: String("/home/example/a/test.txt")},
+		&github.CommitFile{Filename: String("/home/example/b/test.txt")},
 	}
 	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
 		switch path {
@@ -65,9 +62,8 @@ func TestOwnersMultiple(t *testing.T) {
 }
 
 func TestOwnersMostSpecific(t *testing.T) {
-	t1 := "/home/plugin/reload/test.txt"
 	files := []*github.CommitFile{
-		&github.CommitFile{Filename: &t1},
+		&github.CommitFile{Filename: String("/home/plugin/reload/test.txt")},
 	}
 	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
 		switch path {

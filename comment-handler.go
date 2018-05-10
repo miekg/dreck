@@ -215,11 +215,20 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	_, _, err = client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	// will be 404 not found if this isn't a PR.
+	if err != nil {
+		return err
+	}
 
-	log.Infof("lgtm pull %v", pull)
+	input := &github.PullRequestReviewRequest{
+		Body:  String("LGTM by *" + req.Comment.User.Login + "*"),
+		Event: String("APPROVE"),
+	}
 
-	return nil
+	_, _, err = client.PullRequests.CreateReview(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
+
+	return err
 }
 
 func parse(body string) *types.CommentAction {
