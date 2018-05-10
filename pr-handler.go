@@ -11,8 +11,8 @@ import (
 	"github.com/google/go-github/github"
 )
 
-// handlePullRequestDCO handles the DCO check. I.e. a PR must have commits for Signed-off-by.
-func (d Dreck) handlePullRequestDCO(req types.PullRequestOuter) error {
+// pullRequestDCO handles the DCO check. I.e. a PR must have commits for Signed-off-by.
+func (d Dreck) pullRequestDCO(req types.PullRequestOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -107,9 +107,9 @@ func isSigned(msg string) bool {
 	return strings.Contains(msg, "Signed-off-by:")
 }
 
-// handlePullRequestReview will look at the (first 5) files of a PR, retrieve the nearest OWNERS files
+// pullRequestReview will look at the (first 5) files of a PR, retrieve the nearest OWNERS files
 // merge all the reviewers and randomly pick a reviewer that should be assigned for this PR.
-func (d Dreck) handlePullRequestReviewers(req types.PullRequestOuter) error {
+func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err

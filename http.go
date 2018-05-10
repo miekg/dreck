@@ -76,7 +76,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		if req.Action != closedConst {
 			// DCO
 			if enabledFeature(featureDCO, conf) {
-				if err := d.handlePullRequestDCO(req); err != nil {
+				if err := d.pullRequestDCO(req); err != nil {
 					return err
 				}
 			}
@@ -84,7 +84,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			// Reviewers, only on PR opens
 			if req.Action == openPRConst {
 				if enabledFeature(featureReviewers, conf) {
-					if err := d.handlePullRequestReviewers(req); err != nil {
+					if err := d.pullRequestReviewers(req); err != nil {
 						return err
 					}
 				}
@@ -111,7 +111,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 
 		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {
-			err := d.handleComment(req)
+			err := d.comment(req)
 			if err != nil {
 				return err
 			}

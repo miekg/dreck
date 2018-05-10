@@ -10,51 +10,45 @@ import (
 )
 
 const (
-	openConst        string = "open"
-	openPRConst      string = "opened"
-	closedConst      string = "closed"
-	closeConst       string = "close"
-	reopenConst      string = "reopen"
-	lockConst        string = "Lock"
-	unlockConst      string = "Unlock"
-	setTitleConst    string = "SetTitle"
-	assignConst      string = "Assign"
-	unassignConst    string = "Unassign"
-	removeLabelConst string = "RemoveLabel"
-	addLabelConst    string = "AddLabel"
+	openConst        = "open"
+	openPRConst      = "opened"
+	closedConst      = "closed"
+	closeConst       = "close"
+	reopenConst      = "reopen"
+	lockConst        = "Lock"
+	unlockConst      = "Unlock"
+	setTitleConst    = "SetTitle"
+	assignConst      = "Assign"
+	unassignConst    = "Unassign"
+	removeLabelConst = "RemoveLabel"
+	addLabelConst    = "AddLabel"
+	lgtmConst        = "lgtm"
+	mergeConst       = "merge"
 )
 
-func (d Dreck) handleComment(req types.IssueCommentOuter) (err error) {
+func (d Dreck) comment(req types.IssueCommentOuter) error {
 	command := parse(req.Comment.Body)
 
 	switch command.Type {
 
 	case addLabelConst, removeLabelConst:
-
-		err = d.manageLabel(req, command.Type, command.Value)
-
+		return d.label(req, command.Type, command.Value)
 	case assignConst, unassignConst:
-
-		err = d.manageAssignment(req, command.Type, command.Value)
-
+		return d.assign(req, command.Type, command.Value)
 	case closeConst, reopenConst:
-
-		err = d.manageState(req, command.Type)
-
+		return d.state(req, command.Type)
 	case setTitleConst:
-
-		err = d.manageTitle(req, command.Type, command.Value)
-
+		return d.title(req, command.Type, command.Value)
 	case lockConst, unlockConst:
-
-		err = d.manageLocking(req, command.Type)
-
-	default:
-		log.Warningf("Unable to work with comment: %s" + req.Comment.Body)
-		return nil
+		return d.lock(req, command.Type)
+	case lgtmConst:
+		return d.lgtm(req, command.Type)
+	case mergeConst:
+		//		return d.merge(req)
 	}
 
-	return err
+	log.Warningf("Unable to work with comment: %s" + req.Comment.Body)
+	return nil
 }
 
 func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {
@@ -67,7 +61,7 @@ func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {
 	return false
 }
 
-func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelValue string) error {
+func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue string) error {
 
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
 
@@ -100,7 +94,7 @@ func (d Dreck) manageLabel(req types.IssueCommentOuter, cmdType string, labelVal
 	return nil
 }
 
-func (d Dreck) manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
+func (d Dreck) title(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
 
 	log.Infof("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number)
 
@@ -126,7 +120,7 @@ func (d Dreck) manageTitle(req types.IssueCommentOuter, cmdType string, cmdValue
 	return nil
 }
 
-func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
+func (d Dreck) assign(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
 
 	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number)
 
@@ -154,7 +148,7 @@ func (d Dreck) manageAssignment(req types.IssueCommentOuter, cmdType string, cmd
 	return nil
 }
 
-func (d Dreck) manageState(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 
 	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
 
@@ -181,7 +175,7 @@ func (d Dreck) manageState(req types.IssueCommentOuter, cmdType string) error {
 
 }
 
-func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 
 	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
 
@@ -206,6 +200,17 @@ func (d Dreck) manageLocking(req types.IssueCommentOuter, cmdType string) error 
 	}
 
 	log.Infof("Request to %s issue #%d by %s was successful.\n", strings.ToLower(cmdType), req.Issue.Number, req.Comment.User.Login)
+	return nil
+}
+
+func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
+	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
+
+	client, ctx, err := d.newClient(req.Installation.ID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -258,4 +263,7 @@ var IssueCommands = map[string]string{
 	Trigger + "title edit: ":   setTitleConst,
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
+	// Only work on Pull Requests.
+	Trigger + "lgtm":  lgtmConst,
+	Trigger + "merge": mergeConst,
 }
