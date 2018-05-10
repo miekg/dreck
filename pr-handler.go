@@ -128,28 +128,9 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
-	victims := make(map[string]bool) // possible reviewers
-
-File:
-	for _, f := range files {
-		paths := ownersPaths(*f.Filename, d.owners)
-		// Find nearest OWNERS files.
-		for _, p := range paths {
-			buf, err := githubFile(req.Repository.Owner.Login, req.Repository.Name, p)
-			if err != nil {
-				continue
-			}
-
-			var config types.DreckConfig
-			if err := parseConfig(buf, &config); err != nil {
-				continue
-			}
-			for _, r := range config.Reviewers {
-				victims[r] = true
-			}
-			continue File
-		}
-	}
+	victims := findReviewers(files, d.owners, func(path string) ([]byte, error) {
+		return githubFile(req.Repository.Owner.Login, req.Repository.Name, path)
+	})
 
 	log.Infof("Looking for reviewers in %v, excluding %s", victims, *pull.User.Login)
 	// This randomizes for us, pick first non PR author.
