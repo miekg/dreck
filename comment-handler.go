@@ -222,7 +222,7 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 	}
 
 	input := &github.PullRequestReviewRequest{
-		Body:  String("LGTM by *" + req.Comment.User.Login + "*"),
+		Body:  String("LGTM by **" + req.Comment.User.Login + "**"),
 		Event: String("APPROVE"),
 	}
 
