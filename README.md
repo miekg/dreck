@@ -37,36 +37,47 @@ dreck {
 ## OWNERS File Syntax
 
 The OWNERS file syntax is borrowed from Kubernetes and extended with a `features` section that
-allows you to configure dreck.
+allows you to configure dreck. This file should live in the top level directory of the repository.
 
-```
+``` yaml
 approvers:
-- name1
-- name2
+    - name1
+    - name2
 
 reviewers:
-- name3
-- name4
+    - name3
+    - name4
 
 features:
-- feature1
-- feature2
+    - feature1
+    - feature2
 ```
+
+An example:
+
+~~~ yaml
+approvers:
+    - miek
+reviewers:
+    - miek
+features:
+    - comments
+~~~
 
 ### Features
 
-The following feature are available.
+The following features are available.
 
 * `comments` - allow commands (see below) in comments.
 * `reviewers` - assign reviewers for the PR based on changed files and reviewers in the relevant
   OWNERS files.
 * `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done.
-  Needs a "no-dco" label in the repository for to work.
+  Needs a "no-dco" label in the repository for it to work.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
 
-> Note that the assign/unassign commands provides the shortcut `me` to assign to the commenter.
+Multiple command in one message/issue are not supported.
 
 ## Supported Commands
 
@@ -77,14 +88,14 @@ The following commands are supported.
 * `/label add: LABEL`, label an issue with LABEL.
 * `/label: LABEL`,  short for "label add".
 * `/label remove: LABEL`, remove LABEL.
-* `/label rm: LABAL`, short for "label remove",
-* `/assign: ASSIGNEE`, assign issue to ASSIGNEE.
+* `/label rm: LABEL`, short for "label remove",
+* `/assign: ASSIGNEE`, assign issue to ASSIGNEE, `me` can be used as a shortcut for the commenter
 * `/unassign: ASSIGNEE`, unassign ASSIGNEE.
 * `/close`, close issue.
 * `/reopen`, reopen issue.
 * `/title set: TITLE`, set the title to TITLE.
 * `/title: TITLE`: short for "title set".
-* `/title edit: TITLE`, set the title to TITLE
+* `/title edit: TITLE`, set the title to TITLE.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
 
