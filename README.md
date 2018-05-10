@@ -105,11 +105,9 @@ For pull requests all modified, addded and removed files are checked. We crawl t
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
 PR.
 
-Further more the following commands are support for PR issues comment (they will be ignored in
-issues).
+Further more the following command is support for PR issues comments (ignored for issues).
 
 * `/lgtm`, approve the PR.
-* `/merge`, merge the PR into master (using squash and commit).
 
 # Bugs
 

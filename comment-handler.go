@@ -280,7 +280,5 @@ var IssueCommands = map[string]string{
 	Trigger + "title edit: ":   setTitleConst,
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
-	// Only work on Pull Requests.
-	Trigger + "lgtm":  lgtmConst,
-	Trigger + "merge": mergeConst,
+	Trigger + "lgtm":           lgtmConst, // Only works on Pull Requests comments.
 }
