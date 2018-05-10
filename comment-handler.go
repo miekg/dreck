@@ -206,10 +206,12 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
+	/*
+		client, ctx, err := d.newClient(req.Installation.ID)
+		if err != nil {
+			return err
+		}
+	*/
 
 	return nil
 }
