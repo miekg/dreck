@@ -6,30 +6,6 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-func Test_maintainersparsed(t *testing.T) {
-	config := types.DreckConfig{}
-	parseConfig([]byte(`approvers:
-- alexellis
-- rgee0
-`), &config)
-	actual := len(config.Approvers)
-	if actual != 2 {
-		t.Errorf("want: %d approvers, got: %d", 2, actual)
-	}
-}
-
-func Test_curatorequalsmaintainer(t *testing.T) {
-	config := types.DreckConfig{}
-	parseConfig([]byte(`reviewers:
-- alexellis
-- rgee0
-`), &config)
-	actual := len(config.Reviewers)
-	if actual != 2 {
-		t.Errorf("want: %d reviewers, got: %d", 2, actual)
-	}
-}
-
 func TestEnabledFeature(t *testing.T) {
 
 	var enableFeatureOpts = []struct {

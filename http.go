@@ -63,7 +63,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			if e, ok := err.(*json.SyntaxError); ok {
 				log.Errorf("Syntax error at byte offset %d", e.Offset)
 			}
-			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
+			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
 		if req.Action != closedConst {
 			return nil
@@ -98,7 +98,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			if e, ok := err.(*json.SyntaxError); ok {
 				log.Errorf("Syntax error at byte offset %d", e.Offset)
 			}
-			return fmt.Errorf("Parse error %s: %s", string(body), err.Error())
+			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
 
 		// Do nothing when the comment in deleted
