@@ -23,11 +23,10 @@ const (
 	removeLabelConst = "RemoveLabel"
 	addLabelConst    = "AddLabel"
 	lgtmConst        = "lgtm"
-	mergeConst       = "merge"
 )
 
-func (d Dreck) comment(req types.IssueCommentOuter) error {
-	command := parse(req.Comment.Body)
+func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
+	command := parse(req.Comment.Body, conf)
 
 	switch command.Type {
 
@@ -43,8 +42,6 @@ func (d Dreck) comment(req types.IssueCommentOuter) error {
 		return d.lock(req, command.Type)
 	case lgtmConst:
 		return d.lgtm(req, command.Type)
-	case mergeConst:
-		//		return d.merge(req)
 	}
 
 	if len(req.Comment.Body) > 25 {
@@ -231,13 +228,9 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 	return err
 }
 
-func parse(body string) *types.CommentAction {
+func parse(body string, conf *types.DreckConfig) *types.CommentAction {
 	for trigger, commandType := range IssueCommands {
-
-		if isValidCommand(body, trigger) {
-			val := body[len(trigger):]
-			val = strings.Trim(val, " \t.,\n\r")
-
+		if ok, val := isValidCommand(body, trigger, conf); ok {
 			return &types.CommentAction{Type: commandType, Value: val}
 		}
 	}
@@ -245,9 +238,24 @@ func parse(body string) *types.CommentAction {
 	return &types.CommentAction{}
 }
 
-func isValidCommand(body string, trigger string) bool {
-	return (len(body) > len(trigger) && body[0:len(trigger)] == trigger) ||
+func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool, string) {
+	for _, a := range conf.Aliases {
+		r, err := NewAlias(a)
+		if err != nil {
+			log.Warningf("Failed to parse alias: %s, %v", a, err)
+			continue
+		}
+		body = r.Expand(body) // either noop or replaces something
+	}
+
+	val := ""
+	ok := (len(body) > len(trigger) && body[0:len(trigger)] == trigger) ||
 		(body == trigger && !strings.HasSuffix(trigger, ": "))
+	if ok {
+		val = body[len(trigger):]
+		val = strings.Trim(val, " \t.,\n\r")
+	}
+	return ok, val
 }
 
 func validAction(running bool, requestedAction string, start string, stop string) bool {

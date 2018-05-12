@@ -83,7 +83,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 		}
 
-		// Reviewers, only on PR opens
+		// Reviewers, only on PR opens.
 		if req.Action == openPRConst {
 			if enabledFeature(featureReviewers, conf) {
 				if err := d.pullRequestReviewers(req); err != nil {
@@ -112,7 +112,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 
 		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {
-			err := d.comment(req)
+			err := d.comment(req, conf)
 			if err != nil {
 				return err
 			}

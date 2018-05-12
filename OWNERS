@@ -7,3 +7,6 @@ approvers:
 features:
   - comments
   - reviewers
+
+aliases:
+  - plugin: {1} -> label add: plugin/{1}

@@ -5,11 +5,11 @@
 Dreck can help you with Pull Requests and Issues on your GitHub project
 
 Dreck is a fork of [Derek](https:/github.com/alexellis/derek). It adds Caddy integration, so you can
-just run it as a plugin in Caddy and a bunch of other features.
+"just" run it as a plugin in Caddy and a bunch of other features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
-this up is beyond scope of this documentation. And need to recompile Caddy and have a function Go
-setup; again: beyond the scope of this document.
+this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
+setup; again: all beyond the scope of this document.
 
 ## Config in caddy
 
@@ -62,6 +62,8 @@ reviewers:
     - miek
 features:
     - comments
+aliases:
+    - a1 -> b1
 ~~~
 
 ### Features
@@ -109,6 +111,20 @@ Further more the following command is support for PR issues comments (ignored fo
 
 * `/lgtm`, approve the PR.
 
-# Bugs
+## Aliases
+
+The `aliases` sections of the OWNERS file allows you to specify alias for other commands. It's
+a regular expression based format and looks like this: `alias -> command`. Note the this is:
+`<space>-><space>`, e.g.:
+
+~~~
+/plugin: (.*) -> /label add: plugin/$1
+~~~
+
+This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`.
+The regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
+match group.
+
+## Bugs
 
 We don't support multiple commands in an issue.
