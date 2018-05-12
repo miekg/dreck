@@ -145,7 +145,6 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	if victim != "" {
 		rev := github.ReviewersRequest{Reviewers: []string{victim}}
 		if _, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, rev); err != nil {
-			// set comment?
 			return err
 		}
 	}
