@@ -9,4 +9,4 @@ features:
   - reviewers
 
 aliases:
-  - plugin: (.*) -> label add: plugin/$1
+  - "plugin: (.*) -> label add: plugin/$1"

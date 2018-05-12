@@ -125,6 +125,13 @@ This defines a new command `/plugin: forward` that translates into `/label add: 
 The regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
 match group.
 
+Note this entire string needs to be quoted in the OWNERS file to be valid yaml:
+
+~~~ yaml
+aliases:
+    "/plugin: (.*) -> /label add: plugin/$1"
+~~~ 
+
 ## Bugs
 
 We don't support multiple commands in an issue.
