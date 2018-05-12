@@ -138,7 +138,7 @@ Note this entire string needs to be taken literal in the OWNERS file to be valid
 ~~~ yaml
 aliases:
     - |
-    /plugin: (.*) -> /label add: plugin/$1
+      /plugin: (.*) -> /label add: plugin/$1
 ~~~ 
 
 ## Bugs
