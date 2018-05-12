@@ -44,3 +44,18 @@ func TestAliasConfigParse(t *testing.T) {
 		t.Errorf("want: %d aliases, got: %d", 1, actual)
 	}
 }
+
+func TestConfigParse(t *testing.T) {
+	config := types.DreckConfig{}
+	err := parseConfig([]byte(`reviewers:
+- aa
+- ac
+
+aliases:
+- |
+  /plugin: (.*) - /label add: plugin/$1
+`), &config)
+	if err != nil {
+		t.Errorf("failed to parse config: %s", err)
+	}
+}
