@@ -43,7 +43,7 @@ func TestParsingOpenClose(t *testing.T) {
 	for _, test := range actionOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body)
+			action := parse(test.body, &types.DreckConfig{})
 
 			if action.Type != test.expectedAction {
 				t.Errorf("Action - want: %s, got %s", test.expectedAction, action.Type)
@@ -84,7 +84,7 @@ func TestParsingLabels(t *testing.T) {
 	for _, test := range labelOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body)
+			action := parse(test.body, &types.DreckConfig{})
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("Action - wanted: %s, got %s\nLabel - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
@@ -141,7 +141,7 @@ func TestParsingAssignments(t *testing.T) {
 	for _, test := range assignmentOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body)
+			action := parse(test.body, &types.DreckConfig{})
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("Action - wanted: %s, got %s\nMaintainer - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
@@ -186,7 +186,7 @@ func TestParsingTitles(t *testing.T) {
 	for _, test := range titleOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body)
+			action := parse(test.body, &types.DreckConfig{})
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("\nAction - wanted: %s, got %s\nValue - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}

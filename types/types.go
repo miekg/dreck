@@ -62,7 +62,9 @@ type CommentAction struct {
 	Value string
 }
 
+// DreckConfig holds the configuration from the top-level owners file.
 type DreckConfig struct {
+	Aliases   []string
 	Features  []string
 	Reviewers []string
 	Approvers []string
