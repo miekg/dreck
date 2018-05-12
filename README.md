@@ -36,8 +36,9 @@ dreck {
 
 ## OWNERS File Syntax
 
-The OWNERS file syntax is borrowed from Kubernetes and extended with a `features` section that
-allows you to configure dreck. This file should live in the top level directory of the repository.
+The OWNERS file syntax is borrowed from Kubernetes and extended with a `features` and `aliases`
+section that allows you to configure dreck. This file should live in the top level directory of the
+repository.
 
 ``` yaml
 approvers:
@@ -70,7 +71,7 @@ features:
     - comments
 aliases:
     - |
-      a -> b
+      /plugin: (.*) -> /label add: plugin/$1
 ~~~
 
 ### Features
