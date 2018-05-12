@@ -4,7 +4,7 @@
 
 Dreck can help you with Pull Requests and Issues on your GitHub project
 
-Dreck is a fork of [Derek](https:/github.com/alexellis/derek). It adds Caddy integration, so you can
+Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
 "just" run it as a plugin in Caddy and a bunch of other features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
