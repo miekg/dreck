@@ -51,6 +51,12 @@ reviewers:
 features:
     - feature1
     - feature2
+
+aliases:
+    - |
+      alias1
+    - |
+      alias2
 ```
 
 An example:
@@ -64,7 +70,7 @@ features:
     - comments
 aliases:
     - |
-    a -> b
+      a -> b
 ~~~
 
 ### Features
