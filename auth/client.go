@@ -18,7 +18,7 @@ type JwtAuth struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-// MakeAccessTokenForInstallation makes an access token for an installation / private key
+// MakeAccessTokenForInstallation makes an access token for an installation / private key.
 func MakeAccessTokenForInstallation(appID, privateKey string, installation int) (string, error) {
 	signed, err := GetSignedJwtToken(appID, privateKey)
 
@@ -50,7 +50,7 @@ func MakeAccessTokenForInstallation(appID, privateKey string, installation int) 
 	return "", err
 }
 
-// MakeClient make a HTTP client with a signed access token
+// MakeClient make a HTTP client with a signed access token.
 func MakeClient(ctx context.Context, accessToken string) *github.Client {
 	if len(accessToken) == 0 {
 		return github.NewClient(nil)
