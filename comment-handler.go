@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/miekg/dreck/log"
@@ -70,9 +71,12 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 
 	found := findLabel(req.Issue.Labels, labelValue)
 
+	if !found {
+		return fmt.Errorf("label %s does not exist", labelValue)
+	}
+
 	if !validAction(found, cmdType, addLabelConst, removeLabelConst) {
-		log.Errorf("Request to %s label of '%s' on issue #%d was unnecessary.", labelAction, labelValue, req.Issue.Number)
-		return nil
+		return fmt.Errorf("request to %s label of '%s' on issue #%d was unnecessary", labelAction, labelValue, req.Issue.Number)
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
@@ -102,8 +106,7 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType string, cmdValue strin
 	newTitle := cmdValue
 
 	if newTitle == req.Issue.Title || len(newTitle) == 0 {
-		log.Errorf("Setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged.\n", req.Issue.Number, req.Comment.User.Login)
-		return nil
+		return fmt.Errorf("setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged", req.Issue.Number, req.Comment.User.Login)
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
@@ -156,8 +159,7 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
 
 	if !validTransition {
-		log.Errorf("Request to %s issue #%d by %s was invalid.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
-		return nil
+		return fmt.Errorf("request to %s issue #%d by %s was invalidn", cmdType, req.Issue.Number, req.Comment.User.Login)
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
@@ -181,8 +183,7 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
 
 	if !validAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
-		log.Errorf("Issue #%d is already %sed\n", req.Issue.Number, strings.ToLower(cmdType))
-		return nil
+		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, strings.ToLower(cmdType))
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
