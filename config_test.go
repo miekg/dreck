@@ -52,7 +52,7 @@ func TestConfigParse(t *testing.T) {
 - ac
 
 aliases:
-- |
+- >
   /plugin: (.*) - /label add: plugin/$1
 `), &config)
 	if err != nil {
