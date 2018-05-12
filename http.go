@@ -76,7 +76,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 
 		log.Infof("Action %s", req.Action)
 
-		// DCO
+		// DCO.
 		if enabledFeature(featureDCO, conf) {
 			if err := d.pullRequestDCO(req); err != nil {
 				return err
@@ -101,7 +101,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
 
-		// Do nothing when the comment in deleted
+		// Do nothing when the comment is deleted.
 		if req.Action == "deleted" {
 			return nil
 		}
