@@ -9,8 +9,8 @@ import (
 
 func labelDuplicate(current []types.IssueLabel, label string) bool {
 
-	for _, label := range current {
-		if strings.EqualFold(label.Name, label) {
+	for _, l := range current {
+		if strings.EqualFold(l.Name, label) {
 			return true
 		}
 	}
