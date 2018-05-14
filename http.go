@@ -65,6 +65,9 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
+
+		log.Infof("Action %s", req.Action)
+
 		if req.Action == closedConst {
 			return nil
 		}
@@ -73,8 +76,6 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
-
-		log.Infof("Action %s", req.Action)
 
 		// DCO.
 		if enabledFeature(featureDCO, conf) {
@@ -100,6 +101,8 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
+
+		log.Infof("Action %s", req.Action)
 
 		// Do nothing when the comment is deleted.
 		if req.Action == "deleted" {
