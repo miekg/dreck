@@ -38,6 +38,7 @@ func TestAliasParse(t *testing.T) {
 func TestParsingAlias(t *testing.T) {
 
 	conf := &types.DreckConfig{
+		Features: []string{featureAliases},
 		Aliases: []string{
 			fmt.Sprintf("%splugin: (.*) -> %slabel add: plugin/$1", Trigger, Trigger),
 			fmt.Sprintf("%splugin2: (.*) -> %slabel add: plugin/$2", Trigger, Trigger),
