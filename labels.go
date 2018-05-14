@@ -7,10 +7,10 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-func labelDuplicate(currentLabels []types.IssueLabel, cmdLabel string) bool {
+func labelDuplicate(current []types.IssueLabel, label string) bool {
 
-	for _, label := range currentLabels {
-		if strings.EqualFold(label.Name, cmdLabel) {
+	for _, label := range current {
+		if strings.EqualFold(label.Name, label) {
 			return true
 		}
 	}
