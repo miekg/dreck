@@ -36,6 +36,8 @@ const (
 	featureDCO = "dco"
 	// featureComments allows commands to be given in comments.
 	featureComments = "comments"
-	// featureReviewers enables automatically assigning reviewers based on OWNDERS
+	// featureReviewers enables automatically assigning reviewers based on OWNERS.
 	featureReviewers = "reviewers"
+	// featureAliases enables alias expansion.
+	featureAliases = "aliases"
 )

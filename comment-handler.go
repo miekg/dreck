@@ -232,13 +232,15 @@ func parse(body string, conf *types.DreckConfig) *types.CommentAction {
 }
 
 func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool, string) {
-	for _, a := range conf.Aliases {
-		r, err := NewAlias(a)
-		if err != nil {
-			log.Warningf("Failed to parse alias: %s, %v", a, err)
-			continue
+	if ok := enabledFeature(featureAliases, conf); ok {
+		for _, a := range conf.Aliases {
+			r, err := NewAlias(a)
+			if err != nil {
+				log.Warningf("Failed to parse alias: %s, %v", a, err)
+				continue
+			}
+			body = r.Expand(body) // either noop or replaces something
 		}
-		body = r.Expand(body) // either noop or replaces something
 	}
 
 	val := ""

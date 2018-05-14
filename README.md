@@ -83,6 +83,7 @@ The following features are available.
   OWNERS files.
 * `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done.
   Needs a "no-dco" label in the repository for it to work.
+* `aliases` - enable alias expansion.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
