@@ -53,28 +53,13 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	return nil
 }
 
-func findLabel(currentLabels []types.IssueLabel, cmdLabel string) bool {
-
-	for _, label := range currentLabels {
-		if strings.EqualFold(label.Name, cmdLabel) {
-			return true
-		}
-	}
-	return false
-}
-
 func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue string) error {
 
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
 
 	log.Infof("%s wants to %s label of '%s' on issue #%d \n", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
 
-	found := findLabel(req.Issue.Labels, labelValue)
-
-	if !found {
-		return fmt.Errorf("label %s does not exist", labelValue)
-	}
-
+	found := labelDuplicate(req.Issue.Labels, labelValue)
 	if !validAction(found, cmdType, addLabelConst, removeLabelConst) {
 		return fmt.Errorf("request to %s label of '%s' on issue #%d was unnecessary", labelAction, labelValue, req.Issue.Number)
 	}
@@ -82,6 +67,13 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
+	}
+
+	listOpts := &github.ListOptions{Page: 0}
+	labels, _, err := client.Issues.ListLabels(ctx, req.Repository.Owner.Login, req.Repository.Name, listOpts)
+	found = labelExists(labels, labelValue)
+	if !found {
+		return fmt.Errorf("label %s does not exist", labelValue)
 	}
 
 	if cmdType == addLabelConst {

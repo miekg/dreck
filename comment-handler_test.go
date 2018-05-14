@@ -301,7 +301,7 @@ func TestValidAction(t *testing.T) {
 	}
 }
 
-func TestFindLabel(t *testing.T) {
+func TestLabelDuplicate(t *testing.T) {
 
 	var stateOptions = []struct {
 		title         string
@@ -389,7 +389,7 @@ func TestFindLabel(t *testing.T) {
 	for _, test := range stateOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			labelFound := findLabel(test.currentLabels, test.cmdLabel)
+			labelFound := labelDuplicate(test.currentLabels, test.cmdLabel)
 
 			if labelFound != test.expectedFound {
 				t.Errorf("Find Labels(%s) - wanted: %t, got %t\n", test.title, test.expectedFound, labelFound)
