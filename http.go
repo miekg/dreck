@@ -65,7 +65,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
-		if req.Action != closedConst {
+		if req.Action == closedConst {
 			return nil
 		}
 
