@@ -53,27 +53,6 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	return nil
 }
 
-func labelDuplicate(currentLabels []types.IssueLabel, cmdLabel string) bool {
-
-	for _, label := range currentLabels {
-		println("label", label.Name, cmdLabel)
-		if strings.EqualFold(label.Name, cmdLabel) {
-			return true
-		}
-	}
-	return false
-}
-
-func labelExists(all []*github.Label, label string) bool {
-
-	for _, l := range all {
-		if strings.EqualFold(*l.Name, label) {
-			return true
-		}
-	}
-	return false
-}
-
 func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue string) error {
 
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
