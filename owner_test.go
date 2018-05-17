@@ -18,9 +18,9 @@ func TestOwnersSingle(t *testing.T) {
 `), nil
 	})
 
-	expect := map[string]bool{
-		"ab": true,
-		"ac": true,
+	expect := map[string]string{
+		"ab": "/home/example/OWNERS",
+		"ac": "/home/example/OWNERS",
 	}
 
 	if !reflect.DeepEqual(victims, expect) {
@@ -49,11 +49,11 @@ func TestOwnersMultiple(t *testing.T) {
 		return nil, nil
 	})
 
-	expect := map[string]bool{
-		"ab": true,
-		"ac": true,
-		"xb": true,
-		"xc": true,
+	expect := map[string]string{
+		"ab": "/home/example/a/OWNERS",
+		"ac": "/home/example/a/OWNERS",
+		"xb": "/home/example/b/OWNERS",
+		"xc": "/home/example/b/OWNERS",
 	}
 
 	if !reflect.DeepEqual(victims, expect) {
@@ -79,8 +79,8 @@ func TestOwnersMostSpecific(t *testing.T) {
 		return nil, nil
 	})
 
-	expect := map[string]bool{
-		"aa": true,
+	expect := map[string]string{
+		"aa": "/home/plugin/reload/OWNERS",
 	}
 
 	if !reflect.DeepEqual(victims, expect) {
