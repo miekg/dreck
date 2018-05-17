@@ -151,8 +151,8 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	body := "Thank you for your contribution. I've just checked the *%s* files to find a suitable reviewer."
 	if victim != "" {
-		body += " This search was successful and I've asked **%s** for a review."
-		body = fmt.Sprintf(body, d.owners, victim)
+		body += " This search was successful and I've asked **%s** (via %s) for a review."
+		body = fmt.Sprintf(body, d.owners, victim, victims[victim])
 	} else {
 		body += " Alas, this search was *not* successful."
 		body = fmt.Sprintf(body, d.owners)
