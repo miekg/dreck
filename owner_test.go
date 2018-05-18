@@ -38,7 +38,7 @@ func TestOwnersMultiple(t *testing.T) {
 		&github.CommitFile{Filename: String("/home/example/a/test.txt")},
 		&github.CommitFile{Filename: String("/home/example/test.txt")},
 	}
-	victim, _ := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
+	victim, owner := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/example/a/OWNERS":
 			return []byte(`reviewers:
@@ -58,8 +58,11 @@ func TestOwnersMultiple(t *testing.T) {
 	if expect := "ab"; victim != expect {
 		t.Errorf("expected %s, got %s", expect, victim)
 	}
+	if expect := "/home/example/a/OWNERS"; owner != expect {
+		t.Errorf("expected %s, got %s", expect, owner)
+	}
 
-	victim, _ = d.findReviewers(files, "ac", func(path string) ([]byte, error) {
+	victim, owner = d.findReviewers(files, "ac", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/example/a/OWNERS":
 			return []byte(`reviewers:
@@ -77,6 +80,9 @@ func TestOwnersMultiple(t *testing.T) {
 	if expect := "xb"; victim != expect {
 		t.Errorf("expected %s, got %s", expect, victim)
 	}
+	if expect := "/home/example/OWNERS"; owner != expect {
+		t.Errorf("expected %s, got %s", expect, owner)
+	}
 }
 
 func TestOwnersMostSpecific(t *testing.T) {
@@ -85,7 +91,7 @@ func TestOwnersMostSpecific(t *testing.T) {
 	files := []*github.CommitFile{
 		&github.CommitFile{Filename: String("/home/plugin/reload/test.txt")},
 	}
-	victim, _ := d.findReviewers(files, "aa", func(path string) ([]byte, error) {
+	victim, owner := d.findReviewers(files, "aa", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/plugin/reload/OWNERS":
 			return []byte(`reviewers:
@@ -101,5 +107,8 @@ func TestOwnersMostSpecific(t *testing.T) {
 
 	if expect := "bb"; victim != expect {
 		t.Errorf("expected %s, got %s", expect, victim)
+	}
+	if expect := "/home/plugin/OWNERS"; owner != expect {
+		t.Errorf("expected %s, got %s", expect, owner)
 	}
 }
