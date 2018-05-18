@@ -1,46 +1,51 @@
 package dreck
 
 import (
-	"reflect"
+	"io/ioutil"
+	golog "log"
 	"testing"
 
 	"github.com/google/go-github/github"
 )
 
+var _ = func() bool {
+	golog.SetOutput(ioutil.Discard)
+	return true
+}()
+
 func TestOwnersSingle(t *testing.T) {
+	d := New()
+
 	files := []*github.CommitFile{
 		&github.CommitFile{Filename: String("/home/example/test.txt")},
 	}
-	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
+	victim, _ := d.findReviewers(files, "ab", func(path string) ([]byte, error) {
 		return []byte(`reviewers:
 - ab
 - ac
 `), nil
 	})
 
-	expect := map[string]string{
-		"ab": "/home/example/OWNERS",
-		"ac": "/home/example/OWNERS",
-	}
-
-	if !reflect.DeepEqual(victims, expect) {
-		t.Errorf("expected %v, got %v", expect, victims)
+	if expect := "ac"; victim != expect {
+		t.Errorf("expected %s, got %s", expect, victim)
 	}
 }
 
 func TestOwnersMultiple(t *testing.T) {
+	d := New()
+
 	files := []*github.CommitFile{
 		&github.CommitFile{Filename: String("/home/example/a/test.txt")},
-		&github.CommitFile{Filename: String("/home/example/b/test.txt")},
+		&github.CommitFile{Filename: String("/home/example/test.txt")},
 	}
-	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
+	victim, _ := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/example/a/OWNERS":
 			return []byte(`reviewers:
 - ab
 - ac
 `), nil
-		case "/home/example/b/OWNERS":
+		case "/home/example/OWNERS":
 			return []byte(`reviewers:
 - xb
 - xc
@@ -49,23 +54,38 @@ func TestOwnersMultiple(t *testing.T) {
 		return nil, nil
 	})
 
-	expect := map[string]string{
-		"ab": "/home/example/a/OWNERS",
-		"ac": "/home/example/a/OWNERS",
-		"xb": "/home/example/b/OWNERS",
-		"xc": "/home/example/b/OWNERS",
+	// ac is the puller
+	if expect := "ab"; victim != expect {
+		t.Errorf("expected %s, got %s", expect, victim)
 	}
 
-	if !reflect.DeepEqual(victims, expect) {
-		t.Errorf("expected %v, got %v", expect, victims)
+	victim, _ = d.findReviewers(files, "ac", func(path string) ([]byte, error) {
+		switch path {
+		case "/home/example/a/OWNERS":
+			return []byte(`reviewers:
+- ac
+`), nil
+		case "/home/example/OWNERS":
+			return []byte(`reviewers:
+- xb
+`), nil
+		}
+		return nil, nil
+	})
+
+	// ac is the puller, but can't be selected, so xb should be it.
+	if expect := "xb"; victim != expect {
+		t.Errorf("expected %s, got %s", expect, victim)
 	}
 }
 
 func TestOwnersMostSpecific(t *testing.T) {
+	d := New()
+
 	files := []*github.CommitFile{
 		&github.CommitFile{Filename: String("/home/plugin/reload/test.txt")},
 	}
-	victims := findReviewers(files, "OWNERS", func(path string) ([]byte, error) {
+	victim, _ := d.findReviewers(files, "aa", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/plugin/reload/OWNERS":
 			return []byte(`reviewers:
@@ -79,11 +99,7 @@ func TestOwnersMostSpecific(t *testing.T) {
 		return nil, nil
 	})
 
-	expect := map[string]string{
-		"aa": "/home/plugin/reload/OWNERS",
-	}
-
-	if !reflect.DeepEqual(victims, expect) {
-		t.Errorf("expected %v, got %v", expect, victims)
+	if expect := "bb"; victim != expect {
+		t.Errorf("expected %s, got %s", expect, victim)
 	}
 }
