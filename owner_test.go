@@ -31,14 +31,14 @@ func TestOwnersSingle(t *testing.T) {
 	}
 }
 
-func TestOwnersMultiple(t *testing.T) {
+func TestOwnersMultipleEqual(t *testing.T) {
 	d := New()
 
 	files := []*github.CommitFile{
 		&github.CommitFile{Filename: String("/home/example/a/test.txt")},
 		&github.CommitFile{Filename: String("/home/example/test.txt")},
 	}
-	victim, owner := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
+	victim, _ := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/example/a/OWNERS":
 			return []byte(`reviewers:
@@ -54,15 +54,13 @@ func TestOwnersMultiple(t *testing.T) {
 		return nil, nil
 	})
 
+	println(victim)
 	// ac is the puller
-	if expect := "ab"; victim != expect {
-		t.Errorf("expected %s, got %s", expect, victim)
-	}
-	if expect := "/home/example/a/OWNERS"; owner != expect {
-		t.Errorf("expected %s, got %s", expect, owner)
+	if no := "ac"; victim == no {
+		t.Errorf("didn't expected %s, but got %s", no, victim)
 	}
 
-	victim, owner = d.findReviewers(files, "ac", func(path string) ([]byte, error) {
+	victim, owner := d.findReviewers(files, "ac", func(path string) ([]byte, error) {
 		switch path {
 		case "/home/example/a/OWNERS":
 			return []byte(`reviewers:
@@ -109,6 +107,41 @@ func TestOwnersMostSpecific(t *testing.T) {
 		t.Errorf("expected %s, got %s", expect, victim)
 	}
 	if expect := "/home/plugin/OWNERS"; owner != expect {
+		t.Errorf("expected %s, got %s", expect, owner)
+	}
+}
+
+func TestOwnersMultiple(t *testing.T) {
+	d := New()
+
+	files := []*github.CommitFile{
+		&github.CommitFile{Filename: String("/home/example/a/test1.txt")},
+		&github.CommitFile{Filename: String("/home/example/a/test2.txt")},
+		&github.CommitFile{Filename: String("/home/example/test1.txt")},
+		&github.CommitFile{Filename: String("/home/example/test2.txt")},
+		&github.CommitFile{Filename: String("/home/example/test3.txt")},
+	}
+	victim, owner := d.findReviewers(files, "xb", func(path string) ([]byte, error) {
+		switch path {
+		case "/home/example/a/OWNERS":
+			return []byte(`reviewers:
+- ab
+- ac
+`), nil
+		case "/home/example/OWNERS":
+			return []byte(`reviewers:
+- xb
+- xc
+`), nil
+		}
+		return nil, nil
+	})
+
+	// xb is the puller
+	if expect := "xc"; victim != expect {
+		t.Errorf("expected %s, got %s", expect, victim)
+	}
+	if expect := "/home/example/OWNERS"; owner != expect {
 		t.Errorf("expected %s, got %s", expect, owner)
 	}
 }

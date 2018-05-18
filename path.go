@@ -43,7 +43,14 @@ func mostSpecific(p []string) map[string]int {
 // indexed on the number of occurences and contains the paths that have that many occurences.
 // The first (zero-th) element is always empty.
 func sortOnOccurence(m map[string]int) [][]string {
-	ret := make([][]string, len(m))
+	// find the largest integer in the map, so we can size ret accordingly
+	max := 0
+	for _, v := range m {
+		if v > max {
+			max = v
+		}
+	}
+	ret := make([][]string, max+1)
 
 	for p, v := range m {
 		ret[v] = append(ret[v], p)

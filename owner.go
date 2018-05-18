@@ -20,8 +20,7 @@ func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(p
 
 	// order now contains the best owners file paths (OWNER files may not exist) to select
 	// the owners from, so we go from heighest to lowest to select an owner.
-
-	for i := range order {
+	for i := len(order) - 1; i >= 0; i-- {
 		files := order[i]
 		for j := range files {
 			log.Infof("Looking for OWNERS in %s", files[j])
