@@ -7,18 +7,24 @@ import (
 	"github.com/google/go-github/github"
 )
 
-// findReviewers will retrieve the files in files with the function f and returns possible reviewers in the map.
-func findReviewers(files []*github.CommitFile, owners string, f func(path string) ([]byte, error)) map[string]string {
-
-	victims := make(map[string]string)
-
-File:
+func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(path string) ([]byte, error)) (string, string) {
+	allFiles := []string{}
 	for _, fi := range files {
-		paths := ownersPaths(*fi.Filename, owners)
-		// Find nearest OWNERS files.
-		for _, p := range paths {
-			log.Infof("Looking for OWNERS in %s", p)
-			buf, err := f(p)
+		paths := ownersPaths(*fi.Filename, d.owners)
+		allFiles = append(allFiles, paths...)
+	}
+	specific := mostSpecific(allFiles)
+	order := sortOnOccurence(specific)
+
+	log.Infof("Looking for reviewers excluding %s", puller)
+
+	// order now contains the best owners file paths (OWNER files may not exist) to select
+	// the owners from, so we go from heighest to lowest to select an owner.
+	for i := len(order) - 1; i >= 0; i-- {
+		files := order[i]
+		for j := range files {
+			log.Infof("Looking for OWNERS in %s", files[j])
+			buf, err := f(files[j])
 			if err != nil {
 				continue
 			}
@@ -27,11 +33,13 @@ File:
 			if err := parseConfig(buf, &config); err != nil {
 				continue
 			}
+			// Valid OWNERS file, we will return the first non-PR person we find.
 			for _, r := range config.Reviewers {
-				victims[r] = p
+				if r != puller {
+					return r, files[j]
+				}
 			}
-			continue File
 		}
 	}
-	return victims
+	return "", ""
 }

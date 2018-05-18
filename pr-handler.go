@@ -128,19 +128,9 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	log.Warningf("Rate limiting: %s", resp.Rate)
 
-	victims := findReviewers(files, d.owners, func(path string) ([]byte, error) {
+	victim, file := d.findReviewers(files, *pull.User.Login, func(path string) ([]byte, error) {
 		return githubFile(req.Repository.Owner.Login, req.Repository.Name, path)
 	})
-
-	log.Infof("Looking for reviewers in %v, excluding %s", victims, *pull.User.Login)
-	// This randomizes for us, pick first non PR author.
-	victim := ""
-	for v := range victims {
-		if v != *pull.User.Login {
-			victim = v
-			break
-		}
-	}
 
 	if victim != "" {
 		rev := github.ReviewersRequest{Reviewers: []string{victim}}
@@ -152,7 +142,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	body := "Thank you for your contribution. I've just checked the *%s* files to find a suitable reviewer."
 	if victim != "" {
 		body += " This search was successful and I've asked **%s** (via %s) for a review."
-		body = fmt.Sprintf(body, d.owners, victim, victims[victim])
+		body = fmt.Sprintf(body, d.owners, victim, file)
 	} else {
 		body += " Alas, this search was *not* successful."
 		body = fmt.Sprintf(body, d.owners)
@@ -160,6 +150,8 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	comment := githubIssueComment(body)
 	comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
+
 	log.Infof("%s", resp.Rate)
+
 	return err
 }
