@@ -41,7 +41,7 @@ func mostSpecific(p []string) map[string]int {
 
 // sortOnOccurence sorts the map[string]int on the integers and returns a [][]string that is
 // indexed on the number of occurences and contains the paths that have that many occurences.
-// The first (zero-th) element is always empty.
+// The first (zero-th) element is always empty and can contain or gaps.
 func sortOnOccurence(m map[string]int) [][]string {
 	// find the largest integer in the map, so we can size ret accordingly
 	max := 0
