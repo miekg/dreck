@@ -54,7 +54,6 @@ func TestOwnersMultipleEqual(t *testing.T) {
 		return nil, nil
 	})
 
-	println(victim)
 	// ac is the puller
 	if no := "ac"; victim == no {
 		t.Errorf("didn't expected %s, but got %s", no, victim)

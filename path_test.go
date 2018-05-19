@@ -6,6 +6,8 @@ import (
 )
 
 func TestOwnersPath(t *testing.T) {
+	d := New()
+
 	ex := []string{"/home/miek/tmp/example/OWNERS",
 		"/home/miek/tmp/OWNERS",
 		"/home/miek/OWNERS",
@@ -13,7 +15,7 @@ func TestOwnersPath(t *testing.T) {
 		"/OWNERS"}
 
 	p := "/home/miek/tmp/example/test.txt"
-	s := ownersPaths(p, "OWNERS")
+	s := d.ownersPaths(p)
 	for i := range s {
 		if s[i] != ex[i] {
 			t.Errorf("expected %v, got %v", ex[i], s[i])

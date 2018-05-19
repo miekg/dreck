@@ -6,16 +6,16 @@ import (
 
 // ownersPaths returns all directories included in p, with owners suffixed, this may
 // return duplicate paths.
-func ownersPaths(p, owner string) []string {
+func (d Dreck) ownersPaths(p string) []string {
 	s := []string{}
 	p1 := p
 	for {
 		p1 = path.Dir(p1)
 		if p1 == "." || p1 == "/" {
-			s = append(s, path.Join("/", owner))
+			s = append(s, path.Join("/", d.owners))
 			return s
 		}
-		s = append(s, path.Join(p1, owner))
+		s = append(s, path.Join(p1, d.owners))
 	}
 }
 

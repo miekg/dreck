@@ -10,9 +10,12 @@ import (
 func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(path string) ([]byte, error)) (string, string) {
 	allFiles := []string{}
 	for _, fi := range files {
-		paths := ownersPaths(*fi.Filename, d.owners)
+		paths := d.ownersPaths(*fi.Filename)
 		allFiles = append(allFiles, paths...)
 	}
+
+	log.Infof("Looking at the files %v", allFiles)
+
 	specific := mostSpecific(allFiles)
 	order := sortOnOccurence(specific)
 
