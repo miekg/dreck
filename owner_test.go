@@ -10,6 +10,7 @@ import (
 
 var _ = func() bool {
 	golog.SetOutput(ioutil.Discard)
+	//golog.SetOutput(os.Stdout)
 	return true
 }()
 
