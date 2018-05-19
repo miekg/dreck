@@ -2,6 +2,7 @@ package dreck
 
 import (
 	"path"
+	"sort"
 )
 
 // ownersPaths returns all directories included in p, with owners suffixed, this may
@@ -55,13 +56,18 @@ func sortOnOccurence(m map[string]int) [][]string {
 	for p, v := range m {
 		ret[v] = append(ret[v], p)
 	}
+	// Sort longer paths first.
+	for i := range ret {
+		sort.Sort(ByLen(ret[i]))
+	}
+
 	return ret
 }
 
 type ByLen []string
 
 func (a ByLen) Len() int           { return len(a) }
-func (a ByLen) Less(i, j int) bool { return len(a[i]) < len(a[j]) }
+func (a ByLen) Less(i, j int) bool { return len(a[i]) > len(a[j]) }
 func (a ByLen) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
 //	sort.Sort(ByLen(s))

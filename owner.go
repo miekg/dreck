@@ -1,6 +1,8 @@
 package dreck
 
 import (
+	"math/rand"
+
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
@@ -34,13 +36,33 @@ func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(p
 			if err := parseConfig(buf, &config); err != nil {
 				continue
 			}
-			// Valid OWNERS file, we will return the first non-PR person we find.
-			for _, r := range config.Reviewers {
-				if r != puller {
-					return r, files[j]
+
+			withoutPuller := Filter(config.Reviewers, func(s string) bool {
+				if s == puller {
+					return false
 				}
+				return true
+			})
+
+			if len(withoutPuller) == 0 {
+				continue
 			}
+
+			// Valid OWNERS file, we will return a random person we find.
+			rand := rand.Intn(len(withoutPuller))
+			victim := withoutPuller[rand]
+			return victim, files[j]
 		}
 	}
 	return "", ""
+}
+
+func Filter(vs []string, f func(string) bool) []string {
+	vsf := []string{}
+	for _, v := range vs {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
 }

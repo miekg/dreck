@@ -1,15 +1,16 @@
 package dreck
 
 import (
-	"io/ioutil"
 	golog "log"
+	"os"
 	"testing"
 
 	"github.com/google/go-github/github"
 )
 
 var _ = func() bool {
-	golog.SetOutput(ioutil.Discard)
+	//golog.SetOutput(ioutil.Discard)
+	golog.SetOutput(os.Stdout)
 	return true
 }()
 
