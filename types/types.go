@@ -69,5 +69,3 @@ type DreckConfig struct {
 	Reviewers []string
 	Approvers []string
 }
-
-// test
