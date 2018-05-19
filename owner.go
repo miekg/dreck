@@ -14,12 +14,10 @@ func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(p
 		allFiles = append(allFiles, paths...)
 	}
 
-	log.Infof("Looking at the files %v", allFiles)
-
 	specific := mostSpecific(allFiles)
 	order := sortOnOccurence(specific)
 
-	log.Infof("Looking for reviewers excluding %s", puller)
+	log.Infof("Looking at the files %v in the order %v", allFiles, order)
 
 	// order now contains the best owners file paths (OWNER files may not exist) to select
 	// the owners from, so we go from heighest to lowest to select an owner.
