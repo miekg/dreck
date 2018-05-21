@@ -68,13 +68,20 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 
 		log.Infof("Action %s", req.Action)
 
-		if req.Action == closedConst {
-			return nil
-		}
-
 		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
 			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
+		}
+
+		// Branch deletion handling. Only done when req.Action is closed (happens after merge).
+		if req.Action == closedConst && enabledFeature(featureBranches, conf) {
+			if err := d.pullRequestBranches(req); err != nil {
+				return err
+			}
+		}
+
+		if req.Action == closedConst {
+			return nil
 		}
 
 		// DCO.

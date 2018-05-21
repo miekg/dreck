@@ -40,4 +40,6 @@ const (
 	featureReviewers = "reviewers"
 	// featureAliases enables alias expansion.
 	featureAliases = "aliases"
+	// featureBranches enables branch deletion after a merge.
+	featureBranches = "branches"
 )

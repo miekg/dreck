@@ -84,6 +84,7 @@ The following features are available.
 * `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done.
   Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
+* `branches` - enables the deletion of branches after a merge of a pull request.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
@@ -140,7 +141,13 @@ Note this entire string needs to be taken literal in the OWNERS file to be valid
 aliases:
     - |
       /plugin: (.*) -> /label add: plugin/$1
-~~~ 
+~~~
+
+## Branches
+
+With this enabled, *dreck* will after each closed branch request look to see if the branch is
+merged, but not deleted. If this is true, it will delete the branch. The *master* branch is always
+excluded from this.
 
 ## Bugs
 
