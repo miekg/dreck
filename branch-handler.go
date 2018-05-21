@@ -1,6 +1,7 @@
 package dreck
 
 // Copied from https://github.com/genuinetools/ghb0t/blob/master/main.go
+// MIT License: Copyright (c) 2018 The Genuinetools Authors.
 
 import (
 	"fmt"
