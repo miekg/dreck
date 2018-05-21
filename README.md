@@ -145,7 +145,7 @@ aliases:
 
 ## Branches
 
-With this enabled, *dreck* will after each closed branch request look to see if the branch is
+With this enabled, *dreck* will, after each closed pull request, look to see if the branch is
 merged, but not deleted. If this is true, it will delete the branch. The *master* branch is always
 excluded from this.
 
