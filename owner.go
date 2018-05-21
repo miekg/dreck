@@ -2,6 +2,7 @@ package dreck
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
@@ -49,6 +50,7 @@ func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(p
 			}
 
 			// Valid OWNERS file, we will return a random person we find.
+			rand.Seed(int64(time.Now().Nanosecond()))
 			rand := rand.Intn(len(withoutPuller))
 			victim := withoutPuller[rand]
 			return victim, files[j]
