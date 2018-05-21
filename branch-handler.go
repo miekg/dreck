@@ -45,6 +45,7 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 		log.Infof("Deleting branch %s on %s/%s", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 
 		resp, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
+		println(resp.Response.StatusCode)
 		// 422 is the error code for when the branch does not exist.
 		if err != nil && !strings.Contains(err.Error(), " 422 ") {
 			return err
