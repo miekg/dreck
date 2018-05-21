@@ -13,7 +13,7 @@ setup; again: all beyond the scope of this document.
 
 ## Config in caddy
 
-If you configuring Caddy, you need to recompile it with the *dreck* plugin enabled. After that the
+If configuring Caddy, you need to recompile it with the *dreck* plugin enabled. After that the
 following configuration is available.
 
 ~~~
@@ -30,7 +30,7 @@ dreck {
 * `client_id` is mandatory and must be the client **ID** of the Github App.
 * `private_key` specifies the **PATH** of the private key of the Github App. This is also mandatory.
 * `secret` can optionally specify a **SECRET** for the webhook.
-* `owners` can optionally specify a **NAME** for the ONWERS files, defaults to "OWNERS".
+* `owners` can optionally specify a **NAME** for the OWNERS files, defaults to "OWNERS".
 * `path` trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
 * `validate` enable HMAC validation of the request.
 
@@ -117,7 +117,7 @@ For pull requests all modified, addded and removed files are checked. We crawl t
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
 PR.
 
-Further more the following command is support for PR issues comments (ignored for issues).
+Further more the following command is supported for PR issues comments (ignored for issues).
 
 * `/lgtm`, approve the PR.
 
