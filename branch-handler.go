@@ -41,13 +41,14 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 		}
 
 		println(strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
-		return nil
 
-		_, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
-		// 422 is the error code for when the branch does not exist.
-		if err != nil && !strings.Contains(err.Error(), " 422 ") {
-			return err
-		}
+		/*
+			_, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
+			// 422 is the error code for when the branch does not exist.
+			if err != nil && !strings.Contains(err.Error(), " 422 ") {
+				return err
+			}
+		*/
 		log.Infof("Branch %s on %s/%s no longer exists.", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 	}
 
