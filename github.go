@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/miekg/dreck/auth"
+	"github.com/miekg/dreck/log"
 
 	"github.com/google/go-github/github"
 )
@@ -27,6 +28,8 @@ func (d Dreck) newClient(installation int) (*github.Client, context.Context, err
 	}
 
 	client := auth.MakeClient(ctx, token)
+
+	log.Infof("Create client with installation ID %d", installation)
 
 	return client, ctx, nil
 }
