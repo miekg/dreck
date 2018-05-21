@@ -8,7 +8,6 @@ features:
   - comments
   - reviewers
   - aliases
-  - branches
 
 aliases:
   - |
