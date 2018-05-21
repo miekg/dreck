@@ -10,7 +10,8 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-// pullRequestBranches will ...
+// pullRequestBranches will check if a pull request is closed and deletes the branch
+// if the PR has been merged.
 func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
