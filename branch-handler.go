@@ -1,5 +1,7 @@
 package dreck
 
+// Copied from https://github.com/genuinetools/ghb0t/blob/master/main.go
+
 import (
 	"fmt"
 	"strings"
@@ -40,15 +42,13 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 			return fmt.Errorf("no owner found")
 		}
 
-		println(strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
+		log.Infof("Deleting branch %s on %s/%s", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 
-		/*
-			_, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
-			// 422 is the error code for when the branch does not exist.
-			if err != nil && !strings.Contains(err.Error(), " 422 ") {
-				return err
-			}
-		*/
+		resp, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
+		// 422 is the error code for when the branch does not exist.
+		if err != nil && !strings.Contains(err.Error(), " 422 ") {
+			return err
+		}
 		log.Infof("Branch %s on %s/%s no longer exists.", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 	}
 
