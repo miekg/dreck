@@ -48,8 +48,11 @@ That's something we need before your Pull Request can be merged. Please see our 
 			if err != nil {
 				return err
 			}
-			log.Infof("%s", resp.Rate)
+
+			logRateLimit(resp)
+
 		}
+
 	} else {
 		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
@@ -90,7 +93,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 		return hasUnsigned, fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
-	log.Warningf("Rate limiting: %s", resp.Rate)
+	logRateLimit(resp)
 
 	for _, commit := range commits {
 		if commit.Commit != nil && commit.Commit.Message != nil {
@@ -126,7 +129,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
-	log.Warningf("Rate limiting: %s", resp.Rate)
+	logRateLimit(resp)
 
 	victim, file := d.findReviewers(files, *pull.User.Login, func(path string) ([]byte, error) {
 		return githubFile(req.Repository.Owner.Login, req.Repository.Name, path)
@@ -151,7 +154,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	comment := githubIssueComment(body)
 	comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 
-	log.Infof("%s", resp.Rate)
+	logRateLimit(resp)
 
 	return err
 }
