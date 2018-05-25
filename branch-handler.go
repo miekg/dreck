@@ -24,7 +24,7 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
-	log.Warningf("Rate limiting: %s", resp.Rate)
+	logRateLimit(resp)
 
 	// Double check again.
 	if *pull.State == "closed" && *pull.Merged {
