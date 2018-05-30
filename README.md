@@ -115,7 +115,9 @@ The following commands are supported.
 
 For pull requests all modified, addded and removed files are checked. We crawl the path upwards
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
-PR.
+PR. This is *not* done for PRs that have `WIP` as a prefix in the title, when the title is changed
+to a none Work-in-Progress one, we will perform this check. The full list of WIP checks is:
+`WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 
 Further more the following command is supported for PR issues comments (ignored for issues).
 
