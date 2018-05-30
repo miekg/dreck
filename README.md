@@ -2,10 +2,16 @@
 
 [![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
-Dreck can help you with Pull Requests and Issues on your GitHub project
+Dreck can help you with managing Pull Requests and Issues on your GitHub project. Dreck currently
+can:
+
+* Assign reviewers to a PR based on OWNERS file.
+* Automatically delete the branch when a PR is merged.
+* Label/close/lock etc. issues
+* lgtm PR with a command
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
-"just" run it as a plugin in Caddy and a bunch of other features.
+"just" run it as a plugin in Caddy and have a lot of extra features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
