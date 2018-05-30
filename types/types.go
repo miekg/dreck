@@ -27,6 +27,7 @@ type PullRequestOuter struct {
 	PullRequest PullRequest `json:"pull_request"`
 	Action      string      `json:"action"`
 	InstallationRequest
+	Changes map[string]map[string]string `json:"changes"`
 }
 
 type IssueCommentOuter struct {
