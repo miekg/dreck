@@ -129,6 +129,15 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
 	}
 
+	title := pull.GetTitle()
+	if hasWIPPrefix(title) {
+		body := "Thank you for your contribution. As this is a Work-in-Progress pull request I will not assign a reviewer."
+		comment := githubIssueComment(body)
+		comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
+
+		return nil
+	}
+
 	logRateLimit(resp)
 
 	victim, file := d.findReviewers(files, *pull.User.Login, func(path string) ([]byte, error) {

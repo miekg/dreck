@@ -84,6 +84,37 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return nil
 		}
 
+		if req.Action == "edited" {
+			title, ok := req.Changes["title"]
+			if !ok {
+				log.Info("No title changes, doing nothing")
+				return nil
+			}
+			from, ok := title["from"]
+			if !ok {
+				log.Info("No title changes, doing nothing")
+				return nil
+			}
+
+			cur, err := d.pullRequestTitle(req)
+			if err != nil {
+				return err
+			}
+
+			// If the previous PR title had WIP prefix and this one hasn't we assume
+			// we went from WIP -> no WIP
+			if hasWIPPrefix(from) && !hasWIPPrefix(cur) {
+				log.Infof("Pull request stopped being Work-in-Progress")
+
+				if enabledFeature(featureReviewers, conf) {
+					if err := d.pullRequestReviewers(req); err != nil {
+						return err
+					}
+				}
+
+			}
+		}
+
 		// DCO.
 		if enabledFeature(featureDCO, conf) {
 			if err := d.pullRequestDCO(req); err != nil {

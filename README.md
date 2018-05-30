@@ -102,7 +102,7 @@ The following commands are supported.
 * `/label remove: LABEL`, remove LABEL.
 * `/label rm: LABEL`, short for "label remove",
 * `/assign: ASSIGNEE`, assign issue to ASSIGNEE, `me` can be used as a shortcut for the commenter
-* `/unassign: ASSIGNEE`, unassign ASSIGNEE.
+* `/unassign: ASSIGNEE`, unassigns ASSIGNEE.
 * `/close`, close issue.
 * `/reopen`, reopen issue.
 * `/title set: TITLE`, set the title to TITLE.
@@ -113,9 +113,13 @@ The following commands are supported.
 
 ### Pull Requests
 
-For pull requests all modified, addded and removed files are checked. We crawl the path upwards
+For pull requests all modified, added and removed files are checked. We crawl the path upwards
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
 PR.
+
+This is *not* done for PRs that have `WIP` (case insensitive) as a prefix in the title, when the
+title is changed to a non Work-in-Progress one, we will perform this check. The full list of WIP
+checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 
 Further more the following command is supported for PR issues comments (ignored for issues).
 
