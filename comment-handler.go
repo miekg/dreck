@@ -69,8 +69,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 		return err
 	}
 
-	listOpts := &github.ListOptions{Page: 0}
-	labels, _, err := client.Issues.ListLabels(ctx, req.Repository.Owner.Login, req.Repository.Name, listOpts)
+	labels, _, err := client.Issues.ListLabels(ctx, req.Repository.Owner.Login, req.Repository.Name, nil)
 	found = labelExists(labels, labelValue)
 	if !found {
 		return fmt.Errorf("label %s does not exist", labelValue)

@@ -118,7 +118,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 		return err
 	}
 
-	listOpts := &github.ListOptions{Page: 0}
+	listOpts := &github.ListOptions{Page: 0} // only the first page of files
 	files, resp, err := client.PullRequests.ListFiles(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if err != nil {
 		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
