@@ -69,12 +69,6 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 		return err
 	}
 
-	labels, _, err := client.Issues.ListLabels(ctx, req.Repository.Owner.Login, req.Repository.Name, nil)
-	found = labelExists(labels, labelValue)
-	if !found {
-		return fmt.Errorf("label %s does not exist", labelValue)
-	}
-
 	if cmdType == addLabelConst {
 		_, _, err = client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{labelValue})
 	} else {
