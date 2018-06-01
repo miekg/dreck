@@ -133,9 +133,21 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	if hasWIPPrefix(title) {
 		body := "Thank you for your contribution. As this is a Work-in-Progress pull request I will not assign a reviewer."
 		comment := githubIssueComment(body)
-		comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
+		client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 
 		return nil
+	}
+
+	// ignore err here, we want to see if there are 0 reviewers
+	reviewers, _, _ := client.PullRequests.ListReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
+	if reviewers != nil {
+		if len(reviewers.Users) != 0 && len(reviewers.Teams) != 0 {
+			body := "Thank you for your contribution. As a reviewer has already been selected I will not assign another."
+			comment := githubIssueComment(body)
+			client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
+
+			return nil
+		}
 	}
 
 	logRateLimit(resp)

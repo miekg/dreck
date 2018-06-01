@@ -84,6 +84,7 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return nil
 		}
 
+		// TODO(miek): pull this out into pr-handler.go
 		if req.Action == "edited" {
 			title, ok := req.Changes["title"]
 			if !ok {
