@@ -141,7 +141,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	// ignore err here, we want to see if there are 0 reviewers
 	reviewers, _, _ := client.PullRequests.ListReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if reviewers != nil {
-		if len(reviewers.Users) != 0 && len(reviewers.Teams) != 0 {
+		if len(reviewers.Users) != 0 || len(reviewers.Teams) != 0 {
 			body := thanks + "As a reviewer has already been selected I will not assign another."
 			comment := githubIssueComment(body)
 			client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
