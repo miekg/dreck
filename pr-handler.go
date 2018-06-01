@@ -180,4 +180,31 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	return err
 }
 
+// PullRequestWIP check if the title changed from WIP to non WIP and assigns reviewers if needed. It
+// returns true if we need to assign reviewers otherwise false.
+func (d Dreck) pullRequestWIP(req types.PullRequestOuter) (bool, error) {
+	title, ok := req.Changes["title"]
+	if !ok {
+		log.Info("No title changes, doing nothing")
+		return false, nil
+	}
+	from, ok := title["from"]
+	if !ok {
+		log.Info("No title changes, doing nothing")
+		return false, nil
+	}
+
+	cur, err := d.pullRequestTitle(req)
+	if err != nil {
+		return false, err
+	}
+
+	// If the previous PR title had WIP prefix and this one hasn't we assume we went from WIP -> no WIP.
+	if hasWIPPrefix(from) && !hasWIPPrefix(cur) {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 const thanks = "Thank you for your contribution. " // leave space after the .

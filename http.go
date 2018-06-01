@@ -84,35 +84,20 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			return nil
 		}
 
-		// TODO(miek): pull this out into pr-handler.go
+		// Reviewers, title change WIP, none WIP.
 		if req.Action == "edited" {
-			title, ok := req.Changes["title"]
-			if !ok {
-				log.Info("No title changes, doing nothing")
-				return nil
-			}
-			from, ok := title["from"]
-			if !ok {
-				log.Info("No title changes, doing nothing")
-				return nil
-			}
-
-			cur, err := d.pullRequestTitle(req)
+			ok, err := d.pullRequestWIP(req)
 			if err != nil {
 				return err
 			}
+			if !ok {
+				return nil
+			}
 
-			// If the previous PR title had WIP prefix and this one hasn't we assume
-			// we went from WIP -> no WIP
-			if hasWIPPrefix(from) && !hasWIPPrefix(cur) {
-				log.Infof("Pull request stopped being Work-in-Progress")
-
-				if enabledFeature(featureReviewers, conf) {
-					if err := d.pullRequestReviewers(req); err != nil {
-						return err
-					}
+			if enabledFeature(featureReviewers, conf) {
+				if err := d.pullRequestReviewers(req); err != nil {
+					return err
 				}
-
 			}
 		}
 
