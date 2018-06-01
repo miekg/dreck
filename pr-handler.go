@@ -39,7 +39,7 @@ func (d Dreck) pullRequestDCO(req types.PullRequestOuter) error {
 			}
 
 			link := fmt.Sprintf("https://github.com/%s/%s/blob/master/CONTRIBUTING.md", req.Repository.Owner.Login, req.Repository.Name)
-			body := `Thank you for your contribution. I've just checked and your commit doesn't appear to be signed-off.
+			body := thanks + `I've just checked and your commit doesn't appear to be signed-off.
 That's something we need before your Pull Request can be merged. Please see our [contributing guide](` + link + `).`
 
 			comment := githubIssueComment(body)
@@ -131,7 +131,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	title := pull.GetTitle()
 	if hasWIPPrefix(title) {
-		body := "Thank you for your contribution. As this is a Work-in-Progress pull request I will not assign a reviewer."
+		body := thanks + "As this is a Work-in-Progress pull request I will not assign a reviewer."
 		comment := githubIssueComment(body)
 		client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 
@@ -142,7 +142,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	reviewers, _, _ := client.PullRequests.ListReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if reviewers != nil {
 		if len(reviewers.Users) != 0 && len(reviewers.Teams) != 0 {
-			body := "Thank you for your contribution. As a reviewer has already been selected I will not assign another."
+			body := thanks + "As a reviewer has already been selected I will not assign another."
 			comment := githubIssueComment(body)
 			client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 
@@ -163,7 +163,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 		}
 	}
 
-	body := "Thank you for your contribution. I've just checked the *%s* files to find a suitable reviewer."
+	body := thanks + "I've just checked the *%s* files to find a suitable reviewer."
 	if victim != "" {
 		body += " This search was successful and I've asked **%s** (via `%s`) for a review."
 		body = fmt.Sprintf(body, d.owners, victim, file)
@@ -179,3 +179,5 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 
 	return err
 }
+
+const thanks = "Thank you for your contribution. " // leave space after the .
