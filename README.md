@@ -121,7 +121,7 @@ The following commands are supported.
 
 For pull requests all modified, added and removed files are checked. We crawl the path upwards
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
-PR.
+PR. This is only done when the pull request does not have any reviewers.
 
 This is *not* done for PRs that have `WIP` (case insensitive) as a prefix in the title, when the
 title is changed to a non Work-in-Progress one, we will perform this check. The full list of WIP
