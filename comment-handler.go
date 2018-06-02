@@ -69,6 +69,15 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 		return err
 	}
 
+	labels, err := d.allLabels(ctx, client, req)
+	if err != nil {
+		return err
+	}
+	found = labelDuplicate(labels, labelValue)
+	if !found {
+		return fmt.Errorf("label %s does not exist", labelValue)
+	}
+
 	if cmdType == addLabelConst {
 		_, _, err = client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{labelValue})
 	} else {
