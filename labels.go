@@ -25,8 +25,6 @@ func (d Dreck) allLabels(ctx context.Context, client *github.Client, req types.I
 		return nil, err
 	}
 
-	println("returned", len(labels))
-
 	ret := make([]types.IssueLabel, len(labels))
 	for i, l := range labels {
 		ret[i].Name = l.GetName()
