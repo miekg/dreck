@@ -36,9 +36,8 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 				return err
 			}
 
-			d.pullRequestStatus(ctx, client, req, pull)
-
-			if pull.Mergeable != nil {
+			ok, _ := d.pullRequestStatus(ctx, client, req, pull)
+			if ok && pull.Mergeable != nil {
 				return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
