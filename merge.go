@@ -62,10 +62,6 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 		return fmt.Errorf("failed merge of PR %d: %s", *pull.Number, err.Error())
 	}
 
-	body := fmt.Sprintf("This pull request has been *automatically* merged in %s.", commit.GetSHA())
-	comment := githubIssueComment(body)
-	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, comment)
-
 	log.Infof("PR %d has been autosubmitted", req.Issue.Number)
 
 	return nil
