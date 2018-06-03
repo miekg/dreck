@@ -21,6 +21,10 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 	defer ticker.Stop()
 	defer stop.Stop()
 
+	body := fmt.Sprintf("Autosubmit has been enabled for this pull request. It will be merged when all statuses are succesful.")
+	comment := githubIssueComment(body)
+	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+
 	log.Infof("Start autosubmit polling for PR %d", req.Issue.Number)
 
 	for {
@@ -35,8 +39,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			d.pullRequestStatus(ctx, client, req, pull)
 
 			if pull.Mergeable != nil {
-				continue
-				//return d.pullRequestMerge(ctx, client, req, pull)
+				return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
 		case <-stop.C:
@@ -57,7 +60,6 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 	}
 
 	body := fmt.Sprintf("This pull request has been automatically merged in %s.", commit.GetSHA())
-
 	comment := githubIssueComment(body)
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, comment)
 
