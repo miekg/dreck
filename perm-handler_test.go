@@ -16,20 +16,20 @@ func TestEnabledFeature(t *testing.T) {
 	}{
 		{
 			title:            "dco enabled try dco case sensitive",
-			attemptedFeature: "dco_check",
-			configFeatures:   []string{"dco_check"},
+			attemptedFeature: "dco",
+			configFeatures:   []string{"dco"},
 			expectedVal:      true,
 		},
 		{
 			title:            "dco enabled try dco case insensitive",
-			attemptedFeature: "DCO_check",
-			configFeatures:   []string{"dco_check"},
+			attemptedFeature: "dco",
+			configFeatures:   []string{"dco"},
 			expectedVal:      true,
 		},
 		{
 			title:            "dco enabled try comments",
 			attemptedFeature: "comments",
-			configFeatures:   []string{"dco_check"},
+			configFeatures:   []string{"dco"},
 			expectedVal:      false,
 		},
 		{
@@ -53,7 +53,19 @@ func TestEnabledFeature(t *testing.T) {
 		{
 			title:            "Non-existent feature",
 			attemptedFeature: "gibberish",
-			configFeatures:   []string{"dco_check", "comments"},
+			configFeatures:   []string{"dco", "comments"},
+			expectedVal:      false,
+		},
+		{
+			title:            "autosubmit enabled try autosubmit",
+			attemptedFeature: "autosubmit",
+			configFeatures:   []string{"autosubmit"},
+			expectedVal:      true,
+		},
+		{
+			title:            "autosubmit disabled try autosubmit",
+			attemptedFeature: "autosubmit",
+			configFeatures:   []string{"dco"},
 			expectedVal:      false,
 		},
 	}

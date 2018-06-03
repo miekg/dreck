@@ -21,6 +21,10 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 	defer ticker.Stop()
 	defer stop.Stop()
 
+	body := fmt.Sprintf("Autosubmit has been enabled for this pull request. It will be merged when all statuses are succesful.")
+	comment := githubIssueComment(body)
+	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+
 	log.Infof("Start autosubmit polling for PR %d", req.Issue.Number)
 
 	for {
@@ -35,7 +39,6 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			d.pullRequestStatus(ctx, client, req, pull)
 
 			if pull.Mergeable != nil {
-				// return nil
 				return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
@@ -49,7 +52,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
 
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
-	msg := "I'm a Dreck"
+	msg := "Automatically submitted."
 	commit, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
 
 	if err != nil {
@@ -57,24 +60,33 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 	}
 
 	body := fmt.Sprintf("This pull request has been automatically merged in %s.", commit.GetSHA())
-
 	comment := githubIssueComment(body)
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, comment)
+
+	log.Infof("PR %d has been autosubmitted", req.Issue.Number)
 
 	return nil
 }
 
-func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (string, error) {
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 
 	listOpts := &github.ListOptions{PerPage: 100}
-	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
+	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 
-	for _, status := range statuses {
-		println(status.GetState())
+	log.Infof("Checking %d statuses for PR %d", combined.GetTotalCount(), pull.GetNumber())
+
+	for _, status := range combined.Statuses {
+		if status.GetState() != statusOK {
+			log.Infof("Status %s is %s", status.GetContext(), status.GetState())
+			return false, nil
+		}
 	}
 
-	return "", fmt.Errorf("no status found for %s", pull.GetNumber())
+	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
+	return true, nil
 }
+
+const statusOK = "success"
