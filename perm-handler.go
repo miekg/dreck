@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/miekg/dreck/types"
@@ -9,6 +10,7 @@ import (
 )
 
 func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
+	fmt.Printf("enabled features %v", config.Features)
 	for _, availableFeature := range config.Features {
 		if strings.EqualFold(attemptedFeature, availableFeature) {
 			return true
@@ -18,6 +20,8 @@ func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
 }
 
 func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, user string) bool {
+
+	println("attemped", attemptedFeature)
 
 	if enabledFeature(attemptedFeature, config) {
 		for _, reviewer := range config.Reviewers {

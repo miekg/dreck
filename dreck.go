@@ -2,13 +2,6 @@ package dreck
 
 import "github.com/mholt/caddy/caddyhttp/httpserver"
 
-const (
-	// Trigger is the prefix that triggers action from this bot.
-	Trigger = "/"
-	// The App's private key to access Github.
-	//PrivateKeyPath = "/home/miek/dreck.2018-05-05.private-key.pem"
-)
-
 // Dreck is a plugin that handles Github Issues and Pull Requests for you.
 type Dreck struct {
 	Next httpserver.Handler
@@ -47,3 +40,6 @@ const (
 	// featureAutosubmit enables the auto submitting or pull requests when the tests are green.
 	featureAutosubmit = "autosubmit"
 )
+
+// Trigger is the prefix that triggers action from this bot.
+const Trigger = "/"
