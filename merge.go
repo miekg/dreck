@@ -38,7 +38,11 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 
 			ok, _ := d.pullRequestStatus(ctx, client, req, pull)
 			if ok && pull.Mergeable != nil {
-				return d.pullRequestMerge(ctx, client, req, pull)
+				err := d.pullRequestMerge(ctx, client, req, pull)
+				if err == nil {
+					client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{"autosubmit"})
+				}
+				return err
 			}
 
 		case <-stop.C:
