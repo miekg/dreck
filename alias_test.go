@@ -71,6 +71,12 @@ func TestParsingAlias(t *testing.T) {
 			expectedVal:  "plugin/demo",
 		},
 		{
+			title:        "Alias Add label of demo case",
+			body:         Trigger + "plUGin: demo",
+			expectedType: "AddLabel",
+			expectedVal:  "plugin/demo",
+		},
+		{
 			title:        "Non alias label of demo",
 			body:         Trigger + "pluginner: demo",
 			expectedType: "",

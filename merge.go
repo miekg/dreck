@@ -62,7 +62,7 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 		return fmt.Errorf("failed merge of PR %d: %s", *pull.Number, err.Error())
 	}
 
-	log.Infof("PR %d has been autosubmitted", req.Issue.Number)
+	log.Infof("PR %d has been autosubmitted in %s", req.Issue.Number, commit.GetSHA())
 
 	return nil
 }

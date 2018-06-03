@@ -2,10 +2,10 @@
 
 [![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
-Dreck can help you with managing Pull Requests and Issues on your GitHub project. Dreck currently
+Dreck can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
-* Assign reviewers to a pull request based on OWNERS file.
+* Assign reviewers to a pull request based on OWNERS files.
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
 * Label/close/lock etc. issues
@@ -100,6 +100,8 @@ The following features are available.
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
 
+Commands and aliases are detected in a case insensitive manner.
+
 Multiple command in one message/issue are not supported.
 
 ## Supported Commands
@@ -121,6 +123,8 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to TITLE.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
+
+The case of these commands is ignored.
 
 ### Pull Requests
 
@@ -153,6 +157,8 @@ This defines a new command `/plugin: forward` that translates into `/label add: 
 The regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
 match group.
 
+The alias expansion is done is a case insensitive manner.
+
 Note this entire string needs to be taken literal in the OWNERS file to be valid yaml:
 
 ~~~ yaml
@@ -169,4 +175,4 @@ excluded from this.
 
 ## Bugs
 
-We don't support multiple commands in an issue.
+We don't support multiple commands in an comment issue.
