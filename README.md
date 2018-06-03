@@ -5,13 +5,14 @@
 Dreck can help you with managing Pull Requests and Issues on your GitHub project. Dreck currently
 can:
 
-* Assign reviewers to a PR based on OWNERS file.
-* Automatically delete the branch when a PR is merged.
+* Assign reviewers to a pull request based on OWNERS file.
+* Automatically delete the branch when a pull request is merged.
+* Automatically merge a pull request when the status is green.
 * Label/close/lock etc. issues
-* lgtm PR with a command
+* lgtm a pull request with a comment.
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
-"just" run it as a plugin in Caddy and have a lot of extra features.
+"just" run it as a plugin in Caddy. It also massively expands on the number of features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
@@ -88,13 +89,13 @@ aliases:
 The following features are available.
 
 * `comments` - allow commands (see below) in comments.
-* `reviewers` - assign reviewers for the PR based on changed files and reviewers in the relevant
+* `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the relevant
   OWNERS files.
-* `dco` - check if a PR has "Signed-off-by" (that literal string) and if not ask for it to be done.
+* `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to be done.
   Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
-* `autosubmit` - enables the `/autosubmit` command.
+* `autosubmit` - enables `/autosubmit`.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
@@ -125,15 +126,15 @@ The following commands are supported.
 
 For pull requests all modified, added and removed files are checked. We crawl the path upwards
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
-PR. This is only done when the pull request does not have any reviewers.
+pull request. This is only done when the pull request does not have any reviewers.
 
-This is *not* done for PRs that have `WIP` (case insensitive) as a prefix in the title, when the
+This is *not* done for pull request that have `WIP` (case insensitive) as a prefix in the title, when the
 title is changed to a non Work-in-Progress one, we will perform this check. The full list of WIP
 checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 
-Further more the following extra command is supported for PR issues comments (ignored for issues).
+Further more the following extra command is supported for pull request issues comments (ignored for issues).
 
-* `/lgtm`, approve the PR.
+* `/lgtm`, approve the pull request.
 * `/autosubmit`, when all checks are OK, merge the pull request. This will wait for 30 minutes for
   all tests to complete.
 
