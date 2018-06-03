@@ -21,7 +21,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 	defer ticker.Stop()
 	defer stop.Stop()
 
-	log.Info("Start autosubmit polling for PR %d", req.Issue.Number)
+	log.Infof("Start autosubmit polling for PR %d", req.Issue.Number)
 
 	for {
 		select {
@@ -31,7 +31,11 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			if err != nil {
 				return err
 			}
+
+			d.pullRequestStatus(ctx, client, req, pull)
+
 			if pull.Mergeable != nil {
+				// return nil
 				return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
@@ -58,4 +62,19 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, comment)
 
 	return nil
+}
+
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (string, error) {
+
+	listOpts := &github.ListOptions{PerPage: 100}
+	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
+	if err != nil {
+		return "", err
+	}
+
+	for _, status := range statuses {
+		println(status.GetState())
+	}
+
+	return "", fmt.Errorf("no status found for %s", pull.GetNumber())
 }
