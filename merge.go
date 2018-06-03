@@ -35,8 +35,8 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			d.pullRequestStatus(ctx, client, req, pull)
 
 			if pull.Mergeable != nil {
-				return nil
-				return d.pullRequestMerge(ctx, client, req, pull)
+				continue
+				//return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
 		case <-stop.C:
@@ -64,19 +64,19 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 	return nil
 }
 
-func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (string, error) {
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 
 	listOpts := &github.ListOptions{PerPage: 100}
 	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 
 	for _, status := range statuses {
-		fmt.Printf("%v\n", status)
-		println(status.GetContext())
 		println(status.GetState())
 	}
 
 	return "", fmt.Errorf("no status found for %d", pull.GetNumber())
 }
+
+const statusOK = "ok"
