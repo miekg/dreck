@@ -239,6 +239,7 @@ func parse(body string, conf *types.DreckConfig) *types.CommentAction {
 	return &types.CommentAction{}
 }
 
+// isValidCommand checks the body of the comment to see if trigger is present.
 func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool, string) {
 	if ok := enabledFeature(featureAliases, conf); ok {
 		for _, a := range conf.Aliases {
@@ -252,12 +253,16 @@ func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool,
 	}
 
 	val := ""
-	ok := (len(body) > len(trigger) && body[0:len(trigger)] == trigger) ||
-		(body == trigger && !strings.HasSuffix(trigger, ": "))
+	trigger = strings.ToLower(trigger)
+
+	ok := (len(body) > len(trigger) && strings.ToLower(body[0:len(trigger)]) == trigger) ||
+		(strings.ToLower(body) == trigger && !strings.HasSuffix(trigger, ": "))
+
 	if ok {
 		val = body[len(trigger):]
 		val = strings.Trim(val, " \t.,\n\r")
 	}
+
 	return ok, val
 }
 

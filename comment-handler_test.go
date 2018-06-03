@@ -16,9 +16,14 @@ var actionOptions = []struct {
 		body:           Trigger + "reopen",
 		expectedAction: reopenConst,
 	},
-	{ //this case replaces Test_Parsing_Close
+	{
 		title:          "Correct close command",
 		body:           Trigger + "close",
+		expectedAction: closeConst,
+	},
+	{
+		title:          "Uppercase close command",
+		body:           Trigger + "cLOse",
 		expectedAction: closeConst,
 	},
 	{

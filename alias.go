@@ -25,7 +25,7 @@ func NewAlias(command string) (Rule, error) {
 		return Rule{}, fmt.Errorf("could not find alias in %s", command)
 	}
 	r := Rule{replace: splits[1]}
-	r.from, err = regexp.Compile(splits[0])
+	r.from, err = regexp.Compile("(?i)" + splits[0]) // (?i) makes it case insentive.
 	if err != nil {
 		return r, err
 	}
