@@ -16,17 +16,19 @@ type Dreck struct {
 	clientID string
 	key      string
 
-	owners string
-	secret string
-	path   string // when should dreck trigger, default to '/dreck'
-	hmac   bool   // validate HMAC on the webhook
+	owners   string
+	secret   string
+	path     string // when should dreck trigger, default to '/dreck'
+	hmac     bool   // validate HMAC on the webhook
+	strategy string
 }
 
-// New returns a new, initialzed Dreck.
+// New returns a new, initialized Dreck.
 func New() Dreck {
 	d := Dreck{}
 	d.owners = "OWNERS"
 	d.path = "/dreck"
+	d.strategy = mergeSquash
 
 	return d
 }
@@ -42,4 +44,6 @@ const (
 	featureAliases = "aliases"
 	// featureBranches enables branch deletion after a merge.
 	featureBranches = "branches"
+	// featureAutosubmit enables the auto submitting or pull requests when the tests are green.
+	featureAutosubmit = "autosubmit"
 )

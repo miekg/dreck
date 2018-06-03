@@ -90,7 +90,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 
 	commits, resp, err := client.PullRequests.ListCommits(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if err != nil {
-		return hasUnsigned, fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+		return hasUnsigned, fmt.Errorf("getting PR %d: %s", req.PullRequest.Number, err.Error())
 	}
 
 	logRateLimit(resp)
@@ -121,12 +121,12 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	listOpts := &github.ListOptions{Page: 0} // only the first page of files
 	files, resp, err := client.PullRequests.ListFiles(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if err != nil {
-		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+		return fmt.Errorf("getting PR %d: %s", req.PullRequest.Number, err.Error())
 	}
 
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 	if err != nil {
-		return fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+		return fmt.Errorf("getting PR %d: %s", req.PullRequest.Number, err.Error())
 	}
 
 	title := pull.GetTitle()
