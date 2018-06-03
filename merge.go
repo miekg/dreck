@@ -67,12 +67,15 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 
 	listOpts := &github.ListOptions{PerPage: 100}
-	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
+	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
 		return false, err
 	}
 
-	for _, status := range statuses {
+	println(*combined.Name)
+	println(*combined.SHA)
+	println(*combined.TotalCount)
+	for _, status := range combined.Statuses {
 		println(status.GetState())
 		println(status.GetContext())
 	}
