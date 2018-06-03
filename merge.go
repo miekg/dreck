@@ -78,5 +78,5 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 		println(status.GetState())
 	}
 
-	return "", fmt.Errorf("no status found for %s", pull.GetNumber())
+	return "", fmt.Errorf("no status found for %d", pull.GetNumber())
 }
