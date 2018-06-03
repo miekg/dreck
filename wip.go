@@ -25,7 +25,7 @@ func (d Dreck) pullRequestTitle(req types.PullRequestOuter) (string, error) {
 
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 	if err != nil {
-		return "", fmt.Errorf("getting PR %d\n%s", req.PullRequest.Number, err.Error())
+		return "", fmt.Errorf("getting PR %d: %s", req.PullRequest.Number, err.Error())
 	}
 	return pull.GetTitle(), nil
 }

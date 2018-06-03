@@ -29,6 +29,7 @@ dreck {
     owners NAME
     secret SECRET
     path PATH
+    merge STRATEGY
     validate
 }
 ~~~
@@ -38,6 +39,8 @@ dreck {
 * `secret` can optionally specify a **SECRET** for the webhook.
 * `owners` can optionally specify a **NAME** for the OWNERS files, defaults to "OWNERS".
 * `path` trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
+* `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
+  it defaults to `squash`.
 * `validate` enable HMAC validation of the request.
 
 ## OWNERS File Syntax
@@ -91,6 +94,7 @@ The following features are available.
   Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
+* `autosubmit` - enables the `/autosubmit` command.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
@@ -121,15 +125,17 @@ The following commands are supported.
 
 For pull requests all modified, added and removed files are checked. We crawl the path upwards
 until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
-PR.
+PR. This is only done when the pull request does not have any reviewers.
 
 This is *not* done for PRs that have `WIP` (case insensitive) as a prefix in the title, when the
 title is changed to a non Work-in-Progress one, we will perform this check. The full list of WIP
 checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 
-Further more the following command is supported for PR issues comments (ignored for issues).
+Further more the following extra command is supported for PR issues comments (ignored for issues).
 
 * `/lgtm`, approve the PR.
+* `/autosubmit`, when all checks are OK, merge the pull request. This will wait for 30 minutes for
+  all tests to complete.
 
 ## Aliases
 

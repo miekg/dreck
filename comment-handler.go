@@ -24,6 +24,7 @@ const (
 	removeLabelConst = "RemoveLabel"
 	addLabelConst    = "AddLabel"
 	lgtmConst        = "lgtm"
+	autosubmitConst  = "autosubmit"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -43,6 +44,8 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		return d.lock(req, command.Type)
 	case lgtmConst:
 		return d.lgtm(req, command.Type)
+	case autosubmitConst:
+		return d.autosubmit(req, command.Type)
 	}
 
 	if len(req.Comment.Body) > 25 {
@@ -285,5 +288,6 @@ var IssueCommands = map[string]string{
 	Trigger + "title edit: ":   setTitleConst,
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
-	Trigger + "lgtm":           lgtmConst, // Only works on Pull Requests comments.
+	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Requests comments.
+	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 }
