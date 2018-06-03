@@ -72,16 +72,16 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 		return false, err
 	}
 
-	log.Infof("Checking %d statusses for PR %d", combined.GetTotalCount(), pull.GetNumber())
+	log.Infof("Checking %d statuses for PR %d", combined.GetTotalCount(), pull.GetNumber())
 
 	for _, status := range combined.Statuses {
 		if status.GetState() != statusOK {
-			log.Infof("Status %d is %s", status.GetContext(), status.GetState())
+			log.Infof("Status %s is %s", status.GetContext(), status.GetState())
 			return false, nil
 		}
 	}
 
-	// we can merge
+	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
 	return true, nil
 }
 
