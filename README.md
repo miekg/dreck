@@ -135,8 +135,9 @@ checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 Further more the following extra command is supported for pull request issues comments (ignored for issues).
 
 * `/lgtm`, approve the pull request.
-* `/autosubmit`, when all checks are OK, merge the pull request. This will wait for 30 minutes for
-  all tests to complete.
+* `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
+  minutes for all tests to complete. When the pull request is merged the label 'autosubmit' is added
+  to it.
 
 ## Aliases
 
