@@ -73,6 +73,7 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 	}
 
 	for _, status := range statuses {
+		fmt.Printf("%v\n", status)
 		println(status.GetContext())
 		println(status.GetState())
 	}
