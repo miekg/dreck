@@ -35,7 +35,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			d.pullRequestStatus(ctx, client, req, pull)
 
 			if pull.Mergeable != nil {
-				// return nil
+				return nil
 				return d.pullRequestMerge(ctx, client, req, pull)
 			}
 
@@ -49,7 +49,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
 
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
-	msg := "I'm a Dreck"
+	msg := "Automatically submitted."
 	commit, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
 
 	if err != nil {
@@ -73,6 +73,7 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 	}
 
 	for _, status := range statuses {
+		println(status.GetContext())
 		println(status.GetState())
 	}
 
