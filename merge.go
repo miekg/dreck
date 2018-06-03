@@ -64,16 +64,16 @@ func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req 
 	return nil
 }
 
-func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (string, error) {
 
 	listOpts := &github.ListOptions{PerPage: 100}
-	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetSHA(), listOpts)
+	statuses, _, err := client.Repositories.ListStatuses(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
 		return "", err
 	}
 
 	for _, status := range statuses {
-		println(state.GetState())
+		println(status.GetState())
 	}
 
 	return "", fmt.Errorf("no status found for %s", pull.GetNumber())
