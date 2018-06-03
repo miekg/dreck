@@ -71,10 +71,14 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 	if err != nil {
 		return false, err
 	}
+	if combined == nil {
+		println("hugh, nil?")
+		return false, nil
+	}
 
-	println(*combined.Name)
-	println(*combined.SHA)
-	println(*combined.TotalCount)
+	println(combined.GetName())
+	println(combined.GetSHA())
+	println(combined.GetTotalCount())
 	for _, status := range combined.Statuses {
 		println(status.GetState())
 		println(status.GetContext())
