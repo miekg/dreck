@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/go-github/github"
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
+
+	"github.com/google/go-github/github"
 )
 
-func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -21,9 +22,8 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 	defer ticker.Stop()
 	defer stop.Stop()
 
-	body := fmt.Sprintf("*Autosubmit* has been enabled for this pull request. It will be **merged** when all statuses are succesful.")
-	comment := githubIssueComment(body)
-	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+	// Add autosubmit label to signal we will merge this automatically.
+	client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{"autosubmit"})
 
 	log.Infof("Start autosubmit polling for PR %d", req.Issue.Number)
 
@@ -39,9 +39,6 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
 			ok, _ := d.pullRequestStatus(ctx, client, req, pull)
 			if ok && pull.Mergeable != nil {
 				err := d.pullRequestMerge(ctx, client, req, pull)
-				if err == nil {
-					client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{"autosubmit"})
-				}
 				return err
 			}
 
