@@ -5,10 +5,10 @@
 Dreck can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
-* Assign reviewers to a pull request based on OWNERS files.
+* Label/close/lock etc. issues.
+* Assign reviewers to a pull request based on *OWNERS* files.
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
-* Label/close/lock etc. issues
 * lgtm a pull request with a comment.
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
@@ -110,17 +110,17 @@ Multiple command in one message/issue are not supported.
 
 The following commands are supported.
 
-* `/label add: LABEL`, label an issue with LABEL.
+* `/label add: LABEL`, label an issue with **LABEL**.
 * `/label: LABEL`,  short for "label add".
-* `/label remove: LABEL`, remove LABEL.
+* `/label remove: LABEL`, remove **LABEL**.
 * `/label rm: LABEL`, short for "label remove",
-* `/assign: ASSIGNEE`, assign issue to ASSIGNEE, `me` can be used as a shortcut for the commenter
-* `/unassign: ASSIGNEE`, unassigns ASSIGNEE.
+* `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the commenter
+* `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**.
 * `/close`, close issue.
 * `/reopen`, reopen issue.
-* `/title set: TITLE`, set the title to TITLE.
+* `/title set: TITLE`, set the title to **TITLE**.
 * `/title: TITLE`: short for "title set".
-* `/title edit: TITLE`, set the title to TITLE.
+* `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
 
