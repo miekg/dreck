@@ -31,11 +31,11 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 		select {
 		case <-ticker.C:
 
-			pull, resp, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+			pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%v\n", resp) // bail out on 404
+			fmt.Printf("%v\n", pull.ClosedAt)
 
 			ok, _ := d.pullRequestStatus(ctx, client, req, pull)
 			if ok && pull.Mergeable != nil {
