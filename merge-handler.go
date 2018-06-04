@@ -31,7 +31,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 		select {
 		case <-ticker.C:
 
-			pull, resp, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+			pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 			if err != nil {
 				return err
 			}
