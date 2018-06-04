@@ -18,15 +18,10 @@ func (d Dreck) isAutosubmit(req types.PullRequestOuter, conf *types.DreckConfig)
 		return false, fmt.Errorf("getting PR %d: %s", req.PullRequest.Number, err.Error())
 	}
 
-	println("USER", pull.User.GetLogin())
-	println("checking for autosmit", pull.User.GetLogin())
-
 	permitted := permittedUserFeature(featureAutosubmit, conf, pull.User.GetLogin())
 	if !permitted {
 		return false, nil
 	}
-
-	println("checking autosubmit", pull.GetBody())
 
 	return isautosubmit(pull.GetBody()), nil
 }
