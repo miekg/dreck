@@ -140,9 +140,9 @@ Further more the following extra command is supported for pull request issues co
 
 * `/lgtm`, approve the pull request.
 * `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
-  minutes for all tests to complete. When the pull request is merged the label 'autosubmit' is added
-  to it. Note that the command `/autosubmit` can *also be given in the pull request body*. If we
-  dreck sees this it will perform the same checks and, if allowed, we start autosubmitting.
+  minutes for all tests to complete. The label 'autosubmit' is added to the pull request.
+  Note that the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees
+  this it will perform the same checks and, if allowed, we start autosubmitting.
 
 ## Aliases
 
