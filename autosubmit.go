@@ -7,7 +7,7 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-func (d Dreck) isAutoSubmit(req types.PullRequestOuter, conf *types.DreckConfig) (bool, error) {
+func (d Dreck) isAutosubmit(req types.PullRequestOuter, conf *types.DreckConfig) (bool, error) {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return false, err
@@ -22,10 +22,10 @@ func (d Dreck) isAutoSubmit(req types.PullRequestOuter, conf *types.DreckConfig)
 		return false, nil
 	}
 
-	return isAutosubmit(pull.GetBody()), nil
+	return isautosubmit(pull.GetBody()), nil
 }
 
-func isAutosubmit(msg string) bool { return strings.Contains(msg, Trigger+autosubmitConst) }
+func isautosubmit(msg string) bool { return strings.Contains(msg, Trigger+autosubmitConst) }
 
 // PullRequestAutosubmit will kick off autosubmit, by calling d.autosubmit.
 func (d Dreck) pullRequestAutosubmit(req types.PullRequestOuter) error {

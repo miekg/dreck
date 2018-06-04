@@ -108,12 +108,20 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 		}
 
+		autosubmit, _ := d.isAutosubmit(req, conf)
+
 		// Reviewers, only on PR opens.
 		if req.Action == openPRConst {
-			if enabledFeature(featureReviewers, conf) {
+			if enabledFeature(featureReviewers, conf) && !autosubmit {
 				if err := d.pullRequestReviewers(req); err != nil {
 					return err
 				}
+			}
+		}
+
+		if req.Action == openPRConst && autosubmit {
+			if err := d.pullRequestAutosubmit(req); err != nil {
+				return err
 			}
 		}
 

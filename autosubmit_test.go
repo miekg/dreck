@@ -28,7 +28,7 @@ func TestIsAutosubmit(t *testing.T) {
 	for _, test := range autosubmit {
 		t.Run(test.title, func(t *testing.T) {
 
-			containsSignoff := isAutosubmit(test.message)
+			containsSignoff := isautosubmit(test.message)
 
 			if containsSignoff != test.expectedBool {
 				t.Errorf("Is autosubmit - Testing '%s'  - wanted: %t, found %t", test.message, test.expectedBool, containsSignoff)
