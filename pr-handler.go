@@ -130,6 +130,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	}
 
 	title := pull.GetTitle()
+	log.Infof("Title for PR %d: %s", req.PullRequest.Number, title)
 	if hasWIPPrefix(title) {
 		body := thanks + "As this is a Work-in-Progress pull request I will not assign a reviewer."
 		comment := githubIssueComment(body)
