@@ -35,6 +35,10 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 			if err != nil {
 				return err
 			}
+			if pull.ClosedAt != nil {
+				// Pr has been closed or deleted. Don't merge!
+				return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
+			}
 
 			ok, _ := d.pullRequestStatus(ctx, client, req, pull)
 			if ok && pull.Mergeable != nil {
