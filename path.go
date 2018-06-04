@@ -64,6 +64,7 @@ func sortOnOccurence(m map[string]int) [][]string {
 	return ret
 }
 
+// ByLen sorts on string length.
 type ByLen []string
 
 func (a ByLen) Len() int           { return len(a) }

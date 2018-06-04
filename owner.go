@@ -59,6 +59,7 @@ func (d Dreck) findReviewers(files []*github.CommitFile, puller string, f func(p
 	return "", ""
 }
 
+// Filter filters vs using the predicate function f.
 func Filter(vs []string, f func(string) bool) []string {
 	vsf := []string{}
 	for _, v := range vs {

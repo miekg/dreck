@@ -31,7 +31,7 @@ func (d Dreck) pullRequestDCO(req types.PullRequestOuter) error {
 		}
 		log.Infof("Current labels: %s", issue.Labels)
 
-		if hasNoDcoLabel(issue) == false {
+		if !hasNoDcoLabel(issue) {
 			log.Info("Applying label")
 			_, _, assignLabelErr := client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, []string{"no-dco"})
 			if assignLabelErr != nil {
@@ -53,21 +53,23 @@ That's something we need before your Pull Request can be merged. Please see our 
 
 		}
 
-	} else {
-		issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
+		return nil
+	}
 
-		if labelErr != nil {
-			return labelErr
-		}
+	issue, _, labelErr := client.Issues.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
 
-		if hasNoDcoLabel(issue) {
-			log.Info("Removing label")
-			_, removeLabelErr := client.Issues.RemoveLabelForIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, "no-dco")
-			if removeLabelErr != nil {
-				return removeLabelErr
-			}
+	if labelErr != nil {
+		return labelErr
+	}
+
+	if hasNoDcoLabel(issue) {
+		log.Info("Removing label")
+		_, removeLabelErr := client.Issues.RemoveLabelForIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, "no-dco")
+		if removeLabelErr != nil {
+			return removeLabelErr
 		}
 	}
+
 	return nil
 }
 
@@ -97,7 +99,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 
 	for _, commit := range commits {
 		if commit.Commit != nil && commit.Commit.Message != nil {
-			if isSigned(*commit.Commit.Message) == false {
+			if issigned(*commit.Commit.Message) == false {
 				hasUnsigned = true
 			}
 		}
@@ -106,7 +108,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 	return hasUnsigned, nil
 }
 
-func isSigned(msg string) bool { return strings.Contains(msg, "Signed-off-by:") }
+func issigned(msg string) bool { return strings.Contains(msg, "Signed-off-by:") }
 
 // pullRequestReview will look at the (first 5) files of a PR, retrieve the nearest OWNERS files
 // merge all the reviewers and randomly pick a reviewer that should be assigned for this PR.

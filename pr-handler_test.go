@@ -37,7 +37,7 @@ func TestIsSigned(t *testing.T) {
 	for _, test := range signOffOpts {
 		t.Run(test.title, func(t *testing.T) {
 
-			containsSignoff := isSigned(test.message)
+			containsSignoff := issigned(test.message)
 
 			if containsSignoff != test.expectedBool {
 				t.Errorf("Is signed off - Testing '%s'  - wanted: %t, found %t", test.message, test.expectedBool, containsSignoff)
