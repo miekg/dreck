@@ -46,7 +46,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		return d.lgtm(req, command.Type)
 	case autosubmitConst:
 		if permittedUserFeature(featureAutosubmit, conf, req.Comment.User.Login) {
-			return d.autosubmit(req, command.Type)
+			return d.autosubmit(req)
 		}
 		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
 	}

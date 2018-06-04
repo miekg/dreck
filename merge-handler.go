@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/go-github/github"
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
+
+	"github.com/google/go-github/github"
 )
 
-func (d Dreck) autosubmit(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err

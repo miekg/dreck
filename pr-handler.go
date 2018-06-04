@@ -106,9 +106,7 @@ func hasUnsigned(req types.PullRequestOuter, client *github.Client) (bool, error
 	return hasUnsigned, nil
 }
 
-func isSigned(msg string) bool {
-	return strings.Contains(msg, "Signed-off-by:")
-}
+func isSigned(msg string) bool { return strings.Contains(msg, "Signed-off-by:") }
 
 // pullRequestReview will look at the (first 5) files of a PR, retrieve the nearest OWNERS files
 // merge all the reviewers and randomly pick a reviewer that should be assigned for this PR.
