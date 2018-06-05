@@ -65,15 +65,22 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
-	cmd := exec.Command(parts[0], parts[1:]...)
-
-	// Get stdout, errors will go to Caddy log.
-	buf, err := cmd.Output()
+	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
+	typ := "issue:"
+	_, _, err = client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	if err != nil {
+		typ = "pull:"
+	}
+	arg := fmt.Sprintf("%s:%d", typ, req.Issue.Number)
+
+	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
+
+	// Get stdout, errors will go to Caddy log.
+	buf, err := cmd.Output()
 	if err != nil {
 		return err
 	}

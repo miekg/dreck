@@ -130,35 +130,10 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
-* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners. **COMMAND**
-  must start with a slash.
+* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners, and only
+  via an expanded alias. **COMMAND** must also start with a slash.
 
 The case of these commands is ignored.
-
-### Run
-
-Run allows for processes be started on the dreck server. For this the `run` feature must be enabled
-and runners must be defined in the OWNERS file. Only commands *expanded* by an alias are allowed to
-run, this is to prevent things like `/run /bin/cat /etc/passwd` to be run accidentally.
-
-So for run to work, you'll need to:
-
-1. have aliases enabled.
-2. have runners defined.
-3. have an alias expand to a `/run` command.
-
-For example, if you want to run `/opt/bin/release ARGUMENT` on the server, the following alias must
-be there:
-
-~~~
-/release: (.*) -> /run: /opt/bin/release $1
-~~~
-
-You can then call the command with `/release 0.1` in an issue comment.
-
-Note that in this case `/cat -> /run: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
-yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
-/etc/resolv.conf /etc/passwd`. In other words be careful of what commands you whitelist.
 
 ### Pull Requests
 
@@ -201,6 +176,34 @@ aliases:
     - |
       /plugin: (.*) -> /label add: plugin/$1
 ~~~
+
+### Run
+
+Run allows for processes be started on the dreck server. For this the `run` feature *and* the
+`aliases` feature must be enabled. Next runners must be defined in the OWNERS file. Only commands
+*expanded* by an alias are allowed to run, this is to prevent things like `/run /bin/cat
+/etc/passwd` to be run accidentally.
+
+All commands run will get one default argument, which is either the issue or pull request number,
+if the command is given in an issue dreck will run `/cmd issue:NUMBER`, if done for a pull request
+that parameter it will be `/cmd pull:NUMBER`.
+
+For example, if you want to run `/opt/bin/release ARGUMENT` on the server, the following alias must
+be there:
+
+~~~
+/release: (.*) -> /run: /opt/bin/release $1
+~~~
+
+If you then call the command with `/release 0.1` in issue 42. Dreck will run:
+
+~~~
+/opt/bin/release issue:42 0.1
+~~~
+
+Note that in this case `/cat -> /run: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
+yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
+/etc/resolv.conf /etc/passwd`. In other words be careful of what commands you whitelist.
 
 ## Branches
 
