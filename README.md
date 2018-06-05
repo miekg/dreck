@@ -138,13 +138,23 @@ The case of these commands is ignored.
 ### Run
 
 Run allows for processes be started on the dreck server. For this the `run` feature must be enabled
-and runners must be defined in the OWNERS file. Only command *expanded* by an alias are allowed to
-run, this is to prevent `/run /bin/cat /etc/passwd` to be run accidentally.
+and runners must be defined in the OWNERS file. Only commands *expanded* by an alias are allowed to
+run, this is to prevent things like `/run /bin/cat /etc/passwd` to be run accidentally.
 
-So for run to actually work, you'll need:
-1. to have aliases enable
-2. to have runners defined
-3. have an alias expand to a `/run` command
+So for run to work, you'll need to:
+
+1. have aliases enabled.
+2. have runners defined.
+3. have an alias expand to a `/run` command.
+
+For example, if you want to run `/opt/bin/release ARGUMENT` on the server, the following alias must
+be there:
+
+~~~
+/release: (.*) -> /run: /opt/bin/release $1
+~~~
+
+You can then call the command with `/release 0.1` in an issue comment.
 
 ### Pull Requests
 

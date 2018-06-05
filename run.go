@@ -41,6 +41,11 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 
 	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, run, req.Issue.Number)
 
+	parts := strings.Fields(run) // simple split
+	if len(parts) == 0 {
+		return fmt.Errorf("illegal run command %s", run)
+	}
+
 	// Ok so run needs to come about from an expanded alias, that means it must be a prefix from one of those.
 	ok := false
 	for _, a := range conf.Aliases {
@@ -49,7 +54,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 			log.Warningf("Failed to parse alias: %s, %v", a, err)
 			continue
 		}
-		if strings.HasPrefix("/run: "+run, r.replace) {
+		if strings.HasPrefix(r.replace, Trigger+runConst+": "+parts[0]) {
 			log.Infof("Running %s, because it is defined in alias expansion %s", run, r.replace)
 			ok = true
 			break
@@ -57,12 +62,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 	}
 
 	if !ok {
-		return fmt.Errorf("The command %s is not defined in the aliaes", run)
-	}
-
-	parts := strings.Fields(run) // simple split
-	if len(parts) == 0 {
-		return fmt.Errorf("illegal run command %s", run)
+		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
 	cmd := exec.Command(parts[0], parts[1:]...)
