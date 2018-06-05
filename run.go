@@ -60,7 +60,7 @@ func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error 
 	}
 
 	body := fmt.Sprintf("The command %s has run and output the following on its standard output", run)
-	body += "~~~\n" + string(buf) + "\n~~~\n"
+	body += "\n~~~\n" + string(buf) + "\n~~~\n"
 
 	comment := githubIssueComment(body)
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
