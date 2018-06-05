@@ -156,6 +156,11 @@ be there:
 
 You can then call the command with `/release 0.1` in an issue comment.
 
+Note that in this case `/cat -> /run: /bin/cat /etc/resolv.conf`, running
+`cat /etc/passwd` *still* yields in an (unwanted?) disclosure becuase the final command being
+run is `/bin/cat /etc/resolv.conf /etc/passwd`. In other words be care in which command you
+whitelist.
+
 ### Pull Requests
 
 For pull requests all modified, added and removed files are checked. We crawl the path upwards

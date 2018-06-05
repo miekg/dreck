@@ -78,7 +78,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 		return err
 	}
 
-	body := fmt.Sprintf("The command %s has run and output the following on its standard output", run)
+	body := fmt.Sprintf("The command `%s` ran successfully. Its standard output is", run)
 	body += "\n~~~\n" + string(buf) + "\n~~~\n"
 
 	comment := githubIssueComment(body)
