@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -30,6 +31,15 @@ func sanitize(s string) bool {
 func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
 	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, cmdValue, req.Issue.Number)
+
+	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
+	// then start with a slash.
+	pos := strings.Index(cmdValue, "/")
+	if pos < 0 {
+		return fmt.Errorf("illegal run command %s", cmdValue)
+	}
+	run := cmdValue[pos:]
+
 	/*
 		client, ctx, err := d.newClient(req.Installation.ID)
 		if err != nil {

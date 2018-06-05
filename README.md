@@ -130,13 +130,15 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
-* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners.
+* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners. **COMMAND**
+  must start with a slash.
 
 The case of these commands is ignored.
 
 ### Run
 
 Run allows for processes be started on the dreck server. For this the `run` feature must be enabled
+and runners must be defined in the OWNERS file.
 
 ### Pull Requests
 
