@@ -70,10 +70,10 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 		return err
 	}
 
-	typ := "issue:"
-	_, _, err = client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
-	if err != nil {
-		typ = "pull:"
+	typ := "issue"
+	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	if err != nil && pull != nil {
+		typ = "pull"
 	}
 	arg := fmt.Sprintf("%s:%d", typ, req.Issue.Number)
 
