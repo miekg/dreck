@@ -77,6 +77,8 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 	}
 	arg := fmt.Sprintf("%s:%d", typ, req.Issue.Number)
 
+	println("arg", arg)
+
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
 
 	// Get stdout, errors will go to Caddy log.
