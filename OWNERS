@@ -21,4 +21,4 @@ aliases:
   - |
     /release: (.*) -> /run: /opt/bin/release $1
   - |
-    /cat: -> /run: /bin/cat /etc/resolv.conf
+    /cat -> /run: /bin/cat /etc/resolv.conf
