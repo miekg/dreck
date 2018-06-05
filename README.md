@@ -136,7 +136,7 @@ The case of these commands is ignored.
 
 ### Run
 
-
+Run allows for processes be started on the dreck server. For this the `run` feature must be enabled
 
 ### Pull Requests
 

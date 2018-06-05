@@ -18,3 +18,5 @@ features:
 aliases:
   - |
     /plugin: (.*) -> /label add: plugin/$1
+  - |
+    /release: (.*) -> /run: /opt/bin/release $1

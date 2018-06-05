@@ -50,6 +50,11 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			return d.autosubmit(req)
 		}
 		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
+	case runConst:
+		if permittedUserFeatureRun(conf, req.Comment.User.Login) {
+			return d.run(req, command.Type, command.Value)
+		}
+		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, runConst)
 	}
 
 	if len(req.Comment.Body) > 25 {
@@ -60,7 +65,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	return nil
 }
 
-func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue string) error {
+func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) error {
 
 	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
 
@@ -100,7 +105,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType string, labelValue str
 	return nil
 }
 
-func (d Dreck) title(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
+func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
 	log.Infof("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number)
 
@@ -125,7 +130,7 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType string, cmdValue strin
 	return nil
 }
 
-func (d Dreck) assign(req types.IssueCommentOuter, cmdType string, cmdValue string) error {
+func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
 	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number)
 
