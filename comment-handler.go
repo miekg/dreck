@@ -51,10 +51,14 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		}
 		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
 	case runConst:
-		if permittedUserFeatureRun(conf, req.Comment.User.Login) {
-			return d.run(req, command.Type, command.Value)
+		if !enabledFeature(featureAliases, conf) {
+			return fmt.Errorf("feature %s is not enabled, so /run can't work", featureAliases)
 		}
-		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, runConst)
+		if !permittedUserFeatureRun(conf, req.Comment.User.Login) {
+			return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, runConst)
+		}
+
+		return d.run(req, conf, command.Type, command.Value)
 	}
 
 	if len(req.Comment.Body) > 25 {

@@ -10,7 +10,7 @@ can:
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
 * LGTM a pull request with a comment.
-* Run commands on the dreck server.
+* Run (whitelisted) commands on the dreck server.
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
 "just" run it as a plugin in Caddy. It also massively expands on the number of features.
@@ -138,7 +138,13 @@ The case of these commands is ignored.
 ### Run
 
 Run allows for processes be started on the dreck server. For this the `run` feature must be enabled
-and runners must be defined in the OWNERS file.
+and runners must be defined in the OWNERS file. Only command *expanded* by an alias are allowed to
+run, this is to prevent `/run /bin/cat /etc/passwd` to be run accidentally.
+
+So for run to actually work, you'll need:
+1. to have aliases enable
+2. to have runners defined
+3. have an alias expand to a `/run` command
 
 ### Pull Requests
 

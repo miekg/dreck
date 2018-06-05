@@ -29,7 +29,7 @@ func sanitize(s string) bool {
 	return true
 }
 
-func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
 
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
@@ -40,6 +40,25 @@ func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error 
 	run := cmdValue[pos:]
 
 	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, run, req.Issue.Number)
+
+	// Ok so run needs to come about from an expanded alias, that means it must be a prefix from one of those.
+	ok := false
+	for _, a := range conf.Aliases {
+		r, err := NewAlias(a)
+		if err != nil {
+			log.Warningf("Failed to parse alias: %s, %v", a, err)
+			continue
+		}
+		if strings.HasPrefix(run, r.replace) {
+			log.Infof("Running %s, because it is defined in alias expansion %s", run, r.replace)
+			ok = true
+			break
+		}
+	}
+
+	if !ok {
+		return fmt.Errorf("The command %s is not defined in the aliaes", run)
+	}
 
 	parts := strings.Fields(run) // simple split
 	if len(parts) == 0 {
