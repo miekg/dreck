@@ -2,6 +2,7 @@ package dreck
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
 	"strings"
 
@@ -30,8 +31,6 @@ func sanitize(s string) bool {
 
 func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
-	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, cmdValue, req.Issue.Number)
-
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
 	pos := strings.Index(cmdValue, "/")
@@ -40,16 +39,31 @@ func (d Dreck) run(req types.IssueCommentOuter, cmdType, cmdValue string) error 
 	}
 	run := cmdValue[pos:]
 
-	/*
-		client, ctx, err := d.newClient(req.Installation.ID)
-		if err != nil {
-			return err
-		}
-	*/
+	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, run, req.Issue.Number)
 
-	// cmdValue is what is being run.
+	parts := strings.Fields(run) // simple split
+	if len(parts) == 0 {
+		return fmt.Errorf("illegal run command %s", run)
+	}
 
-	// sanitize
+	cmd := exec.Command(parts[0], parts[1:]...)
+
+	// Get stdout, errors will go to Caddy log.
+	buf, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	client, ctx, err := d.newClient(req.Installation.ID)
+	if err != nil {
+		return err
+	}
+
+	body := fmt.Sprintf("The command %s has run and output the following on its standard output", run)
+	body += "~~~\n" + string(buf) + "\n~~~\n"
+
+	comment := githubIssueComment(body)
+	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
 
 	return nil
 }
