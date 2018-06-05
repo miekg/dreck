@@ -49,7 +49,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 			log.Warningf("Failed to parse alias: %s, %v", a, err)
 			continue
 		}
-		if strings.HasPrefix(run, r.replace) {
+		if strings.HasPrefix("/run: "+run, r.replace) {
 			log.Infof("Running %s, because it is defined in alias expansion %s", run, r.replace)
 			ok = true
 			break
