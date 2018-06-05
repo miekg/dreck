@@ -39,6 +39,8 @@ const (
 	featureBranches = "branches"
 	// featureAutosubmit enables the auto submitting or pull requests when the tests are green.
 	featureAutosubmit = "autosubmit"
+	// featureRun enables the run command.
+	featureRun = "run"
 )
 
 // Trigger is the prefix that triggers action from this bot.

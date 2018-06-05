@@ -25,6 +25,7 @@ const (
 	addLabelConst    = "AddLabel"
 	lgtmConst        = "lgtm"
 	autosubmitConst  = "autosubmit"
+	runConst         = "run"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -296,6 +297,7 @@ var IssueCommands = map[string]string{
 	Trigger + "title edit: ":   setTitleConst,
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
+	Trigger + "run":            runConst,        // Only works for runners.
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Requests comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 }

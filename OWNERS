@@ -4,12 +4,16 @@ reviewers:
 approvers:
   - miekg
 
+runners:
+  - miekg
+
 features:
   - comments
   - reviewers
   - aliases
   - branches
   - autosubmit
+  - run
 
 aliases:
   - |

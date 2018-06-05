@@ -9,7 +9,8 @@ can:
 * Assign reviewers to a pull request based on *OWNERS* files.
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
-* lgtm a pull request with a comment.
+* LGTM a pull request with a comment.
+* Run commands on the dreck server.
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
 "just" run it as a plugin in Caddy. It also massively expands on the number of features.
@@ -77,11 +78,16 @@ approvers:
     - miek
 reviewers:
     - miek
+runners:
+    - miek
 features:
     - comments
+    - run
 aliases:
     - |
       /plugin: (.*) -> /label add: plugin/$1
+    - |
+      /release: (.*) -> /run: /opt/bin/release $1
 ~~~
 
 ### Features
@@ -96,6 +102,7 @@ The following features are available.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
 * `autosubmit` - enables `/autosubmit`.
+* `run` - enables `/run`.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
@@ -123,8 +130,13 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
+* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners.
 
 The case of these commands is ignored.
+
+### Run
+
+
 
 ### Pull Requests
 

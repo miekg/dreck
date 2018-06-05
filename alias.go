@@ -19,6 +19,10 @@ func (r Rule) Expand(src string) string {
 
 // NewAlias inspects command to see if it is a correct alias.
 func NewAlias(command string) (Rule, error) {
+	if command == "" || command[0] != '/' {
+		return Rule{}, fmt.Errorf("invalid alias")
+	}
+
 	var err error
 	splits := strings.Split(command, sep)
 	if len(splits) != 2 {
