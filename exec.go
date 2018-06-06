@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/google/go-github/github"
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 )
@@ -70,10 +71,15 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	}
 
 	typ := "pull"
-	_, _, err = client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	// 404 error when not found
 	if err != nil {
 		typ = "issue"
+	}
+
+	if typ == "pull" {
+		stat := newStatus(statusPending)
+		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
@@ -85,6 +91,10 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	// Get stdout, errors will go to Caddy log.
 	buf, err := cmd.Output()
 	if err != nil {
+		if typ == "pull" {
+			stat := newStatus(statusFail)
+			client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
+		}
 		return err
 	}
 
@@ -94,7 +104,16 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	comment := githubIssueComment(body)
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
 
+	if typ == "pull" {
+		stat := newStatus(statusOK)
+		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
+	}
+
 	return nil
+}
+
+func newStatus(s string) *github.RepoStatus {
+	return &github.RepoStatus{State: &s}
 }
 
 // isExec checks our whitelist.

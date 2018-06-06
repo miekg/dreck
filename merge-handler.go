@@ -91,4 +91,9 @@ func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOu
 	return true, nil
 }
 
-const statusOK = "success"
+const (
+	statusOK      = "success"
+	statusPending = "pending"
+	statusFail    = "failure"
+	statusError   = "error"
+)
