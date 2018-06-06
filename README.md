@@ -149,7 +149,7 @@ Further more the following extra command is supported for pull request issues co
 * `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
   minutes for all tests to complete. The label 'autosubmit' is added to the pull request.
   Note that the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees
-  this it will perform the same checks and, if allowed, we start autosubmitting.
+  this it will perform the same checks and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
 
 ## Aliases
@@ -187,10 +187,10 @@ Exec allows for processes be started on the dreck server. For this the `exec` fe
 All commands executed will get one default argument, which is either the issue or pull request number,
 if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for a pull request
 that parameter will be `/bin/cmd pull/NUMBER`. If the command is run for a pull request dreck will
-update the status with 'pending' when the execution is in progress and either 'failed' or 'succes'
+update the status with 'pending' when the execution is in progress and either 'failed' or 'success'
 when the execution ends.
 
-For example, if you want to exceute `/opt/bin/release ARGUMENT` on the server, the following alias must
+For example, if you want to execute `/opt/bin/release ARGUMENT` on the server, the following alias must
 be there:
 
 ~~~
@@ -205,10 +205,10 @@ If you then call the command with `/release 0.1` in issue 42. Dreck will run:
 
 Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
-/etc/resolv.conf /etc/passwd`. In other words be careful of what commands you whitelist.
+/etc/resolv.conf /etc/passwd`. In other words be careful of what commands you white list.
 
-Dreck enforces a very restrictive whitelist and the allowed characters in the command. The
-whitelist currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
+Dreck enforces a very restrictive white list and the allowed characters in the command. The
+white list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
 is not allowed.
 
 ## Branches
