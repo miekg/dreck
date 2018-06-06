@@ -10,13 +10,13 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-// sanitize checks the run command s to see if a respects our white list.
-// It is also check for a maximum length of 64, allow what isRun matches, but disallow ..
+// sanitize checks the exec command s to see if a respects our white list.
+// It is also check for a maximum length of 64, allow what isExec matches, but disallow ..
 func sanitize(s string) bool {
 	if len(s) > 64 {
 		return false
 	}
-	ok := isRun(s)
+	ok := isExec(s)
 	if !ok {
 		return false
 	}
@@ -29,21 +29,20 @@ func sanitize(s string) bool {
 	return true
 }
 
-func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
-
+func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
 	pos := strings.Index(cmdValue, "/")
 	if pos < 0 {
-		return fmt.Errorf("illegal run command %s", cmdValue)
+		return fmt.Errorf("illegal exec command %s", cmdValue)
 	}
 	run := cmdValue[pos:]
 
-	log.Infof("%s wants to run %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
+	log.Infof("%s wants to execute %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
 
 	parts := strings.Fields(run) // simple split
 	if len(parts) == 0 {
-		return fmt.Errorf("illegal run command %s", run)
+		return fmt.Errorf("illegal exec command %s", run)
 	}
 
 	// Ok so run needs to come about from an expanded alias, that means it must be a prefix from one of those.
@@ -54,8 +53,8 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 			log.Warningf("Failed to parse alias: %s, %v", a, err)
 			continue
 		}
-		if strings.HasPrefix(r.replace, Trigger+runConst+": "+parts[0]) {
-			log.Infof("Running %s, because it is defined in alias expansion %s", run, r.replace)
+		if strings.HasPrefix(r.replace, Trigger+execConst+": "+parts[0]) {
+			log.Infof("Executing %s, because it is defined in alias expansion %s", run, r.replace)
 			ok = true
 			break
 		}
@@ -80,7 +79,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	arg := fmt.Sprintf("%s:%d", typ, req.Issue.Number)
 
-	log.Infof("About to run '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("About to execute '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
 
 	// Get stdout, errors will go to Caddy log.
@@ -98,5 +97,5 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 	return nil
 }
 
-// isRun checks our whitelist.
-var isRun = regexp.MustCompile(`^[-a-zA-Z0-9 ./]+$`).MatchString
+// isExec checks our whitelist.
+var isExec = regexp.MustCompile(`^[-a-zA-Z0-9 ./]+$`).MatchString

@@ -25,7 +25,7 @@ const (
 	addLabelConst    = "AddLabel"
 	lgtmConst        = "lgtm"
 	autosubmitConst  = "autosubmit"
-	runConst         = "run"
+	execConst        = "exec"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -50,15 +50,15 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			return d.autosubmit(req)
 		}
 		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
-	case runConst:
+	case execConst:
 		if !enabledFeature(featureAliases, conf) {
-			return fmt.Errorf("feature %s is not enabled, so /run can't work", featureAliases)
+			return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, featureAliases)
 		}
-		if !permittedUserFeatureRun(conf, req.Comment.User.Login) {
-			return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, runConst)
+		if !permittedUserFeature(featureExec, conf, req.Comment.User.Login) {
+			return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, execConst)
 		}
 
-		return d.run(req, conf, command.Type, command.Value)
+		return d.exec(req, conf, command.Type, command.Value)
 	}
 
 	if len(req.Comment.Body) > 25 {
@@ -306,7 +306,7 @@ var IssueCommands = map[string]string{
 	Trigger + "title edit: ":   setTitleConst,
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
-	Trigger + "run":            runConst,        // Only works for runners.
+	Trigger + "exec":           execConst,
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Requests comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 }
