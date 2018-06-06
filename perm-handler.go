@@ -37,18 +37,6 @@ func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, us
 	return false
 }
 
-func permittedUserFeatureRun(config *types.DreckConfig, user string) bool {
-	if enabledFeature(featureRun, config) {
-		for _, runner := range config.Runners {
-			if strings.EqualFold(user, runner) {
-				return true
-			}
-		}
-
-	}
-	return false
-}
-
 func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
 
 	var config types.DreckConfig

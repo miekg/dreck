@@ -10,7 +10,7 @@ can:
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
 * LGTM a pull request with a comment.
-* Run (whitelisted) commands on the dreck server.
+* Execute (whitelisted) commands on the dreck server.
 
 Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
 "just" run it as a plugin in Caddy. It also massively expands on the number of features.
@@ -78,16 +78,14 @@ approvers:
     - miek
 reviewers:
     - miek
-runners:
-    - miek
 features:
     - comments
-    - run
+    - exec
 aliases:
     - |
       /plugin: (.*) -> /label add: plugin/$1
     - |
-      /release: (.*) -> /run: /opt/bin/release $1
+      /release: (.*) -> /exec: /opt/bin/release $1
 ~~~
 
 ### Features
@@ -102,7 +100,7 @@ The following features are available.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
 * `autosubmit` - enables `/autosubmit`.
-* `run` - enables `/run`.
+* `exec` - enables `/exec`.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
 and include no lines above that.
@@ -130,8 +128,8 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
-* `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners, and only
-  via an expanded alias.
+* `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
+  are allowed.
 
 The case of these commands is ignored.
 
@@ -177,23 +175,23 @@ aliases:
       /plugin: (.*) -> /label add: plugin/$1
 ~~~
 
-### Run
+### Exec
 
-Run allows for processes be started on the dreck server. For this the `run` feature *and* the
-`aliases` feature must be enabled. Next runners must be defined in the OWNERS file. Only commands
-*expanded* by an alias are allowed to run, this is to prevent things like `/run /bin/cat
-/etc/passwd` to be run accidentally. The standard output of the command will be picked up and put in
-the new comment under the issue or pull request.
+Exec allows for processes be started on the dreck server. For this the `exec` feature *and* the
+`aliases` feature must be enabled. Only commands
+*expanded* by an alias are allowed to execute, this is to prevent things like `/exec: /bin/cat
+ /etc/passwd` to be run accidentally. The standard output of the command will be picked up and put
+ in the new comment under the issue or pull request.
 
-All commands run will get one default argument, which is either the issue or pull request number,
-if the command is given in an issue dreck will run `/cmd issue:NUMBER`, if done for a pull request
-that parameter will be `/cmd pull:NUMBER`.
+All commands executed will get one default argument, which is either the issue or pull request number,
+if the command is given in an issue dreck will run `/bin/cmd issue:NUMBER`, if done for a pull request
+that parameter will be `/bin/cmd pull:NUMBER`.
 
-For example, if you want to run `/opt/bin/release ARGUMENT` on the server, the following alias must
+For example, if you want to exceute `/opt/bin/release ARGUMENT` on the server, the following alias must
 be there:
 
 ~~~
-/release: (.*) -> /run: /opt/bin/release $1
+/release: (.*) -> /exec: /opt/bin/release $1
 ~~~
 
 If you then call the command with `/release 0.1` in issue 42. Dreck will run:
@@ -202,7 +200,7 @@ If you then call the command with `/release 0.1` in issue 42. Dreck will run:
 /opt/bin/release issue:42 0.1
 ~~~
 
-Note that in this case `/cat -> /run: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
+Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you whitelist.
 

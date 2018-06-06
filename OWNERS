@@ -4,19 +4,16 @@ reviewers:
 approvers:
   - miekg
 
-runners:
-  - miekg
-
 features:
   - comments
   - reviewers
   - aliases
   - branches
   - autosubmit
-  - run
+  - exec
 
 aliases:
   - |
     /plugin: (.*) -> /label add: plugin/$1
   - |
-    /release: (.*) -> /run: /opt/bin/release $1
+    /release: (.*) -> /exec: /opt/bin/release $1

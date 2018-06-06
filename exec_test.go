@@ -2,7 +2,7 @@ package dreck
 
 import "testing"
 
-func TestRunSanitize(t *testing.T) {
+func TestExecSanitize(t *testing.T) {
 	tests := []struct {
 		in string
 		ok bool

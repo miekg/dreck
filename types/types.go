@@ -69,5 +69,4 @@ type DreckConfig struct {
 	Features  []string
 	Reviewers []string
 	Approvers []string
-	Runners   []string
 }
