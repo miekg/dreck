@@ -6,9 +6,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/google/go-github/github"
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
+
+	"github.com/google/go-github/github"
 )
 
 // sanitize checks the exec command s to see if a respects our white list.
@@ -77,22 +78,22 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		typ = "issue"
 	}
 
-	if typ == "pull" {
-		stat := newStatus(statusPending)
-		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
-	}
-
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	arg := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
 
 	log.Infof("About to execute '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
 
+	if typ == "pull" {
+		stat := newStatus(statusPending, "In progess", cmd)
+		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
+	}
+
 	// Get stdout, errors will go to Caddy log.
 	buf, err := cmd.Output()
 	if err != nil {
 		if typ == "pull" {
-			stat := newStatus(statusFail)
+			stat := newStatus(statusFail, fmt.Sprintf("Failed: %s", err), cmd)
 			client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 		}
 		return err
@@ -105,15 +106,17 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
 
 	if typ == "pull" {
-		stat := newStatus(statusOK)
+		stat := newStatus(statusOK, "Successful", cmd)
 		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
 	return nil
 }
 
-func newStatus(s string) *github.RepoStatus {
-	return &github.RepoStatus{State: &s}
+func newStatus(s, desc string, cmd *exec.Cmd) *github.RepoStatus {
+	context := fmt.Sprintf("/exec %s", strings.Join(cmd.Args, " "))
+
+	return &github.RepoStatus{State: &s, Description: &desc, Context: &context}
 }
 
 // isExec checks our whitelist.

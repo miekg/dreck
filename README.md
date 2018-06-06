@@ -186,7 +186,9 @@ Exec allows for processes be started on the dreck server. For this the `exec` fe
 
 All commands executed will get one default argument, which is either the issue or pull request number,
 if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for a pull request
-that parameter will be `/bin/cmd pull/NUMBER`.
+that parameter will be `/bin/cmd pull/NUMBER`. If the command is run for a pull request dreck will
+update the status with 'pending' when the execution is in progress and either 'failed' or 'succes'
+when the execution ends.
 
 For example, if you want to exceute `/opt/bin/release ARGUMENT` on the server, the following alias must
 be there:
