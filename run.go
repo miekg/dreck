@@ -39,7 +39,7 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 	}
 	run := cmdValue[pos:]
 
-	log.Infof("%s wants to run %s for issue #%d\n", req.Comment.User.Login, run, req.Issue.Number)
+	log.Infof("%s wants to run %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
 
 	parts := strings.Fields(run) // simple split
 	if len(parts) == 0 {
@@ -70,15 +70,17 @@ func (d Dreck) run(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType
 		return err
 	}
 
-	typ := "issue"
-	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
-	if err != nil && pull != nil {
-		typ = "pull"
+	typ := "pull"
+	_, _, err = client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	// 404 error when not found
+	if err != nil {
+		typ = "issue"
 	}
+
+	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	arg := fmt.Sprintf("%s:%d", typ, req.Issue.Number)
 
-	println("arg", arg)
-
+	log.Infof("About to run '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
 
 	// Get stdout, errors will go to Caddy log.

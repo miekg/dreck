@@ -131,7 +131,7 @@ The following commands are supported.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
 * `/run COMMAND`, run **COMMAND** on the dreck server. Can only be performed by runners, and only
-  via an expanded alias. **COMMAND** must also start with a slash.
+  via an expanded alias.
 
 The case of these commands is ignored.
 
