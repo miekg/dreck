@@ -185,8 +185,8 @@ Exec allows for processes be started on the dreck server. For this the `exec` fe
  in the new comment under the issue or pull request.
 
 All commands executed will get one default argument, which is either the issue or pull request number,
-if the command is given in an issue dreck will run `/bin/cmd issue:NUMBER`, if done for a pull request
-that parameter will be `/bin/cmd pull:NUMBER`.
+if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for a pull request
+that parameter will be `/bin/cmd pull/NUMBER`.
 
 For example, if you want to exceute `/opt/bin/release ARGUMENT` on the server, the following alias must
 be there:
@@ -198,7 +198,7 @@ be there:
 If you then call the command with `/release 0.1` in issue 42. Dreck will run:
 
 ~~~
-/opt/bin/release issue:42 0.1
+/opt/bin/release issue/42 0.1
 ~~~
 
 Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
