@@ -182,11 +182,12 @@ aliases:
 Run allows for processes be started on the dreck server. For this the `run` feature *and* the
 `aliases` feature must be enabled. Next runners must be defined in the OWNERS file. Only commands
 *expanded* by an alias are allowed to run, this is to prevent things like `/run /bin/cat
-/etc/passwd` to be run accidentally.
+/etc/passwd` to be run accidentally. The standard output of the command will be picked up and put in
+the new comment under the issue or pull request.
 
 All commands run will get one default argument, which is either the issue or pull request number,
 if the command is given in an issue dreck will run `/cmd issue:NUMBER`, if done for a pull request
-that parameter it will be `/cmd pull:NUMBER`.
+that parameter will be `/cmd pull:NUMBER`.
 
 For example, if you want to run `/opt/bin/release ARGUMENT` on the server, the following alias must
 be there:
