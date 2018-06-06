@@ -150,6 +150,7 @@ Further more the following extra command is supported for pull request issues co
   minutes for all tests to complete. The label 'autosubmit' is added to the pull request.
   Note that the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees
   this it will perform the same checks and, if allowed, we start autosubmitting.
+* `/exec`, executing commands is supported for pull requests.
 
 ## Aliases
 
