@@ -22,7 +22,7 @@ func sanitize(s string) bool {
 	}
 
 	// Extra check for .. because the regexp doesn't catch that.
-	if strings.Contains("..", s) {
+	if strings.Contains(s, "..") {
 		return false
 	}
 

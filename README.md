@@ -205,6 +205,10 @@ Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat 
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you whitelist.
 
+Dreck enforces a very restrictive whitelist and the allowed characters in the command. The
+whitelist currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
+is not allowed.
+
 ## Branches
 
 With this enabled, *dreck* will, after each closed pull request, look to see if the branch is

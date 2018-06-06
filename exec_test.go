@@ -11,9 +11,9 @@ func TestExecSanitize(t *testing.T) {
 		{"a b", true},
 		{"1 2", true},
 		{"1", true},
-		//{".", true},
-		//{"..", false},
-		//{"...", false},
+		{".", true},
+		{"..", false},
+		{"...", false},
 	}
 
 	for _, test := range tests {
