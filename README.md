@@ -12,8 +12,8 @@ can:
 * LGTM a pull request with a comment.
 * Execute (whitelisted) commands on the dreck server.
 
-Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you can
-"just" run it as a plugin in Caddy. It also massively expands on the number of features.
+Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
+can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
@@ -93,17 +93,17 @@ aliases:
 The following features are available.
 
 * `comments` - allow commands (see below) in comments.
-* `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the relevant
-  OWNERS files.
-* `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to be done.
-  Needs a "no-dco" label in the repository for it to work.
+* `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
+  relevant OWNERS files.
+* `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to
+  be done. Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
 * `autosubmit` - enables `/autosubmit`.
 * `exec` - enables `/exec`.
 
-When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm: bug`
-and include no lines above that.
+When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm:
+bug` and include no lines above that.
 
 Commands and aliases are detected in a case insensitive manner.
 
@@ -119,7 +119,8 @@ The following commands are supported.
 * `/label: LABEL`,  short for "label add".
 * `/label remove: LABEL`, remove **LABEL**.
 * `/label rm: LABEL`, short for "label remove",
-* `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the commenter
+* `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the
+  commenter
 * `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**.
 * `/close`, close issue.
 * `/reopen`, reopen issue.
@@ -128,28 +129,29 @@ The following commands are supported.
 * `/title edit: TITLE`, set the title to **TITLE**.
 * `/lock`, lock the issue.
 * `/unlock`, unlock the issue.
-* `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
-  are allowed.
+* `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
+  allowed.
 
 The case of these commands is ignored.
 
 ### Pull Requests
 
-For pull requests all modified, added and removed files are checked. We crawl the path upwards
-until we find an OWNERS file. We will then randomly assign someone from the reviewers to review the
-pull request. This is only done when the pull request does not have any reviewers.
+For pull requests all modified, added and removed files are checked. We crawl the path upwards until
+we find an OWNERS file. We will then randomly assign someone from the reviewers to review the pull
+request. This is only done when the pull request does not have any reviewers.
 
-This is *not* done for pull request that have `WIP` (case insensitive) as a prefix in the title, when the
-title is changed to a non Work-in-Progress one, we will perform this check. The full list of WIP
-checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
+This is *not* done for pull request that have `WIP` (case insensitive) as a prefix in the title,
+when the title is changed to a non Work-in-Progress one, we will perform this check. The full list
+of WIP checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
 
-Further more the following extra command is supported for pull request issues comments (ignored for issues).
+Further more the following extra command is supported for pull request issues comments (ignored for
+issues).
 
 * `/lgtm`, approve the pull request.
 * `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
-  minutes for all tests to complete. The label 'autosubmit' is added to the pull request.
-  Note that the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees
-  this it will perform the same checks and, if allowed, we start submitting.
+  minutes for all tests to complete. The label 'autosubmit' is added to the pull request. Note that
+  the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees this it
+  will perform the same checks and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
 
 ## Aliases
@@ -162,8 +164,8 @@ a regular expression based format and looks like this: `alias -> command`. Note 
 /plugin: (.*) -> /label add: plugin/$1
 ~~~
 
-This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`.
-The regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
+This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`. The
+regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
 match group.
 
 The alias expansion is done is a case insensitive manner.
@@ -179,19 +181,18 @@ aliases:
 ### Exec
 
 Exec allows for processes be started on the dreck server. For this the `exec` feature *and* the
-`aliases` feature must be enabled. Only commands
-*expanded* by an alias are allowed to execute, this is to prevent things like `/exec: /bin/cat
- /etc/passwd` to be run accidentally. The standard output of the command will be picked up and put
- in the new comment under the issue or pull request.
+`aliases` feature must be enabled. Only commands *expanded* by an alias are allowed to execute, this
+is to prevent things like `/exec: /bin/cat /etc/passwd` to be run accidentally. The standard output
+of the command will be picked up and put in the new comment under the issue or pull request.
 
-All commands executed will get one default argument, which is either the issue or pull request number,
-if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for a pull request
-that parameter will be `/bin/cmd pull/NUMBER`. If the command is run for a pull request dreck will
-update the status with 'pending' when the execution is in progress and either 'failed' or 'success'
-when the execution ends.
+All commands executed will get one default argument, which is either the issue or pull request
+number, if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for
+a pull request that parameter will be `pull/NUMBER`. If the command is run for a pull request dreck
+will update the status with 'pending' when the execution is in progress and either 'failed' or
+'success' when the execution ends.
 
-For example, if you want to execute `/opt/bin/release ARGUMENT` on the server, the following alias must
-be there:
+For example, if you want to execute `/opt/bin/release ARGUMENT` on the server, the following alias
+must be defined:
 
 ~~~
 /release: (.*) -> /exec: /opt/bin/release $1
@@ -207,7 +208,7 @@ Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat 
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you white list.
 
-Dreck enforces a very restrictive white list and the allowed characters in the command. The
+Dreck enforces a very restrictive white list on the allowed characters in the command. The
 white list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
 is not allowed.
 
