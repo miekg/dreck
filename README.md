@@ -81,6 +81,7 @@ reviewers:
 features:
     - comments
     - exec
+    - aliases
 aliases:
     - |
       /plugin: (.*) -> /label add: plugin/$1
@@ -103,17 +104,15 @@ The following features are available.
 * `exec` - enables `/exec`.
 
 When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm:
-bug` and include no lines above that.
+bug` and include no lines above that. Multiple command in one message/issue are not supported.
 
 Commands and aliases are detected in a case insensitive manner.
-
-Multiple command in one message/issue are not supported.
 
 ## Supported Commands
 
 ### Comments
 
-The following commands are supported.
+The following commands are supported in issue comments.
 
 * `/label add: LABEL`, label an issue with **LABEL**.
 * `/label: LABEL`,  short for "label add".
@@ -132,19 +131,18 @@ The following commands are supported.
 * `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
   allowed.
 
-The case of these commands is ignored.
-
 ### Pull Requests
 
-For pull requests all modified, added and removed files are checked. We crawl the path upwards until
-we find an OWNERS file. We will then randomly assign someone from the reviewers to review the pull
-request. This is only done when the pull request does not have any reviewers.
+When a pull request is submitted dreck will check which files are modified, removed or changed. For
+a subset of these it will search for the nearest OWNERS file. We will then randomly assign someone
+from the reviewers to review the pull request. This is only done when the pull request does not have
+any reviewers, nor is a work-in-progress.
 
-This is *not* done for pull request that have `WIP` (case insensitive) as a prefix in the title,
-when the title is changed to a non Work-in-Progress one, we will perform this check. The full list
-of WIP checks is: `WIP`, `WIP:`, `[WIP]` and `[WIP]:`.
+If pull requests have `WIP` (case insensitive) as a prefix in the title and this title is changed to
+remove that prefix we will search (again) for a reviewer. The prefixes allowed are: `WIP`, `WIP:`,
+`[WIP]` and `[WIP]:`.
 
-Further more the following extra command is supported for pull request issues comments (ignored for
+Further more the following extra commands are supported for pull request issues comments (ignored for
 issues).
 
 * `/lgtm`, approve the pull request.
@@ -167,8 +165,6 @@ a regular expression based format and looks like this: `alias -> command`. Note 
 This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`. The
 regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
 match group.
-
-The alias expansion is done is a case insensitive manner.
 
 Note this entire string needs to be taken literal in the OWNERS file to be valid yaml:
 
