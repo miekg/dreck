@@ -34,5 +34,5 @@ make godeps
 go build
 git shortlog -5
 
-echo Releasing: $(VERSION)
-gh-release create $(DRECK) $(VERSION)
+echo Releasing: $VERSION
+gh-release create $DRECK $VERSION
