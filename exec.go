@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"syscall"
 
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
@@ -66,6 +67,11 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
+	uid, gid, err := userID(d.user)
+	if err != nil {
+		return err
+	}
+
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -83,6 +89,8 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 
 	log.Infof("About to execute '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
 
 	if typ == "pull" {
 		stat := newStatus(statusPending, "In progess", cmd)

@@ -79,6 +79,12 @@ func parseDreck(c *caddy.Controller) (Dreck, error) {
 					return d, c.Errf("invalid strategy: %s", args[0])
 				}
 				d.strategy = args[0]
+			case "user":
+				args := c.RemainingArgs()
+				if len(args) != 1 {
+					return d, c.ArgErr()
+				}
+				d.user = args[0]
 			}
 		}
 	}

@@ -33,6 +33,7 @@ dreck {
     path PATH
     merge STRATEGY
     validate
+    user USER
 }
 ~~~
 
@@ -44,6 +45,7 @@ dreck {
 * `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
   it defaults to `squash`.
 * `validate` enable HMAC validation of the request.
+* `user` specifies the **USER** to be used for executing commands. This defaults to `nobody`.
 
 ## OWNERS File Syntax
 
@@ -180,6 +182,8 @@ Exec allows for processes be started on the dreck server. For this the `exec` fe
 `aliases` feature must be enabled. Only commands *expanded* by an alias are allowed to execute, this
 is to prevent things like `/exec: /bin/cat /etc/passwd` to be run accidentally. The standard output
 of the command will be picked up and put in the new comment under the issue or pull request.
+
+The command will be run under the user `nobody`, but this can be overriden in the configuration.
 
 All commands executed will get one default argument, which is either the issue or pull request
 number, if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for

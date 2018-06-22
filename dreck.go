@@ -14,6 +14,7 @@ type Dreck struct {
 	path     string // when should dreck trigger, default to '/dreck'
 	hmac     bool   // validate HMAC on the webhook
 	strategy string
+	user     string
 }
 
 // New returns a new, initialized Dreck.
@@ -22,6 +23,7 @@ func New() Dreck {
 	d.owners = "OWNERS"
 	d.path = "/dreck"
 	d.strategy = mergeSquash
+	d.user = "nobody"
 
 	return d
 }
