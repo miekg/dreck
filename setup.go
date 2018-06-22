@@ -85,6 +85,12 @@ func parseDreck(c *caddy.Controller) (Dreck, error) {
 					return d, c.ArgErr()
 				}
 				d.user = args[0]
+			case "env":
+				args := c.RemainingArgs()
+				if len(args) != 2 {
+					return d, c.ArgErr()
+				}
+				d.env[args[0]] = args[1]
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package dreck
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -89,8 +90,15 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 
 	log.Infof("About to execute '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
+	// drop to user 'nobody' or whatever we have in d.user
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
+	// extend environment
+	env := os.Environ()
+	for e, v := range d.env {
+		env = append(env, fmt.Sprintf("%s=%s", e, v))
+	}
+	cmd.Env = env
 
 	if typ == "pull" {
 		stat := newStatus(statusPending, "In progess", cmd)

@@ -11,10 +11,11 @@ type Dreck struct {
 
 	owners   string
 	secret   string
-	path     string // when should dreck trigger, default to '/dreck'
-	hmac     bool   // validate HMAC on the webhook
-	strategy string
-	user     string
+	path     string            // when should dreck trigger, default to '/dreck'
+	hmac     bool              // validate HMAC on the webhook
+	strategy string            // how to merge when we merge
+	user     string            // user to use to exec commands
+	env      map[string]string // environment to give to commands
 }
 
 // New returns a new, initialized Dreck.
