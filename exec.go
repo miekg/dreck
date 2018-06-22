@@ -88,13 +88,14 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	arg := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
 
-	log.Infof("About to execute '%s %s %s' for #%d\n", parts[0], arg, strings.Join(parts[1:], " "), req.Issue.Number)
-	cmd := exec.Command(parts[0], append([]string{arg}, parts[1:]...)...)
+	log.Infof("About to execute '%s s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	cmd := exec.Command(parts[0], parts[1:]...)
 	// drop to user 'nobody' or whatever we have in d.user
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
 	// extend environment
 	env := os.Environ()
+	env = append(env, fmt.Sprintf("GITHUB_TRIGGER=%s", arg))
 	for e, v := range d.env {
 		env = append(env, fmt.Sprintf("%s=%s", e, v))
 	}

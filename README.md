@@ -188,11 +188,14 @@ of the command will be picked up and put in the new comment under the issue or p
 
 The command will be run under the user `nobody`, but this can be overriden in the configuration.
 
-All commands executed will get one default argument, which is either the issue or pull request
-number, if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for
-a pull request that parameter will be `pull/NUMBER`. If the command is run for a pull request dreck
-will update the status with 'pending' when the execution is in progress and either 'failed' or
-'success' when the execution ends.
+The command executed can not be a script, it must be a real executable.
+
+Apart from the environment set in the configuration all command well have access to GITHUB_TRIGGER.
+If the command is given in an issue dreck will set GITHUB_TRIGGER to `issue/NUMBER`, if done for
+a pull request that value will be `pull/NUMBER`.
+
+If the command is run for a pull request dreck will update the status with 'pending' when the
+execution is in progress and either 'failed' or 'success' when the execution ends.
 
 For example, if you want to execute `/opt/bin/release ARGUMENT` on the server, the following alias
 must be defined:
@@ -204,8 +207,10 @@ must be defined:
 If you then call the command with `/release 0.1` in issue 42. Dreck will run:
 
 ~~~
-/opt/bin/release issue/42 0.1
+/opt/bin/release 0.1
 ~~~
+
+And GITHUB_TRIGGER will be issue/42.
 
 Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
