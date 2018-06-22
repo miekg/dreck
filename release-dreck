@@ -13,7 +13,7 @@ TEMP=$(mktemp -d)
 function finish {
   rmdir -f $TEMP
 }
-#trap finish EXIT
+trap finish EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
