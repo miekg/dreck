@@ -186,7 +186,7 @@ Exec allows for processes be started on the dreck server. For this the `exec` fe
 is to prevent things like `/exec: /bin/cat /etc/passwd` to be run accidentally. The standard output
 of the command will be picked up and put in the new comment under the issue or pull request.
 
-The command will be run under the user `nobody`, but this can be overriden in the configuration.
+If `user` is specified dreck will run the command under that user.
 
 The command executed can not be a script, it must be a real executable.
 
