@@ -9,7 +9,7 @@ TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
 function finish {
-  rm -f $TEMP
+  rm -rf $TEMP
 }
 trap finish EXIT
 
