@@ -188,6 +188,8 @@ of the command will be picked up and put in the new comment under the issue or p
 
 The command will be run under the user `nobody`, but this can be overriden in the configuration.
 
+The command executed can not be a script, it must be a real executable.
+
 All commands executed will get one default argument, which is either the issue or pull request
 number, if the command is given in an issue dreck will run `/bin/cmd issue/NUMBER`, if done for
 a pull request that parameter will be `pull/NUMBER`. If the command is run for a pull request dreck
