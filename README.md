@@ -34,6 +34,7 @@ dreck {
     merge STRATEGY
     validate
     user USER
+    env NAME VALUE
 }
 ~~~
 
@@ -46,6 +47,8 @@ dreck {
   it defaults to `squash`.
 * `validate` enable HMAC validation of the request.
 * `user` specifies the **USER** to be used for executing commands. This defaults to `nobody`.
+* `env` defines environment variable with **NAME** and assign it **VALUE**. These may be repeated.
+  Any executed command will have these variables in their environment.
 
 ## OWNERS File Syntax
 
