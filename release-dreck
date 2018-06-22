@@ -1,19 +1,17 @@
 #!/bin/bash
 
-# two args given: issue/NUM or pull/NUM and version. We ignore the first.
-
 GOLANG=https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
 
-VERSION=$2
+VERSION=$1
 OWNER=miekg
 DRECK=https://github.com/$OWNER/dreck
 TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
 function finish {
-  rmdir -f $TEMP
+  rm -f $TEMP
 }
-#trap finish EXIT
+trap finish EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
@@ -34,5 +32,5 @@ make godeps
 go build
 git shortlog -5
 
-echo Releasing: $(VERSION)
-gh-release create $(DRECK) $(VERSION)
+echo Releasing: $VERSION
+gh-release create $DRECK $VERSION

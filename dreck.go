@@ -24,7 +24,6 @@ func New() Dreck {
 	d.owners = "OWNERS"
 	d.path = "/dreck"
 	d.strategy = mergeSquash
-	d.user = "nobody"
 	d.env = make(map[string]string)
 
 	return d

@@ -68,11 +68,6 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
-	uid, gid, err := userID(d.user)
-	if err != nil {
-		return err
-	}
-
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -88,11 +83,20 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	arg := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
 
-	log.Infof("About to execute '%s s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("About to execute '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
 	cmd := exec.Command(parts[0], parts[1:]...)
+
 	// drop to user 'nobody' or whatever we have in d.user
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
-	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
+	if d.user != "" {
+		uid, gid, err := userID(d.user)
+		if err != nil {
+			return err
+		}
+
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
+	}
+
 	// extend environment
 	env := os.Environ()
 	env = append(env, fmt.Sprintf("GITHUB_TRIGGER=%s", arg))
@@ -113,6 +117,15 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 			stat := newStatus(statusFail, fmt.Sprintf("Failed: %s", err), cmd)
 			client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 		}
+		body := fmt.Sprintf("The command `%s` did not run successfully. The error returned is", run)
+		body += "\n~~~\n" + err.Error() + "\n~~~\n"
+		if len(buf) > 0 {
+			body += "Its standard output is"
+			body += "\n~~~\n" + string(buf) + "\n~~~\n"
+		}
+
+		comment := githubIssueComment(body)
+		client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
 		return err
 	}
 
