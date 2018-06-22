@@ -11,7 +11,7 @@ TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
 function finish {
-  rmdir -f $TEMP
+  rm -f $TEMP
 }
 trap finish EXIT
 
