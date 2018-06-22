@@ -17,7 +17,7 @@ trap finish EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
-    wget $GOLANG
+    wget -q $GOLANG
     cp $TAR /tmp
 else
     cp /tmp/$TAR .
@@ -32,6 +32,7 @@ export GOPATH=$PWD/g
 cd g/src/github.com/$OWNER && git clone --depth 1 $DRECK && cd $(basename $DRECK)
 make godeps
 go build
+git shortlog -5
 
 echo Releasing: $(VERSION)
 gh-release create $(DRECK) $(VERSION)
