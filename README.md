@@ -9,11 +9,13 @@ Dreck can help you with managing pull requests and issues in your GitHub project
 can:
 
 * Label/close/lock etc. issues.
-* Assign reviewers to a pull request based on *OWNERS* files.
+* Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
+  status.
 * Automatically delete the branch when a pull request is merged.
 * Automatically merge a pull request when the status is green.
 * LGTM a pull request with a comment.
 * Execute (whitelisted) commands on the dreck server.
+* Define (shorter) alias for often used commands.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
@@ -46,7 +48,8 @@ dreck {
 * `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
   it defaults to `squash`.
 * `validate` enable HMAC validation of the request.
-* `user` specifies the **USER** to be used for executing commands. This defaults to `nobody`.
+* `user` specifies the **USER** to be used for executing commands. This defaults to the user running
+  Caddy.
 * `env` defines environment variable with **NAME** and assign it **VALUE**. These may be repeated.
   Any executed command will have these variables in their environment.
 
