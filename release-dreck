@@ -2,6 +2,8 @@
 
 GOLANG=https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
 
+echo $GITHUB_TRIGGER
+
 VERSION=$1
 if [[ -z "$VERSION" ]]; then
     echo "No version given"
@@ -13,10 +15,7 @@ DRECK=https://github.com/$OWNER/dreck
 TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
-function finish {
-  rm -rf $TEMP
-}
-trap finish EXIT
+f1() { rm -rf $TEMP; }; trap f1 EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
@@ -35,7 +34,18 @@ export GOPATH=$PWD/g
 cd g/src/github.com/$OWNER && git clone --depth 1 $DRECK && cd $(basename $DRECK)
 make godeps
 go build
-git shortlog -5
+git log -5
+
+# Fake some release files, so we upload something to Github.
+mkdir -p release
+cp version.go release
+
+f2() { rm -rf release; }; trap f2 EXIT
+
+if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
+    echo "No GITHUB_ACCESS_TOKEN set"
+    exit 0
+fi
 
 echo Releasing: $VERSION
-gh-release create $DRECK $VERSION
+gh-release create $OWNER/dreck $VERSION
