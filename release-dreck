@@ -3,7 +3,9 @@
 # This is a test script that is used to "release" (there is no release for dreck), Dreck.
 # It downloads Go and then compiles dreck and fakes a release to exercise gh-release.
 
-GOLANG=https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+LATEST=$(curl -s https://golang.org/VERSION?m=text)
+
+GOLANG=https://dl.google.com/go/${LATEST}.linux-amd64.tar.gz
 
 echo $GITHUB_TRIGGER
 
