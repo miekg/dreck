@@ -15,10 +15,7 @@ DRECK=https://github.com/$OWNER/dreck
 TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
-function finish {
-  rm -rf $TEMP
-}
-trap finish EXIT
+f1() { rm -rf $TEMP; }; trap f1 EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
@@ -38,6 +35,12 @@ cd g/src/github.com/$OWNER && git clone --depth 1 $DRECK && cd $(basename $DRECK
 make godeps
 go build
 git shortlog -5
+
+# Fake some release files, so we upload something to Github.
+mkdir -p release
+cp version.go release
+
+f2() { rm -rf release; }; trap f2 EXIT
 
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
     echo "No GITHUB_ACCESS_TOKEN set"
