@@ -16,4 +16,4 @@ aliases:
   - |
     /plugin: (.*) -> /label add: plugin/$1
   - |
-    /release: (.*) -> /exec: /bin/bash -c /opt/release-dreck -- $1
+    /release: (.*) -> /exec: /opt/release-dreck $1
