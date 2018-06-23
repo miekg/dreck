@@ -117,8 +117,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 			stat := newStatus(statusFail, fmt.Sprintf("Failed: %s", err), cmd)
 			client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 		}
-		body := fmt.Sprintf("The command `%s` did not run successfully. The error returned is", run)
-		body += "\n~~~\n" + err.Error() + "\n~~~\n"
+		body := fmt.Sprintf("The command `%s` did not run successfully. The exit status returned is `%s`\n\n", run, err.Error())
 		if len(buf) > 0 {
 			body += "Its standard output is"
 			body += "\n~~~\n" + string(buf) + "\n~~~\n"
