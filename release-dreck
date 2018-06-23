@@ -34,7 +34,7 @@ export GOPATH=$PWD/g
 cd g/src/github.com/$OWNER && git clone --depth 1 $DRECK && cd $(basename $DRECK)
 make godeps
 go build
-git shortlog -5
+git log -5
 
 # Fake some release files, so we upload something to Github.
 mkdir -p release
@@ -48,4 +48,4 @@ if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
 fi
 
 echo Releasing: $VERSION
-gh-release create $DRECK $VERSION
+gh-release create $OWNER/dreck $VERSION
