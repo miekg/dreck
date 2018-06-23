@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
+Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
+can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
+
 Dreck can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
@@ -11,9 +14,6 @@ can:
 * Automatically merge a pull request when the status is green.
 * LGTM a pull request with a comment.
 * Execute (whitelisted) commands on the dreck server.
-
-Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
-can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
