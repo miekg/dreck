@@ -51,7 +51,7 @@ function fromGithub {
 
     ( cd $TEMP
         mkdir -p g/src/github.com/$GITHUB
-        cd g/src/github.com/$GITHUB && git clone --depth 1 https://github.com/$GITHUB
+        cd g/src/github.com/$(dirname $GITHUB) && git clone --depth 1 https://github.com/$GITHUB
     )
 }
 
