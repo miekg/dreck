@@ -2,16 +2,18 @@
 
 # This is a test script that is used to "release" (there is no release for dreck), Dreck.
 # It downloads Go and then compiles dreck and fakes a release to exercise gh-release.
+PROG=$(basename "$0")
+
+function echo() {
+    echo $PROG: "$@"
+}
 
 LATEST=$(curl -s https://golang.org/VERSION?m=text)
-
 GOLANG=https://dl.google.com/go/${LATEST}.linux-amd64.tar.gz
-
-echo $GITHUB_TRIGGER
 
 VERSION=$1
 if [[ -z "$VERSION" ]]; then
-    echo "No version given"
+    echo "no version given"
     exit 1
 fi
 
@@ -24,6 +26,7 @@ f1() { rm -rf $TEMP; }; trap f1 EXIT
 
 cd $TEMP
 if [[ ! -e /tmp/$TAR ]]; then
+    echo "downloading $GOLANG"
     wget -q $GOLANG
     cp $TAR /tmp
 else
@@ -52,5 +55,13 @@ if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
     exit 0
 fi
 
-echo Releasing: $VERSION
 gh-release create $OWNER/dreck $VERSION
+RELEASE=$(curl -s -d '{"tag_name": "v$(VERSION)", "name": "v$(VERSION)"}' \
+"https://api.github.com/repos/$OWNER/dreck/releases?access_token=${GITHUB_ACCESS_TOKEN}" | grep -m 1 '"id"' | tr -cd '[[:digit:]]')
+echo ReleaseID: $(RELEASE)
+for asset in `ls -A release`; do
+    curl -X POST \
+        -H "Content-Type: application/gzip" \
+	--data-binary "@release/$asset" \
+	"https://uploads.github.com/repos/$OWNER/dreck/releases/$(RELEASE)/assets?name=$${asset}&access_token=${GITHUB_ACCESS_TOKEN}"
+done
