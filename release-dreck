@@ -3,42 +3,79 @@
 # This release script downloads the latest Go and dreck, sets things up and then calls
 # into the Makefile to do the release.
 
-LATEST=$(curl -s https://golang.org/VERSION?m=text)
-GOLANG=https://dl.google.com/go/${LATEST}.linux-amd64.tar.gz
-VERSION=$1
+PROG=$(basename $0)
 
+# GetLatestGO download the latest version of Go (or used a cached download from /tmp).
+function latestGo {
+    TEMP="$1"
+
+    LATEST=$(curl -s https://golang.org/VERSION?m=text)
+    GOLANG=https://dl.google.com/go/${LATEST}.linux-amd64.tar.gz
+    TAR=$(basename $GOLANG)
+
+    ( cd $TEMP
+        if [[ ! -e /tmp/$TAR ]]; then
+            echo "$PROG: Downloading: $GOLANG"
+
+            wget -q $GOLANG
+            cp $TAR /tmp
+
+        else
+            echo "$PROG: Using cached version of: $GOLANG"
+
+            cp /tmp/$TAR .
+        fi
+    )
+}
+
+# setupGo extract Go and export GOROOT and GOPATH to get a compile confined to the tmp dir.
+function setupGo {
+    TEMP="$1"
+
+    echo "$PROG: Setting up Go in $TEMP"
+
+    ( cd $TEMP
+        tar xf $TAR
+        export GOROOT=$PWD/go
+        PATH=$GOROOT/bin:$PATH
+        export GOPATH=$PWD/g
+    )
+}
+
+# fromGithub download owner/repo from Github into g/src/github.com/owner/repo.
+function fromGithub {
+    TEMP="$1"
+    GITHUB="$2" # OWNER/REPO
+
+    echo "$PROG: Getting $GITHUB"
+
+    ( cd $TEMP
+        mkdir -p g/src/github.com/$GITHUB
+        cd g/src/github.com/$GITHUB && git clone --depth 1 https://github.com/$GITHUB
+    )
+}
+
+VERSION=$1
 if [[ -z "$VERSION" ]]; then
-    echo "No version given"
+    echo "$PROG: No version set"
     exit 1
 fi
 
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
-    echo "No GITHUB_ACCESS_TOKEN set"
+    echo "$PROG: No GITHUB_ACCESS_TOKEN set"
     exit 1
 fi
 
-GITHUB=miekg
-DRECK=https://github.com/$GITHUB/dreck
-TAR=$(basename $GOLANG)
-TEMP=$(mktemp -d)
+GITHUB=miekg/dreck
+TEMP=$(mktemp -d); function d1 { rm -rf $TEMP; }; trap d1 EXIT
 
-f1() { rm -rf $TEMP; }; trap f1 EXIT
+latestGo $TEMP
+setupGo $TEMP
+fromGithub $TEMP $GITHUB
 
-#cd $TEMP
-#if [[ ! -e /tmp/$TAR ]]; then
-#    echo "downloading $GOLANG"
-#    wget -q $GOLANG
-#    cp $TAR /tmp
-#else
-#    cp /tmp/$TAR .
-#fi
+echo "$PROG: Building $GITHUB in $TEMP/g/src/github.com/$GITHUB"
 
-#tar xf $TAR
-#export GOROOT=$PWD/go
-#PATH=$GOROOT/bin:$PATH
-#mkdir -p g/src/github.com/$GITHUB
-#export GOPATH=$PWD/g
-
-#cd g/src/github.com/$GITHUB && git clone --depth 1 $DRECK && cd $(basename $DRECK)
-make VERSION=${VERSION} release
-make VERSION=${VERSION} upload
+( cd $TEMP/g/src/github.com/$GITHUB
+    make VERSION=$VERSION release
+    #make VERSION=$VERSION upload
+)
