@@ -1,67 +1,44 @@
 #!/bin/bash
 
-# This is a test script that is used to "release" (there is no release for dreck), Dreck.
-# It downloads Go and then compiles dreck and fakes a release to exercise gh-release.
-PROG=$(basename "$0")
-
-function echo() {
-    echo $PROG: "$@"
-}
+# This release script downloads the latest Go and dreck, sets things up and then calls
+# into the Makefile to do the release.
 
 LATEST=$(curl -s https://golang.org/VERSION?m=text)
 GOLANG=https://dl.google.com/go/${LATEST}.linux-amd64.tar.gz
-
 VERSION=$1
+
 if [[ -z "$VERSION" ]]; then
-    echo "no version given"
+    echo "No version given"
     exit 1
 fi
 
-OWNER=miekg
-DRECK=https://github.com/$OWNER/dreck
+if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
+    echo "No GITHUB_ACCESS_TOKEN set"
+    exit 1
+fi
+
+GITHUB=miekg
+DRECK=https://github.com/$GITHUB/dreck
 TAR=$(basename $GOLANG)
 TEMP=$(mktemp -d)
 
 f1() { rm -rf $TEMP; }; trap f1 EXIT
 
-cd $TEMP
-if [[ ! -e /tmp/$TAR ]]; then
-    echo "downloading $GOLANG"
-    wget -q $GOLANG
-    cp $TAR /tmp
-else
-    cp /tmp/$TAR .
-fi
+#cd $TEMP
+#if [[ ! -e /tmp/$TAR ]]; then
+#    echo "downloading $GOLANG"
+#    wget -q $GOLANG
+#    cp $TAR /tmp
+#else
+#    cp /tmp/$TAR .
+#fi
 
-tar xf $TAR
-export GOROOT=$PWD/go
-PATH=$GOROOT/bin:$PATH
-mkdir -p g/src/github.com/$OWNER
-export GOPATH=$PWD/g
+#tar xf $TAR
+#export GOROOT=$PWD/go
+#PATH=$GOROOT/bin:$PATH
+#mkdir -p g/src/github.com/$GITHUB
+#export GOPATH=$PWD/g
 
-cd g/src/github.com/$OWNER && git clone --depth 1 $DRECK && cd $(basename $DRECK)
-make godeps
-go build
-git log -5
-
-# Fake some release files, so we upload something to Github.
-mkdir -p release
-cp version.go release
-
-f2() { rm -rf release; }; trap f2 EXIT
-
-if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
-    echo "No GITHUB_ACCESS_TOKEN set"
-    exit 0
-fi
-
-gh-release create $OWNER/dreck $VERSION
-RELEASE=$(curl -s -d '{"tag_name": "v$(VERSION)", "name": "v$(VERSION)"}' \
-"https://api.github.com/repos/$OWNER/dreck/releases?access_token=${GITHUB_ACCESS_TOKEN}" | grep -m 1 '"id"' | tr -cd '[[:digit:]]')
-echo ReleaseID: $(RELEASE)
-for asset in `ls -A release`; do
-    curl -X POST \
-        -H "Content-Type: application/gzip" \
-	--data-binary "@release/$asset" \
-	"https://uploads.github.com/repos/$OWNER/dreck/releases/$(RELEASE)/assets?name=$${asset}&access_token=${GITHUB_ACCESS_TOKEN}"
-done
+#cd g/src/github.com/$GITHUB && git clone --depth 1 $DRECK && cd $(basename $DRECK)
+make VERSION=${VERSION} release
+make VERSION=${VERSION} upload
