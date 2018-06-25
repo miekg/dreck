@@ -50,6 +50,10 @@ func TestParsingOpenClose(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			test.body = strings.ToLower(test.body)
 			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) == 0 && test.expectedAction == "" { // Ugly hack to should be cleaned up (miek)
+				// correct, we didn't parse anything
+				return
+			}
 			if len(actions) != 1 {
 				t.Errorf("Action - not parsed correctly")
 				return
@@ -96,6 +100,10 @@ func TestParsingLabels(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 
 			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
+				// correct, we didn't parse anything
+				return
+			}
 			if len(actions) != 1 {
 				t.Errorf("Action - not parsed correctly")
 				return
