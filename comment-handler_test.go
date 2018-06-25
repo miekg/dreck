@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/miekg/dreck/types"
@@ -47,8 +48,13 @@ func TestParsingOpenClose(t *testing.T) {
 
 	for _, test := range actionOptions {
 		t.Run(test.title, func(t *testing.T) {
-
-			action := parse(test.body, &types.DreckConfig{})
+			test.body = strings.ToLower(test.body)
+			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) != 1 {
+				t.Errorf("Action - not parsed correctly")
+				return
+			}
+			action := actions[0]
 
 			if action.Type != test.expectedAction {
 				t.Errorf("Action - want: %s, got %s", test.expectedAction, action.Type)
@@ -89,7 +95,12 @@ func TestParsingLabels(t *testing.T) {
 	for _, test := range labelOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) != 1 {
+				t.Errorf("Action - not parsed correctly")
+				return
+			}
+			action := actions[0]
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("Action - wanted: %s, got %s\nLabel - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
@@ -138,7 +149,7 @@ func TestParsingAssignments(t *testing.T) {
 		{
 			title:        "Unassign blank",
 			body:         Trigger + "unassign: ",
-			expectedType: "",
+			expectedType: unassignConst,
 			expectedVal:  "",
 		},
 	}
@@ -146,7 +157,16 @@ func TestParsingAssignments(t *testing.T) {
 	for _, test := range assignmentOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
+				// correct, we didn't parse anything
+				return
+			}
+			if len(actions) != 1 {
+				t.Errorf("Action - not parsed correctly")
+				return
+			}
+			action := actions[0]
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("Action - wanted: %s, got %s\nMaintainer - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
@@ -177,7 +197,7 @@ func TestParsingTitles(t *testing.T) {
 		{
 			title:        "Empty Title",
 			body:         Trigger + "title set: ",
-			expectedType: "", //blank because it should fail isValidCommand
+			expectedType: setTitleConst,
 			expectedVal:  "",
 		},
 		{
@@ -191,9 +211,19 @@ func TestParsingTitles(t *testing.T) {
 	for _, test := range titleOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &types.DreckConfig{})
+			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
+				// correct, we didn't parse anything
+				return
+			}
+
+			if len(actions) != 1 {
+				t.Errorf("Action - not parsed correctly")
+				return
+			}
+			action := actions[0]
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
-				t.Errorf("\nAction - wanted: %s, got %s\nValue - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
+				t.Errorf("\nAction - wanted: %q, got %q\nValue - wanted: %q, got %q", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
 		})
 	}

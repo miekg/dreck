@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"bufio"
 	"fmt"
 	"strings"
 
@@ -26,52 +27,75 @@ const (
 	lgtmConst        = "lgtm"
 	autosubmitConst  = "autosubmit"
 	execConst        = "exec"
+	testConst        = "test"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
-	command := parse(req.Comment.Body, conf)
+	body := strings.ToLower(req.Comment.Body)
+	c := parse(body, conf)
 
-	switch command.Type {
+	for _, command := range c {
 
-	case addLabelConst, removeLabelConst:
-		return d.label(req, command.Type, command.Value)
-	case assignConst, unassignConst:
-		return d.assign(req, command.Type, command.Value)
-	case closeConst, reopenConst:
-		return d.state(req, command.Type)
-	case setTitleConst:
-		return d.title(req, command.Type, command.Value)
-	case lockConst, unlockConst:
-		return d.lock(req, command.Type)
-	case lgtmConst:
-		return d.lgtm(req, command.Type)
-	case autosubmitConst:
-		if permittedUserFeature(featureAutosubmit, conf, req.Comment.User.Login) {
-			return d.autosubmit(req)
-		}
-		return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
-	case execConst:
-		if !enabledFeature(featureAliases, conf) {
-			return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, featureAliases)
-		}
-		if !permittedUserFeature(featureExec, conf, req.Comment.User.Login) {
-			return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, execConst)
-		}
+		switch command.Type {
 
-		return d.exec(req, conf, command.Type, command.Value)
+		case addLabelConst, removeLabelConst:
+			if err := d.label(req, command.Type, command.Value); err != nil {
+				return err
+			}
+		case assignConst, unassignConst:
+			if err := d.assign(req, command.Type, command.Value); err != nil {
+				return err
+			}
+		case closeConst, reopenConst:
+			if err := d.state(req, command.Type); err != nil {
+				return err
+			}
+		case setTitleConst:
+			if err := d.title(req, command.Type, command.Value); err != nil {
+				return err
+			}
+		case lockConst, unlockConst:
+			if err := d.lock(req, command.Type); err != nil {
+				return err
+			}
+		case lgtmConst:
+			if err := d.lgtm(req, command.Type); err != nil {
+				return err
+			}
+		case testConst:
+			if err := d.test(req, command.Type, command.Value); err != nil {
+				return err
+			}
+		case autosubmitConst:
+			if permittedUserFeature(featureAutosubmit, conf, req.Comment.User.Login) {
+				if err := d.autosubmit(req); err != nil {
+					return err
+				}
+			}
+			return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, autosubmitConst)
+		case execConst:
+			if !enabledFeature(featureAliases, conf) {
+				return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, featureAliases)
+			}
+			if !permittedUserFeature(featureExec, conf, req.Comment.User.Login) {
+				return fmt.Errorf("user %s not permitted to use %s or this feature is disabled", req.Comment.User.Login, execConst)
+			}
+
+			if err := d.exec(req, conf, command.Type, command.Value); err != nil {
+				return err
+			}
+		}
 	}
 
-	if len(req.Comment.Body) > 25 {
-		log.Warningf("Unable to work with comment: %s", req.Comment.Body[:25])
-	} else {
-		log.Warningf("Unable to work with comment: %s", req.Comment.Body)
+	if len(c) == 0 {
+		log.Warningf("No command found in comment %d", req.Issue.Number)
 	}
 	return nil
 }
 
 func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) error {
 
-	labelAction := strings.Replace(strings.ToLower(cmdType), "label", "", 1)
+	labelAction := strings.Replace(cmdType, "label", "", 1)
 
 	log.Infof("%s wants to %s label of '%s' on issue #%d \n", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
 
@@ -136,7 +160,7 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) erro
 
 func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
-	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), cmdValue, req.Issue.Number)
+	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -157,7 +181,7 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 		return err
 	}
 
-	log.Infof("%s %sed successfully or already %sed.\n", cmdValue, strings.ToLower(cmdType), strings.ToLower(cmdType))
+	log.Infof("%s %sed successfully or already %sed.\n", cmdValue, cmdType, cmdType)
 
 	return nil
 }
@@ -190,10 +214,10 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 
 func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 
-	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
+	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	if !validAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
-		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, strings.ToLower(cmdType))
+		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, cmdType)
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
@@ -211,12 +235,12 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	log.Infof("Request to %s issue #%d by %s was successful.\n", strings.ToLower(cmdType), req.Issue.Number, req.Comment.User.Login)
+	log.Infof("Request to %s issue #%d by %s was successful.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
 	return nil
 }
 
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
-	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, strings.ToLower(cmdType), req.Issue.Number)
+	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -239,18 +263,35 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 	return err
 }
 
-func parse(body string, conf *types.DreckConfig) *types.CommentAction {
+func (d Dreck) test(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	log.Infof("%s wants to %s %s issue #%d\n", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
+	return nil
+}
+
+// Body must be downcased already.
+func parse(body string, conf *types.DreckConfig) []*types.CommentAction {
+	actions := []*types.CommentAction{}
+
 	for trigger, commandType := range IssueCommands {
-		if ok, val := isValidCommand(body, trigger, conf); ok {
-			return &types.CommentAction{Type: commandType, Value: val}
+
+		if val := isValidCommand(body, trigger, conf); len(val) > 0 {
+			for _, v := range val {
+				actions = append(actions, &types.CommentAction{Type: commandType, Value: v})
+				// limit the amount of actions we allow.
+				if len(actions) == 10 {
+					return actions
+				}
+			}
 		}
 	}
 
-	return &types.CommentAction{}
+	return actions
 }
 
-// isValidCommand checks the body of the comment to see if trigger is present.
-func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool, string) {
+// isValidCommand checks the body of the comment to see if trigger is present. Commands
+// are recognized if the are on a line by them selves and are placed at the beginning.
+// Body myst be lowercased.
+func isValidCommand(body string, trigger string, conf *types.DreckConfig) []string {
 	if ok := enabledFeature(featureAliases, conf); ok {
 		for _, a := range conf.Aliases {
 			r, err := NewAlias(a)
@@ -262,18 +303,27 @@ func isValidCommand(body string, trigger string, conf *types.DreckConfig) (bool,
 		}
 	}
 
-	val := ""
-	trigger = strings.ToLower(trigger)
-
-	ok := (len(body) > len(trigger) && strings.ToLower(body[0:len(trigger)]) == trigger) ||
-		(strings.ToLower(body) == trigger && !strings.HasSuffix(trigger, ": "))
-
-	if ok {
-		val = body[len(trigger):]
-		val = strings.Trim(val, " \t.,\n\r")
+	if len(body) < len(trigger) {
+		return nil
 	}
 
-	return ok, val
+	val := []string{}
+	bodyr := bufio.NewReader(strings.NewReader(body + "\n"))
+	for {
+		line, err := bodyr.ReadString('\n')
+		if err != nil {
+			break
+		}
+		if !strings.HasPrefix(line, trigger) {
+			continue
+		}
+		// rest of the line is the value.
+		v := line[len(trigger):]
+		v = strings.Trim(v, " \t.,\n\r")
+		val = append(val, v)
+	}
+
+	return val
 }
 
 func validAction(running bool, requestedAction string, start string, stop string) bool {
@@ -309,4 +359,5 @@ var IssueCommands = map[string]string{
 	Trigger + "exec":           execConst,
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Requests comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
+	Trigger + "test: ":         testConst,
 }
