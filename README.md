@@ -17,6 +17,9 @@ can:
 * Execute (whitelisted) commands on the dreck server.
 * Define (shorter) alias for often used commands.
 
+The commands must be given as the first things on a line, multiple commands (up to 10) are allowed
+but we return on the first error seen.
+
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
 setup; again: all beyond the scope of this document.
@@ -138,6 +141,7 @@ The following commands are supported in issue comments.
 * `/unlock`, unlock the issue.
 * `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
   allowed.
+* `/test`, a noop used for testing dreck.
 
 ### Pull Requests
 
@@ -228,7 +232,3 @@ is not allowed.
 With this enabled, *dreck* will, after each closed pull request, look to see if the branch is
 merged, but not deleted. If this is true, it will delete the branch. The *master* branch is always
 excluded from this.
-
-## Bugs
-
-We don't support multiple commands in an comment issue.

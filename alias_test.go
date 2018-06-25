@@ -93,7 +93,17 @@ func TestParsingAlias(t *testing.T) {
 	for _, test := range options {
 		t.Run(test.title, func(t *testing.T) {
 
-			action := parse(test.body, conf)
+			actions := parse(test.body, conf)
+			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
+				// correct, we didn't parse anything
+				return
+			}
+			if len(actions) != 1 {
+				t.Errorf("Action - not parsed correctly")
+				return
+			}
+			action := actions[0]
+
 			if action.Type != test.expectedType || action.Value != test.expectedVal {
 				t.Errorf("Action - wanted: %s, got %s\nLabel - wanted: %s, got %s", test.expectedType, action.Type, test.expectedVal, action.Value)
 			}
