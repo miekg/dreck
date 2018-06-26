@@ -11,14 +11,16 @@ can:
 * Label/close/lock etc. issues.
 * Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
   status.
-* Automatically delete the branch when a pull request is merged.
-* Automatically merge a pull request when the status is green.
+* Delete the branch when a pull request is merged.
+* Merge a pull request when the status is green.
 * LGTM a pull request with a comment.
-* Execute (whitelisted) commands on the dreck server.
 * Define (shorter) alias for often used commands.
+* Execute (whitelisted) commands on the dreck server.
 
-The commands must be given as the first things on a line, multiple commands (up to 10) are allowed
-but we return on the first error seen.
+The commands must be given as the first word(s) on a line, multiple commands (up to 10) are allowed
+but we return on the first error seen. This holds true for comments that are returned via email.
+
+Commands are detected in a case insensitive manner.
 
 For this all to work, you'll need to have an Github App that allows access to your repo - setting
 this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
@@ -60,7 +62,8 @@ dreck {
 
 The OWNERS file syntax is borrowed from Kubernetes and extended with a `features` and `aliases`
 section that allows you to configure dreck. This file should live in the top level directory of the
-repository.
+repository. Other OWNERS files may exist in deeper directories. These are used to assign reviewers
+from for pull requests.
 
 ``` yaml
 approvers:
@@ -113,11 +116,6 @@ The following features are available.
 * `branches` - enables the deletion of branches after a merge of a pull request.
 * `autosubmit` - enables `/autosubmit`.
 * `exec` - enables `/exec`.
-
-When using email to reply to an issue, the email *must* start with the command, i.e. `/label rm:
-bug` and include no lines above that. Multiple command in one message/issue are not supported.
-
-Commands and aliases are detected in a case insensitive manner.
 
 ## Supported Commands
 
@@ -232,3 +230,29 @@ is not allowed.
 With this enabled, *dreck* will, after each closed pull request, look to see if the branch is
 merged, but not deleted. If this is true, it will delete the branch. The *master* branch is always
 excluded from this.
+
+# Examples
+
+Set a label on an issue, on Github (or via email), create a reply that contains:
+
+~~~
+/label: bug
+~~~
+
+And dreck will apply that label. The label is created if it didn't exist. Text can freely
+intermixed, but each command should be on its own line and start on the left most position.
+
+~~~
+This is good question.
+/label: question
+~~~
+
+While the following will not be detected as a command:
+
+~~~
+This is good question. /label: question
+~~~
+
+# Also See
+
+See [Derek](https://github.com/alexellis/derek) of which dreck is a fork.
