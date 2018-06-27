@@ -375,5 +375,5 @@ var IssueCommands = map[string]string{
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Request comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 	Trigger + "test: ":         testConst,
-	Trigger + "duplicate: ", dupllicateConst,
+	Trigger + "duplicate: ":    dupllicateConst,
 }
