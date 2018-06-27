@@ -28,6 +28,7 @@ const (
 	autosubmitConst  = "autosubmit"
 	execConst        = "exec"
 	testConst        = "test"
+	dupllicateConst  = "duplicate"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -64,6 +65,10 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			}
 		case testConst:
 			if err := d.test(req, command.Type, command.Value); err != nil {
+				return err
+			}
+		case dupllicateConst:
+			if err := d.duplicate(req, command.Type, command.Value); err != nil {
 				return err
 			}
 		case autosubmitConst:
@@ -268,6 +273,16 @@ func (d Dreck) test(req types.IssueCommentOuter, cmdType, cmdValue string) error
 	return nil
 }
 
+func (d Dreck) duplicate(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	if err := d.label(req, addLabelConst, "duplicate"); err != nil {
+		return err
+	}
+	if err := d.state(req, closeConst); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Body must be downcased already.
 func parse(body string, conf *types.DreckConfig) []*types.CommentAction {
 	actions := []*types.CommentAction{}
@@ -357,7 +372,8 @@ var IssueCommands = map[string]string{
 	Trigger + "lock":           lockConst,
 	Trigger + "unlock":         unlockConst,
 	Trigger + "exec":           execConst,
-	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Requests comments.
+	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Request comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 	Trigger + "test: ":         testConst,
+	Trigger + "duplicate: ", dupllicateConst,
 }

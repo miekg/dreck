@@ -140,6 +140,8 @@ The following commands are supported in issue comments.
 * `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
   allowed.
 * `/test`, a noop used for testing dreck.
+* `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
+  and adding the 'duplicate' label.
 
 ### Pull Requests
 
