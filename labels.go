@@ -19,7 +19,7 @@ func labelDuplicate(current []types.IssueLabel, label string) bool {
 	return false
 }
 
-// allLabels returns all labels from the repository.
+// allLabels returns the first 100 labels from the repository.
 func (d Dreck) allLabels(ctx context.Context, client *github.Client, req types.IssueCommentOuter) ([]types.IssueLabel, error) {
 	labels, _, err := client.Issues.ListLabels(ctx, req.Repository.Owner.Login, req.Repository.Name, &github.ListOptions{PerPage: 100, Page: 0})
 	if err != nil {

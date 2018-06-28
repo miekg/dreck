@@ -241,8 +241,8 @@ Set a label on an issue, on Github (or via email), create a reply that contains:
 /label: bug
 ~~~
 
-And dreck will apply that label. The label is created if it didn't exist. Text can freely
-intermixed, but each command should be on its own line and start on the left most position.
+And dreck will apply that label if it exists. Text can freely intermixed, but each command should be
+on its own line and start on the left most position.
 
 ~~~
 This is good question.
