@@ -14,6 +14,7 @@ can:
 * Delete the branch when a pull request is merged.
 * Merge a pull request when the status is green.
 * LGTM a pull request with a comment.
+* Merge a pull request with a comment, only when the checks are OK and with at least 1 LGTM.
 * Define (shorter) alias for often used commands.
 * Execute (whitelisted) commands on the dreck server.
 
@@ -115,6 +116,7 @@ The following features are available.
 * `aliases` - enable alias expansion.
 * `branches` - enables the deletion of branches after a merge of a pull request.
 * `autosubmit` - enables `/autosubmit`.
+* `merge` - enables `/merge`.
 * `exec` - enables `/exec`.
 
 ## Supported Commands
@@ -163,6 +165,8 @@ issues).
   the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees this it
   will perform the same checks and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
+* `/merge`, merge this pull request if the checks are green and we have approval (and no
+  explicit changes requested).
 
 ## Aliases
 

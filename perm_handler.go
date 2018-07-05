@@ -34,3 +34,18 @@ func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, us
 
 	return false
 }
+
+func permittedUser(config *types.DreckConfig, user string) bool {
+	for _, reviewer := range config.Reviewers {
+		if strings.EqualFold(user, reviewer) {
+			return true
+		}
+	}
+	for _, approver := range config.Approvers {
+		if strings.EqualFold(user, approver) {
+			return true
+		}
+	}
+
+	return false
+}
