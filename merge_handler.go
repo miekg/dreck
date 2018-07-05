@@ -42,13 +42,13 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 
 			ok, _ := d.pullRequestStatus(client, req, pull)
 			if ok && pull.Mergeable != nil {
+				d.pullRequestDeletePendingReviews(client, req, pull)
 				err := d.pullRequestMerge(client, req, pull)
 				if err != nil {
 					return err
 				}
 			}
 
-			d.pullRequestDeletePendingReviews(client, req, pull)
 			return nil
 
 		case <-stop.C:
@@ -161,13 +161,12 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 	statusOK, _ := d.pullRequestStatus(client, req, pull)
 	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
 	if statusOK && reviewOK && pull.Mergeable != nil {
+		d.pullRequestDeletePendingReviews(client, req, pull)
 		err := d.pullRequestMerge(client, req, pull)
 		if err != nil {
 			return err
 		}
 	}
-
-	d.pullRequestDeletePendingReviews(client, req, pull)
 
 	return nil
 }
