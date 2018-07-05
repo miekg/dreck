@@ -4,8 +4,6 @@ import (
 	"strings"
 
 	"github.com/miekg/dreck/types"
-
-	yaml "gopkg.in/yaml.v2"
 )
 
 func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
@@ -35,30 +33,4 @@ func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, us
 	}
 
 	return false
-}
-
-func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
-
-	var config types.DreckConfig
-
-	buf, err := githubFile(owner, repository, d.owners)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := parseConfig(buf, &config); err != nil {
-		return nil, err
-	}
-
-	return &config, nil
-}
-
-func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
-	err := yaml.Unmarshal(bytesOut, &config)
-
-	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
-		config.Reviewers = config.Approvers
-	}
-
-	return err
 }
