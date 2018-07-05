@@ -95,23 +95,26 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 
 	ctx := context.Background()
 	listOpts := &github.ListOptions{PerPage: 100}
-	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
+	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
+
 	if err != nil {
 		return false, err
 	}
 
-	pull.GetReviewCommentURL()
-
-	log.Infof("Checking %d statuses for PR %d", combined.GetTotalCount(), pull.GetNumber())
-
-	for _, status := range combined.Statuses {
-		if status.GetState() != statusOK {
-			log.Infof("Status %s is %s", status.GetContext(), status.GetState())
-			return false, nil
+	ok := false
+	for _, review := range reviews {
+		if review.GetState() == reviewChanges {
+			ok = false
+			break
+		}
+		if review.GetState() == reviewOK {
+			ok = true
 		}
 	}
+	if !ok {
+		return false, fmt.Errorf("PR %d is not reviews or has a %s", pull.GetNumber(), reviewChanges)
+	}
 
-	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
 	return true, nil
 }
 
@@ -132,8 +135,8 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 	}
 
 	statusOK, _ := d.pullRequestStatus(client, req, pull)
-	reviewOK, _ := d.pullRquestReviewed(client, req, pull)
-	if statusOK && pull.Mergeable != nil {
+	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
+	if statusOK && reviewOK && pull.Mergeable != nil {
 		err := d.pullRequestMerge(client, req, pull)
 		return err
 	}
@@ -146,4 +149,8 @@ const (
 	statusPending = "pending"
 	statusFail    = "failure"
 	statusError   = "error"
+
+	reviewOK      = "APPROVED"
+	reviewChanges = "REQUEST_CHANGES"
+	reviewComment = "COMMENT"
 )

@@ -165,7 +165,8 @@ issues).
   the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees this it
   will perform the same checks and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
-* `/merge`, merge this pull request if the checks are green and we have approval.
+* `/merge`, merge this pull request if the checks are green and we have approval (and no
+  explicit changes requested).
 
 ## Aliases
 
