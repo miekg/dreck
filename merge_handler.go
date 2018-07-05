@@ -43,8 +43,13 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 			ok, _ := d.pullRequestStatus(client, req, pull)
 			if ok && pull.Mergeable != nil {
 				err := d.pullRequestMerge(client, req, pull)
-				return err
+				if err != nil {
+					return err
+				}
 			}
+
+			d.pullRequestDeletePendingReviews(client, req, pull)
+			return
 
 		case <-stop.C:
 
@@ -120,6 +125,22 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 	return true, nil
 }
 
+func (d Dreck) pullRequestDeletePendingReviews(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
+	ctx := context.Background()
+	listOpts := &github.ListOptions{PerPage: 100}
+	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
+
+	if err != nil {
+		return false, err
+	}
+
+	for _, review := range reviews {
+		// don't care about return code here.
+		client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, rep.Repository.Name, pull.GetNumber(), review.GetId())
+	}
+
+}
+
 func (d Dreck) merge(req types.IssueCommentOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -140,8 +161,12 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
 	if statusOK && reviewOK && pull.Mergeable != nil {
 		err := d.pullRequestMerge(client, req, pull)
-		return err
+		if err != nil {
+			return err
+		}
 	}
+
+	d.pullRequestDeletePendingReviews(client, req, pull)
 
 	return nil
 }
