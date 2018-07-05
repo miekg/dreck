@@ -14,7 +14,7 @@ can:
 * Delete the branch when a pull request is merged.
 * Merge a pull request when the status is green.
 * LGTM a pull request with a comment.
-* Merge a pull request with a comment, only when the checks are OK and with at least 1 LGTM.
+* Merge a pull request, but only when the checks are OK and with at least 1 LGTM.
 * Define (shorter) alias for often used commands.
 * Execute (whitelisted) commands on the dreck server.
 
