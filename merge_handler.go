@@ -49,7 +49,7 @@ func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
 			}
 
 			d.pullRequestDeletePendingReviews(client, req, pull)
-			return
+			return nil
 
 		case <-stop.C:
 
@@ -131,14 +131,15 @@ func (d Dreck) pullRequestDeletePendingReviews(client *github.Client, req types.
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for _, review := range reviews {
 		// don't care about return code here.
-		client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, rep.Repository.Name, pull.GetNumber(), review.GetId())
+		client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, req.Repository.Name, int64(pull.GetNumber()), review.GetID())
 	}
 
+	return nil
 }
 
 func (d Dreck) merge(req types.IssueCommentOuter) error {
