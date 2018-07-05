@@ -112,9 +112,11 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 		}
 	}
 	if !ok {
+		log.Infof("PR %d has not been approved", pull.GetNumber())
 		return false, fmt.Errorf("PR %d is not reviews or has a %s", pull.GetNumber(), reviewChanges)
 	}
 
+	log.Infof("PR %d has been approved", pull.GetNumber())
 	return true, nil
 }
 

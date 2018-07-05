@@ -96,6 +96,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 				if err := d.merge(req); err != nil {
 					return err
 				}
+				return nil
 			}
 			return fmt.Errorf("user %s not permitted to use %s", req.Comment.User.Login, mergeConst)
 		}
