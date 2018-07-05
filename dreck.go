@@ -1,6 +1,11 @@
 package dreck
 
-import "github.com/mholt/caddy/caddyhttp/httpserver"
+import (
+	"github.com/miekg/dreck/types"
+
+	"github.com/mholt/caddy/caddyhttp/httpserver"
+	yaml "gopkg.in/yaml.v2"
+)
 
 // Dreck is a plugin that handles Github Issues and Pull Requests for you.
 type Dreck struct {
@@ -27,6 +32,32 @@ func New() Dreck {
 	d.env = make(map[string]string)
 
 	return d
+}
+
+func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
+
+	var config types.DreckConfig
+
+	buf, err := githubFile(owner, repository, d.owners)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := parseConfig(buf, &config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
+func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
+	err := yaml.Unmarshal(bytesOut, &config)
+
+	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
+		config.Reviewers = config.Approvers
+	}
+
+	return err
 }
 
 const (

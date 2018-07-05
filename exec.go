@@ -36,11 +36,10 @@ func sanitize(s string) bool {
 func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
-	pos := strings.Index(cmdValue, "/")
-	if pos < 0 {
-		return fmt.Errorf("illegal exec command %s", cmdValue)
+	run, err := stripValue(cmdValue)
+	if err != nil {
+		return fmt.Errorf("illegal exec command %s", run)
 	}
-	run := cmdValue[pos:]
 
 	log.Infof("%s wants to execute %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
 
@@ -49,22 +48,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("illegal exec command %s", run)
 	}
 
-	// Ok so run needs to come about from an expanded alias, that means it must be a prefix from one of those.
-	ok := false
-	for _, a := range conf.Aliases {
-		r, err := NewAlias(a)
-		if err != nil {
-			log.Warningf("Failed to parse alias: %s, %v", a, err)
-			continue
-		}
-		if strings.HasPrefix(r.replace, Trigger+execConst+": "+parts[0]) {
-			log.Infof("Executing %s, because it is defined in alias expansion %s", run, r.replace)
-			ok = true
-			break
-		}
-	}
-
-	if !ok {
+	if !isValidExec(conf, parts, run) {
 		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
@@ -80,30 +64,14 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		typ = "issue"
 	}
 
-	// Add pull:<NUM> or issue:<NUM> as the first arg.
-	arg := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
-
 	log.Infof("About to execute '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
-	cmd := exec.Command(parts[0], parts[1:]...)
 
-	// drop to user 'nobody' or whatever we have in d.user
-	if d.user != "" {
-		uid, gid, err := userID(d.user)
-		if err != nil {
-			return err
-		}
-
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
+	// Add pull:<NUM> or issue:<NUM> as the first arg.
+	trigger := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
+	cmd, err := d.execCmd(parts, trigger)
+	if err != nil {
+		return err
 	}
-
-	// extend environment
-	env := os.Environ()
-	env = append(env, fmt.Sprintf("GITHUB_TRIGGER=%s", arg))
-	for e, v := range d.env {
-		env = append(env, fmt.Sprintf("%s=%s", e, v))
-	}
-	cmd.Env = env
 
 	if typ == "pull" {
 		stat := newStatus(statusPending, "In progess", cmd)
@@ -142,10 +110,62 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	return nil
 }
 
+// execCmd creates an exec.Cmd with the right attributes such as the environment and user to run as.
+func (d Dreck) execCmd(parts []string, trigger string) (*exec.Cmd, error) {
+
+	cmd := exec.Command(parts[0], parts[1:]...)
+
+	// run as d.user, if not empty
+	if d.user != "" {
+		uid, gid, err := userID(d.user)
+		if err != nil {
+			return nil, err
+		}
+
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
+	}
+
+	// extend environment
+	env := os.Environ()
+	env = append(env, fmt.Sprintf("GITHUB_TRIGGER=%s", trigger))
+	for e, v := range d.env {
+		env = append(env, fmt.Sprintf("%s=%s", e, v))
+	}
+	cmd.Env = env
+
+	return cmd, nil
+}
+
 func newStatus(s, desc string, cmd *exec.Cmd) *github.RepoStatus {
 	context := fmt.Sprintf("/exec %s", strings.Join(cmd.Args, " "))
 
 	return &github.RepoStatus{State: &s, Description: &desc, Context: &context}
+}
+
+func stripValue(s string) (string, error) {
+	pos := strings.Index(s, "/")
+	if pos < 0 {
+		return "", fmt.Errorf("illegal exec command %s", s)
+	}
+	return s[pos:], nil
+}
+
+func isValidExec(conf *types.DreckConfig, parts []string, run string) bool {
+	// Ok so run needs to come about from an expanded alias, that means it must be a prefix from one of those.
+	for _, a := range conf.Aliases {
+		r, err := NewAlias(a)
+		if err != nil {
+			log.Warningf("Failed to parse alias: %s, %v", a, err)
+			continue
+		}
+		if strings.HasPrefix(r.replace, Trigger+execConst+": "+parts[0]) {
+			log.Infof("Executing %s, because it is defined in alias expansion %s", run, r.replace)
+			return true
+
+		}
+	}
+	return false
 }
 
 // isExec checks our whitelist.
