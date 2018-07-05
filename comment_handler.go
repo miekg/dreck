@@ -28,7 +28,8 @@ const (
 	autosubmitConst  = "autosubmit"
 	execConst        = "exec"
 	testConst        = "test"
-	dupllicateConst  = "duplicate"
+	duplicateConst   = "duplicate"
+	mergeConst       = "merge"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -67,7 +68,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			if err := d.test(req, command.Type, command.Value); err != nil {
 				return err
 			}
-		case dupllicateConst:
+		case duplicateConst:
 			if err := d.duplicate(req, command.Type, command.Value); err != nil {
 				return err
 			}
@@ -89,6 +90,14 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			if err := d.exec(req, conf, command.Type, command.Value); err != nil {
 				return err
 			}
+
+		case mergeConst:
+			if permittedUser(conf, req.Comment.User.Login) {
+				if err := d.merge(req); err != nil {
+					return err
+				}
+			}
+			return fmt.Errorf("user %s not permitted to use %s", req.Comment.User.Login, mergeConst)
 		}
 	}
 
@@ -374,6 +383,7 @@ var IssueCommands = map[string]string{
 	Trigger + "exec":           execConst,
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Request comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
+	Trigger + "merge":          mergeConst,      // Only works on Pull Request comments.
 	Trigger + "test: ":         testConst,
-	Trigger + "duplicate: ":    dupllicateConst,
+	Trigger + "duplicate: ":    duplicateConst,
 }

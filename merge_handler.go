@@ -91,6 +91,56 @@ func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOu
 	return true, nil
 }
 
+func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
+
+	ctx := context.Background()
+	listOpts := &github.ListOptions{PerPage: 100}
+	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
+	if err != nil {
+		return false, err
+	}
+
+	pull.GetReviewCommentURL()
+
+	log.Infof("Checking %d statuses for PR %d", combined.GetTotalCount(), pull.GetNumber())
+
+	for _, status := range combined.Statuses {
+		if status.GetState() != statusOK {
+			log.Infof("Status %s is %s", status.GetContext(), status.GetState())
+			return false, nil
+		}
+	}
+
+	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
+	return true, nil
+}
+
+func (d Dreck) merge(req types.IssueCommentOuter) error {
+	client, ctx, err := d.newClient(req.Installation.ID)
+	if err != nil {
+		return err
+	}
+
+	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+	if err != nil {
+		// Pr does not exist, noop.
+		return err
+	}
+	if pull.ClosedAt != nil {
+		// Pr has been closed or deleted. Don't merge!
+		return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
+	}
+
+	statusOK, _ := d.pullRequestStatus(client, req, pull)
+	reviewOK, _ := d.pullRquestReviewed(client, req, pull)
+	if statusOK && pull.Mergeable != nil {
+		err := d.pullRequestMerge(client, req, pull)
+		return err
+	}
+
+	return nil
+}
+
 const (
 	statusOK      = "success"
 	statusPending = "pending"

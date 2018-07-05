@@ -61,20 +61,13 @@ func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
 }
 
 const (
-	// featureDCO enables the "Signed-off-by" checking of PRs.
-	featureDCO = "dco"
-	// featureComments allows commands to be given in comments.
-	featureComments = "comments"
-	// featureReviewers enables automatically assigning reviewers based on OWNERS.
-	featureReviewers = "reviewers"
-	// featureAliases enables alias expansion.
-	featureAliases = "aliases"
-	// featureBranches enables branch deletion after a merge.
-	featureBranches = "branches"
-	// featureAutosubmit enables the auto submitting or pull requests when the tests are green.
-	featureAutosubmit = "autosubmit"
-	// featureExec enables the exec command.
-	featureExec = "exec"
+	featureDCO        = "dco"        // featureDCO enables the "Signed-off-by" checking of PRs.
+	featureComments   = "comments"   // featureComments allows commands to be given in comments.
+	featureReviewers  = "reviewers"  // featureReviewers enables automatically assigning reviewers based on OWNERS.
+	featureAliases    = "aliases"    // featureAliases enables alias expansion.
+	featureBranches   = "branches"   // featureBranches enables branch deletion after a merge.
+	featureAutosubmit = "autosubmit" // featureAutosubmit enables the auto submitting or pull requests when the tests are green.
+	featureExec       = "exec"       // featureExec enables the exec command.
 )
 
 // Trigger is the prefix that triggers action from this bot.
