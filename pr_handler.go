@@ -143,10 +143,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	reviewers, _, _ := client.PullRequests.ListReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, listOpts)
 	if reviewers != nil {
 		if len(reviewers.Users) != 0 || len(reviewers.Teams) != 0 {
-			body := thanks + "As a reviewer has already been selected I will not assign another."
-			comment := githubIssueComment(body)
-			client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
-
+			// We used to set an issue comment; skip this.
 			return nil
 		}
 	}
