@@ -12,20 +12,21 @@ can:
 * Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
   status.
 * Delete the branch when a pull request is merged.
-* Merge a pull request when the status is green.
+* Merge a pull request when the status is green (/autosubmit).
 * LGTM a pull request with a comment.
-* Merge a pull request, but only when the checks are OK and with at least 1 LGTM.
+* Merge a pull request, but only when the checks are OK and with at least 1 LGTM (/merge).
 * Define (shorter) alias for often used commands.
 * Execute (whitelisted) commands on the dreck server.
 
 The commands must be given as the first word(s) on a line, multiple commands (up to 10) are allowed
-but we return on the first error seen. This holds true for comments that are returned via email.
+but we return on the first error encountered. This holds true for comments that are submitted via
+email.
 
 Commands are detected in a case insensitive manner.
 
-For this all to work, you'll need to have an Github App that allows access to your repo - setting
-this up is beyond scope of this documentation. And need to recompile Caddy and have a functional Go
-setup; again: all beyond the scope of this document.
+For this all to work, you'll need to have an Github App that allows access to your repository
+- setting this up is beyond scope of this documentation. And need to recompile Caddy and have
+a functional Go setup; again: all beyond the scope of this document.
 
 ## Config in caddy
 
