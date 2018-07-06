@@ -132,10 +132,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	title := pull.GetTitle()
 	log.Infof("Title for PR %d: %s", req.PullRequest.Number, title)
 	if hasWIPPrefix(title) {
-		body := thanks + "As this is a Work-in-Progress pull request I will not assign a reviewer."
-		comment := githubIssueComment(body)
-		client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
-
+		// We used to add a comment in the PR that no reviewer was assigned, stop doing that to cut back on the spam.
 		return nil
 	}
 
