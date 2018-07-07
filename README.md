@@ -115,9 +115,9 @@ The following features are available.
 * `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to
   be done. Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
-* `branches` - enables the deletion of branches after a merge of a pull request.
+* `branches` - enables the deletion of branches after a merge of a pull request. Any pending review
+  on this pull request are deleted.
 * `autosubmit` - enables `/autosubmit`.
-* `merge` - enables `/merge`.
 * `exec` - enables `/exec`.
 
 ## Supported Commands
@@ -167,7 +167,7 @@ issues).
   will perform the same checks and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
 * `/merge`, merge this pull request if the checks are green and we have approval (and no
-  explicit changes requested).
+  explicit changes requested). Any pending reviews are deleted.
 
 ## Aliases
 
