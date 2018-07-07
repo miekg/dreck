@@ -70,3 +70,14 @@ type DreckConfig struct {
 	Reviewers []string
 	Approvers []string
 }
+
+// PullRequestToIssueComment converts one type to another. This is not a full copy, but copies
+// enough elements to make things work from a pull request.
+func PullRequestToIssueComment(pr PullRequestOuter) IssueCommentOuter {
+	ico := IssueCommentOuter{}
+	ico.Repository = pr.Repository
+	ico.Issue.Number = pr.PullRequest.Number
+	ico.InstallationRequest = pr.InstallationRequest
+
+	return ico
+}

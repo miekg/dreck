@@ -30,18 +30,7 @@ func isautosubmit(msg string) bool { return strings.Contains(msg, Trigger+autosu
 
 // PullRequestAutosubmit will kick off autosubmit, by calling d.autosubmit.
 func (d Dreck) pullRequestAutosubmit(req types.PullRequestOuter) error {
-	reqComment := pullRequestOuterToIssueCommentOuter(req)
+	reqComment := types.PullRequestToIssueComment(req)
 
 	return d.autosubmit(reqComment)
-}
-
-// pullRequestOuterToIssueCommentOuter converts one type to another. This is not a full copy, but copies
-// enough elements to make d.autosubmit work from a pull request.
-func pullRequestOuterToIssueCommentOuter(pr types.PullRequestOuter) types.IssueCommentOuter {
-	ico := types.IssueCommentOuter{}
-	ico.Repository = pr.Repository
-	ico.Issue.Number = pr.PullRequest.Number
-	ico.InstallationRequest = pr.InstallationRequest
-
-	return ico
 }
