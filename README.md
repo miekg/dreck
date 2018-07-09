@@ -2,10 +2,10 @@
 
 [![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
-Dreck is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
+*dreck* is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
 can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
 
-Dreck can help you with managing pull requests and issues in your GitHub project. Dreck currently
+*Dreck* can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
 * Label/close/lock etc. issues.
@@ -115,7 +115,7 @@ The following features are available.
 * `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to
   be done. Needs a "no-dco" label in the repository for it to work.
 * `aliases` - enable alias expansion.
-* `branches` - enables the deletion of branches after a merge of a pull request. Any pending review
+* `branches` - enables the deletion of branches after a merge of a pull request. Any pending reviews
   on this pull request are deleted.
 * `autosubmit` - enables `/autosubmit`.
 * `exec` - enables `/exec`.
@@ -142,16 +142,17 @@ The following commands are supported in issue comments.
 * `/unlock`, unlock the issue.
 * `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
   allowed.
-* `/test`, a noop used for testing dreck.
 * `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
   and adding the 'duplicate' label.
+* `/test`, a noop used for testing *dreck*.
 
 ### Pull Requests
 
 When a pull request is submitted dreck will check which files are modified, removed or changed. For
 a subset of these it will search for the nearest OWNERS file. We will then randomly assign someone
 from the reviewers to review the pull request. This is only done when the pull request does not have
-any reviewers, nor is a work-in-progress.
+any reviewers, nor is a work-in-progress. *dreck* adds a comment how showing what OWNERS file was
+used to pick the reviewer from.
 
 If pull requests have `WIP` (case insensitive) as a prefix in the title and this title is changed to
 remove that prefix we will search (again) for a reviewer. The prefixes allowed are: `WIP`, `WIP:`,
@@ -160,11 +161,12 @@ remove that prefix we will search (again) for a reviewer. The prefixes allowed a
 Further more the following extra commands are supported for pull request issues comments (ignored for
 issues).
 
-* `/lgtm`, approve the pull request.
+* `/lgtm`, approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
+  this command.
 * `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
   minutes for all tests to complete. The label 'autosubmit' is added to the pull request. Note that
-  the command `/autosubmit` can *also be given in the pull request body*. If we dreck sees this it
-  will perform the same checks and, if allowed, we start submitting.
+  the command `/autosubmit` can *also be given in the pull request body*. If *dreck* sees it there,
+  it will immediately start checking and, if allowed, we start submitting.
 * `/exec`, executing commands is supported for pull requests.
 * `/merge`, merge this pull request if the checks are green and we have approval (and no
   explicit changes requested). Any pending reviews are deleted.
@@ -216,7 +218,7 @@ must be defined:
 /release: (.*) -> /exec: /opt/bin/release $1
 ~~~
 
-If you then call the command with `/release 0.1` in issue 42. Dreck will run:
+If you then call the command with `/release 0.1` in issue 42. *dreck* will run:
 
 ~~~
 /opt/bin/release 0.1
@@ -228,7 +230,7 @@ Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat 
 yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you white list.
 
-Dreck enforces a very restrictive white list on the allowed characters in the command. The
+*dreck* enforces a very restrictive white list on the allowed characters in the command. The
 white list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
 is not allowed.
 
@@ -246,7 +248,7 @@ Set a label on an issue, on Github (or via email), create a reply that contains:
 /label: bug
 ~~~
 
-And dreck will apply that label if it exists. Text can freely intermixed, but each command should be
+And *dreck* will apply that label if it exists. Text can freely intermixed, but each command should be
 on its own line and start on the left most position.
 
 ~~~
