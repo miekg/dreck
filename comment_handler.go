@@ -58,9 +58,13 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 				return err
 			}
 		case lockConst, unlockConst:
-			if err := d.lock(req, command.Type); err != nil {
-				return err
+			if permittedUser(conf, req.Comment.User.Login) {
+				if err := d.lock(req, command.Type); err != nil {
+					return err
+				}
+				return nil
 			}
+			return fmt.Errorf("user %s not permitted to use %s", req.Comment.User.Login, mergeConst)
 		case lgtmConst:
 			if err := d.lgtm(req, command.Type); err != nil {
 				return err
