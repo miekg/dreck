@@ -3,7 +3,7 @@
 *Dreck* understands the following commands.
 
 | Command | Example | Description | Who Can Use | Valid For |
-| --- | --- |
+| --- | --- | --- | --- | --- |
 | /label [add]: **LABEL** | `/label: build` | Adds a label | Issues, Pull Requests |
 | /label [remove/rm]: **LABEL** | `/label rm: build` | Remove a label | Issues, Pull Requests |
 | /[un]assign: **ASSIGNEE | `/assign: bob` | Assigns or unassign to *ASSIGNEE*  | Issues, Pull Requests |
