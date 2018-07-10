@@ -167,7 +167,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 		body = fmt.Sprintf(body, d.owners)
 	}
 
-	comment := githubIssueComment(body)
+	comment := githubIssueComment(body + Details)
 	comment, resp, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number, comment)
 
 	logRateLimit(resp)
