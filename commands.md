@@ -16,3 +16,5 @@
 | /lgtm | `/lgmt` | Approves the pull request |anyone | Yes |
 | /autosubmit | `/autosubmit` | When status is green, submits pull request | anyone | Yes |
 | /merge | `/merge` | When status is green and approved, submits pull request | Approvers, Reviewers | Yes |
+
+Extra commands may be defined via aliases, this depends on the configuration.
