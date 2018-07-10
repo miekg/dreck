@@ -30,6 +30,7 @@ const (
 	testConst        = "test"
 	duplicateConst   = "duplicate"
 	mergeConst       = "merge"
+	fortuneConst     = "fortune"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -72,6 +73,11 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			if err := d.duplicate(req, command.Type, command.Value); err != nil {
 				return err
 			}
+		case fortuneConst:
+			if err := d.fortune(req, command.Type); err != nil {
+				return err
+			}
+
 		case autosubmitConst:
 			if permittedUserFeature(featureAutosubmit, conf, req.Comment.User.Login) {
 				if err := d.autosubmit(req); err != nil {
@@ -385,6 +391,7 @@ var IssueCommands = map[string]string{
 	Trigger + "lgtm":           lgtmConst,       // Only works on Pull Request comments.
 	Trigger + "autosubmit":     autosubmitConst, // Only works on Pull Request comments.
 	Trigger + "merge":          mergeConst,      // Only works on Pull Request comments.
+	Trigger + "fortune":        fortuneConst,
 	Trigger + "test: ":         testConst,
 	Trigger + "duplicate: ":    duplicateConst,
 }

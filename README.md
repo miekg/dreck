@@ -144,6 +144,7 @@ The following commands are supported in issue comments.
   allowed.
 * `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
   and adding the 'duplicate' label.
+* `/fortune`, adds a comment containing text obtained from running "fortune".
 * `/test`, a noop used for testing *dreck*.
 
 ### Pull Requests
