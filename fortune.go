@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"fmt"
 	"os/exec"
 	"regexp"
 
@@ -17,6 +18,9 @@ func runFortune() (string, error) {
 	buf, err := cmd.Output()
 	if err != nil {
 		return "", err
+	}
+	if len(buf) == 0 {
+		return "", fmt.Errorf("no output returned")
 	}
 
 	buf = r.ReplaceAll(buf, []byte("> "))
