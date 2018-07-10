@@ -2,7 +2,7 @@ package dreck
 
 import "testing"
 
-func TestFortune(t *testing.T) {
+func testFortune(t *testing.T) {
 	out, err := runFortune()
 	if err != nil {
 		t.Errorf("failed to run fortune: %s", err)
