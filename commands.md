@@ -17,4 +17,4 @@
 | /autosubmit | `/autosubmit` | When status is green, submits pull request | anyone | Yes |
 | /merge | `/merge` | When status is green and approved, submits pull request | Approvers, Reviewers | Yes |
 
-Extra commands may be defined via aliases, this depends on the configuration.
+Extra commands may be defined via aliases, but this depends on the configuration.
