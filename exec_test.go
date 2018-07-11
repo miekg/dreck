@@ -16,6 +16,8 @@ features:
 aliases:
   - |
     /echo: (.*) -> /exec: /bin/echo $1
+  - |
+    /cat: (.*) -> /exec: /bin/cat $1
 `)
 
 var execOptions = []struct {
@@ -29,6 +31,12 @@ var execOptions = []struct {
 		Trigger + "echo: boe",
 		false,
 		"boe\n",
+	},
+	{
+		"Failed exec command",
+		Trigger + "cat: boe",
+		true,
+		"/bin/cat: boe: No such file or directory\n",
 	},
 }
 
@@ -61,11 +69,11 @@ func TestExec(t *testing.T) {
 			t.Errorf("Exec illegal command %s", run)
 		}
 		cmd, err := d.execCmd(parts, "42")
-		if err != nil {
+		if err != nil && !test.shouldErr {
 			t.Errorf("Exec could not be set up: %s", err)
 		}
-		out, err := cmd.Output()
-		if err != nil {
+		out, err := cmd.CombinedOutput()
+		if err != nil && !test.shouldErr {
 			t.Errorf("Cmd not be executed: %s", err)
 		}
 

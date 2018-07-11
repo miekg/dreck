@@ -78,8 +78,8 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
-	// Get stdout, errors will go to Caddy log.
-	buf, err := cmd.Output()
+	// Get all output
+	buf, err := cmd.CombinedOutput()
 	if err != nil {
 		if typ == "pull" {
 			stat := newStatus(statusFail, fmt.Sprintf("Failed: %s", err), cmd)
@@ -87,7 +87,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		}
 		body := fmt.Sprintf("The command `%s` did not run successfully. The status returned is `%s`\n\n", run, err.Error())
 		if len(buf) > 0 {
-			body += "Its standard output is"
+			body += "Its standard and error output is"
 			body += "\n~~~\n" + string(buf) + "\n~~~\n"
 		}
 
@@ -96,7 +96,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return err
 	}
 
-	body := fmt.Sprintf("The command `%s` ran successfully. Its standard output is", run)
+	body := fmt.Sprintf("The command `%s` ran successfully. Its standard and error output is", run)
 	body += "\n~~~\n" + string(buf) + "\n~~~\n"
 
 	comment := githubIssueComment(body)
