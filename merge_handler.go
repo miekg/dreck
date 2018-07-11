@@ -131,12 +131,15 @@ func (d Dreck) pullRequestDeletePendingReviews(client *github.Client, req types.
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
 
 	if err != nil {
+		log.Infof("Failed to list reviewers: %s", err)
 		return err
 	}
 
 	for _, review := range reviews {
 		// don't care about return code here.
-		client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, req.Repository.Name, int64(pull.GetNumber()), review.GetID())
+		if _, _, err := client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, req.Repository.Name, int64(pull.GetNumber()), review.GetID()); err != nil {
+			log.Warningf("Failed to delete pending review: %s", err)
+		}
 	}
 
 	return nil
