@@ -41,7 +41,6 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 		if pull.Head.Repo.Owner == nil {
 			return fmt.Errorf("no owner found")
 		}
-		d.pullRequestDeletePendingReviews(client, types.PullRequestToIssueComment(req), pull)
 
 		log.Infof("Deleting branch %s on %s/%s", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 

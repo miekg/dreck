@@ -74,14 +74,25 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 		}
 
 		// Branch deletion handling. Only done when req.Action is closed (happens after merge).
-		if req.Action == closedConst && enabledFeature(featureBranches, conf) {
-			if err := d.pullRequestBranches(req); err != nil {
+		if req.Action == closedConst {
+			if enabledFeature(featureBranches, conf) {
+				d.pullRequestBranches(req)
+			}
+
+			// delete pending reviews
+
+			client, ctx, err := d.newClient(req.Installation.ID)
+			if err != nil {
 				return err
 			}
-		}
 
-		if req.Action == closedConst {
-			return nil
+			pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
+			if err != nil {
+				// Pr does not exist, noop.
+				return err
+			}
+
+			return d.pullRequestDeletePendingReviews(client, types.PullRequestToIssueComment(req), pull)
 		}
 
 		// Reviewers, title change WIP, none WIP.
