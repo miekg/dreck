@@ -8,8 +8,8 @@ import (
 )
 
 func hasWIPPrefix(s string) bool {
+	s = strings.ToLower(s)
 	for _, w := range wip {
-		w = strings.ToLower(w)
 		if strings.HasPrefix(s, w) {
 			return true
 		}
@@ -30,4 +30,4 @@ func (d Dreck) pullRequestTitle(req types.PullRequestOuter) (string, error) {
 	return pull.GetTitle(), nil
 }
 
-var wip = []string{"WIP", "[WIP]", "WIP:", "[WIP]:"}
+var wip = []string{"wip", "[wip]", "wip:", "[wip]:"}
