@@ -12,7 +12,7 @@ import (
 )
 
 // pullRequestBranches will check if a pull request is closed and deletes the branch
-// if the PR has been merged.
+// if the PR has been merged. Any pending reviewers will be removed as well.
 func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -44,6 +44,7 @@ func (d Dreck) pullRequestBranches(req types.PullRequestOuter) error {
 
 		log.Infof("Deleting branch %s on %s/%s", branch, req.Repository.Owner.Login, *pull.Head.Repo.Name)
 
+		d.pullRequestDeletePendingReviews(client, types.PullRequestToIssueComment(req), pull)
 		resp, err := client.Git.DeleteRef(ctx, req.Repository.Owner.Login, *pull.Head.Repo.Name, strings.Replace("heads/"+*pull.Head.Ref, "#", "%23", -1))
 		// 422 is the error code for when the branch does not exist.
 		if err != nil && resp.Response.StatusCode != 422 {
