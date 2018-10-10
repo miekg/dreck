@@ -23,6 +23,22 @@ func TestAlias(t *testing.T) {
 	t.Logf("Got %s\n", exp)
 }
 
+func TestAliasSingle(t *testing.T) {
+	alias := "/approve -> /lgtm"
+
+	r, err := NewAlias(alias)
+	if err != nil {
+		t.Errorf("Failed to parse %s: %v", alias, err)
+	}
+	input := "/approve"
+	exp := r.Expand(input)
+	if exp == input {
+		t.Errorf("Failed to expand %s", input)
+	}
+
+	t.Logf("Got %s\n", exp)
+}
+
 func TestAliasParse(t *testing.T) {
 	alias := "/plugin: (.*) - /label add: plugin/$1"
 	if _, err := NewAlias(alias); err == nil {
