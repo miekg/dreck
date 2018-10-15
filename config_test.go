@@ -30,6 +30,19 @@ func TestReviewerConfigParse(t *testing.T) {
 	}
 }
 
+func TestSecurityConfigParse(t *testing.T) {
+	config := types.DreckConfig{}
+	parseConfig([]byte(`security:
+- s1
+- s2
+- s3
+`), &config)
+	actual := len(config.Security)
+	if actual != 3 {
+		t.Errorf("want: %d security, got: %d", 3, actual)
+	}
+}
+
 func TestAliasConfigParse(t *testing.T) {
 	config := types.DreckConfig{}
 	err := parseConfig([]byte(`aliases:
@@ -50,7 +63,9 @@ func TestConfigParse(t *testing.T) {
 	err := parseConfig([]byte(`reviewers:
 - aa
 - ac
-
+security:
+- one
+- two
 aliases:
 - >
   /plugin: (.*) - /label add: plugin/$1
