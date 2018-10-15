@@ -69,6 +69,7 @@ type DreckConfig struct {
 	Features  []string
 	Reviewers []string
 	Approvers []string
+	Security  []string
 }
 
 // PullRequestToIssueComment converts one type to another. This is not a full copy, but copies
