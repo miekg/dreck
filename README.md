@@ -1,6 +1,7 @@
 # Dreck
 
-[![Build Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
+[![Build
+Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
 *dreck* is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
 can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
@@ -8,15 +9,22 @@ can "just" run it as a plugin in Caddy. It also massively expands on the number 
 *Dreck* can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
-* Label/close/lock etc. issues.
-* Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
-  status.
-* Delete the branch when a pull request is merged.
-* Merge a pull request when the status is green (/autosubmit).
-* LGTM a pull request with a comment.
-* Merge a pull request, but only when the checks are OK and with at least 1 LGTM (/merge).
-* Define (shorter) alias for often used commands.
-* Execute (whitelisted) commands on the dreck server.
+*  Label/close/lock etc. issues.
+
+*  Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
+   status.
+
+*  Delete the branch when a pull request is merged.
+
+*  Merge a pull request when the status is green (/autosubmit).
+
+*  LGTM a pull request with a comment.
+
+*  Merge a pull request, but only when the checks are OK and with at least 1 LGTM (/merge).
+
+*  Define (shorter) alias for often used commands.
+
+*  Execute (whitelisted) commands on the dreck server.
 
 The commands must be given as the first word(s) on a line, multiple commands (up to 10) are allowed
 but we return on the first error encountered. This holds true for comments that are submitted via
@@ -25,8 +33,8 @@ email.
 Commands are detected in a case insensitive manner.
 
 For this all to work, you'll need to have an Github App that allows access to your repository
-- setting this up is beyond scope of this documentation. And need to recompile Caddy and have
-a functional Go setup; again: all beyond the scope of this document.
+- setting this up is beyond scope of this documentation. And need to recompile Caddy and have a
+functional Go setup; again: all beyond the scope of this document.
 
 ## Config in caddy
 
@@ -47,18 +55,27 @@ dreck {
 }
 ~~~
 
-* `client_id` is mandatory and must be the client **ID** of the Github App.
-* `private_key` specifies the **PATH** of the private key of the Github App. This is also mandatory.
-* `secret` can optionally specify a **SECRET** for the webhook.
-* `owners` can optionally specify a **NAME** for the OWNERS files, defaults to "OWNERS".
-* `path` trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
-* `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
-  it defaults to `squash`.
-* `validate` enable HMAC validation of the request.
-* `user` specifies the **USER** to be used for executing commands. This defaults to the user running
-  Caddy.
-* `env` defines environment variable with **NAME** and assign it **VALUE**. These may be repeated.
-  Any executed command will have these variables in their environment.
+*  `client_id` is mandatory and must be the client **ID** of the Github App.
+
+*  `private_key` specifies the **PATH** of the private key of the Github App. This is also
+   mandatory.
+
+*  `secret` can optionally specify a **SECRET** for the webhook.
+
+*  `owners` can optionally specify a **NAME** for the OWNERS files, defaults to "OWNERS".
+
+*  `path` trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
+
+*  `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
+   it defaults to `squash`.
+
+*  `validate` enable HMAC validation of the request.
+
+*  `user` specifies the **USER** to be used for executing commands. This defaults to the user
+   running Caddy.
+
+*  `env` defines environment variable with **NAME** and assign it **VALUE**. These may be repeated.
+   Any executed command will have these variables in their environment.
 
 ## OWNERS File Syntax
 
@@ -67,7 +84,7 @@ section that allows you to configure dreck. This file should live in the top lev
 repository. Other OWNERS files may exist in deeper directories. These are used to assign reviewers
 from for pull requests.
 
-``` yaml
+~~~ yaml
 approvers:
     - name1
     - name2
@@ -85,7 +102,7 @@ aliases:
       alias1
     - |
       alias2
-```
+~~~
 
 An example:
 
@@ -109,16 +126,22 @@ aliases:
 
 The following features are available.
 
-* `comments` - allow commands (see below) in comments.
-* `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
-  relevant OWNERS files.
-* `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it to
-  be done. Needs a "no-dco" label in the repository for it to work.
-* `aliases` - enable alias expansion.
-* `branches` - enables the deletion of branches after a merge of a pull request. Any pending reviews
-  on this pull request are deleted.
-* `autosubmit` - enables `/autosubmit`.
-* `exec` - enables `/exec`.
+*  `comments` - allow commands (see below) in comments.
+
+*  `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
+   relevant OWNERS files.
+
+*  `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it
+   to be done. Needs a "no-dco" label in the repository for it to work.
+
+*  `aliases` - enable alias expansion.
+
+*  `branches` - enables the deletion of branches after a merge of a pull request. Any pending
+   reviews on this pull request are deleted.
+
+*  `autosubmit` - enables `/autosubmit`.
+
+*  `exec` - enables `/exec`.
 
 ## Supported Commands
 
@@ -126,26 +149,42 @@ The following features are available.
 
 The following commands are supported in issue comments.
 
-* `/label add: LABEL`, label an issue with **LABEL**.
-* `/label: LABEL`,  short for "label add".
-* `/label remove: LABEL`, remove **LABEL**.
-* `/label rm: LABEL`, short for "label remove",
-* `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the
-  commenter
-* `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**.
-* `/close`, close issue.
-* `/reopen`, reopen issue.
-* `/title set: TITLE`, set the title to **TITLE**.
-* `/title: TITLE`: short for "title set".
-* `/title edit: TITLE`, set the title to **TITLE**.
-* `/lock`, lock the issue.
-* `/unlock`, unlock the issue.
-* `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias are
-  allowed.
-* `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
-  and adding the 'duplicate' label.
-* `/fortune`, adds a comment containing text obtained from running "fortune".
-* `/test`, a noop used for testing *dreck*.
+*  `/label add: LABEL`, label an issue with **LABEL**.
+
+*  `/label: LABEL`, short for "label add".
+
+*  `/label remove: LABEL`, remove **LABEL**.
+
+*  `/label rm: LABEL`, short for "label remove",
+
+*  `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the
+   commenter
+
+*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**.
+
+*  `/close`, close issue.
+
+*  `/reopen`, reopen issue.
+
+*  `/title set: TITLE`, set the title to **TITLE**.
+
+*  `/title: TITLE`: short for "title set".
+
+*  `/title edit: TITLE`, set the title to **TITLE**.
+
+*  `/lock`, lock the issue.
+
+*  `/unlock`, unlock the issue.
+
+*  `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
+   are allowed.
+
+*  `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
+   and adding the 'duplicate' label.
+
+*  `/fortune`, adds a comment containing text obtained from running "fortune".
+
+*  `/test`, a noop used for testing *dreck*.
 
 ### Pull Requests
 
@@ -159,18 +198,21 @@ If pull requests have `WIP` (case insensitive) as a prefix in the title and this
 remove that prefix we will search (again) for a reviewer. The prefixes allowed are: `WIP`, `WIP:`,
 `[WIP]` and `[WIP]:`.
 
-Further more the following extra commands are supported for pull request issues comments (ignored for
-issues).
+Further more the following extra commands are supported for pull request issues comments (ignored
+for issues).
 
-* `/lgtm`, approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
-  this command.
-* `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for 30
-  minutes for all tests to complete. The label 'autosubmit' is added to the pull request. Note that
-  the command `/autosubmit` can *also be given in the pull request body*. If *dreck* sees it there,
-  it will immediately start checking and, if allowed, we start submitting.
-* `/exec`, executing commands is supported for pull requests.
-* `/merge`, merge this pull request if the checks are green and we have approval (and no
-  explicit changes requested). Any pending reviews are deleted.
+*  `/lgtm`, approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
+   this command.
+
+*  `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for
+   30 minutes for all tests to complete. The label 'autosubmit' is added to the pull request. Note
+   that the command `/autosubmit` can *also be given in the pull request body*. If *dreck* sees it
+   there, it will immediately start checking and, if allowed, we start submitting.
+
+*  `/exec`, executing commands is supported for pull requests.
+
+*  `/merge`, merge this pull request if the checks are green and we have approval (and no explicit
+   changes requested). Any pending reviews are deleted.
 
 ## Aliases
 
@@ -182,8 +224,8 @@ a regular expression based format and looks like this: `alias -> command`. Note 
 /plugin: (.*) -> /label add: plugin/$1
 ~~~
 
-This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`. The
-regular expression `(.*)` catches the argument after `/plugin: ` and `$1` is the first expression
+This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`.
+The regular expression `(.*)` catches the argument after `/plugin:` and `$1` is the first expression
 match group.
 
 Note this entire string needs to be taken literal in the OWNERS file to be valid yaml:
@@ -203,11 +245,9 @@ of the command will be picked up and put in the new comment under the issue or p
 
 If `user` is specified dreck will run the command under that user.
 
-The command executed can not be a script, it must be a real executable.
-
-Apart from the environment set in the configuration all command well have access to GITHUB_TRIGGER.
-If the command is given in an issue dreck will set GITHUB_TRIGGER to `issue/NUMBER`, if done for
-a pull request that value will be `pull/NUMBER`.
+Apart from the environment set in the configuration all command well have access to GITHUB*TRIGGER.
+If the command is given in an issue dreck will set GITHUB*TRIGGER to `issue/NUMBER`, if done for a
+pull request that value will be `pull/NUMBER`.
 
 If the command is run for a pull request dreck will update the status with 'pending' when the
 execution is in progress and either 'failed' or 'success' when the execution ends.
@@ -227,13 +267,13 @@ If you then call the command with `/release 0.1` in issue 42. *dreck* will run:
 
 And GITHUB_TRIGGER will be issue/42.
 
-Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd` *still*
-yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
+Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd`
+*still* yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you white list.
 
-*dreck* enforces a very restrictive white list on the allowed characters in the command. The
-white list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row
-is not allowed.
+*dreck* enforces a very restrictive white list on the allowed characters in the command. The white
+list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row is not
+allowed.
 
 ## Branches
 
@@ -249,8 +289,8 @@ Set a label on an issue, on Github (or via email), create a reply that contains:
 /label: bug
 ~~~
 
-And *dreck* will apply that label if it exists. Text can freely intermixed, but each command should be
-on its own line and start on the left most position.
+And *dreck* will apply that label if it exists. Text can freely intermixed, but each command should
+be on its own line and start on the left most position.
 
 ~~~
 This is good question.
