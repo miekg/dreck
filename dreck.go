@@ -52,13 +52,16 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 }
 
 func removeComment(line []string) []string {
-	firstWordOnly := make([]string, len(line))
+	nc := make([]string, len(line))
 	for i, l := range line {
-		if len(l) > 0 {
-			firstWordOnly[i] = strings.Split(l, " ")[0]
+		idx := strings.Index(l, "#")
+		if idx >= 0 {
+			nc[i] = strings.TrimRight(l[0:idx], " \t")
+			continue
 		}
+		nc[i] = l
 	}
-	return firstWordOnly
+	return nc
 }
 
 func parseConfig(bytesOut []byte, config *types.DreckConfig) error {

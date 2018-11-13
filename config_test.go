@@ -22,7 +22,7 @@ func TestReviewerConfigParse(t *testing.T) {
 	config := types.DreckConfig{}
 	parseConfig([]byte(`reviewers:
 - aa
-- ac 
+- ac
 `), &config)
 	actual := len(config.Reviewers)
 	if actual != 2 {
@@ -63,15 +63,16 @@ aliases:
 func TestReviewerConfigParseComment(t *testing.T) {
 	config := types.DreckConfig{}
 	parseConfig([]byte(`reviewers:
-- aa with any comment following the github handle
-- ab #with a real comment
+- aa # a '#' defines a comment that will be ignored
+- ab this is not a comment
 - ac
+- ad          #        whatever position, only the right-trimmed part before '#' is considered
 `), &config)
 	actual := len(config.Reviewers)
-	if actual != 3 {
-		t.Errorf("want: %d reviewers, got: %d", 3, actual)
+	if actual != 4 {
+		t.Fatalf("want: %d reviewers, got: %d", 4, actual)
 	}
-	expected := []string{"aa", "ab", "ac"}
+	expected := []string{"aa", "ab this is not a comment", "ac", "ad"}
 	for i, r := range config.Reviewers {
 		if r != expected[i] {
 			t.Errorf("expected reviewer to be : %s, got: %s", expected[i], r)
