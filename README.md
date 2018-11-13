@@ -87,11 +87,11 @@ from for pull requests.
 ~~~ yaml
 approvers:
     - name1
-    - name2
+    - name2 email-address or any comment
 
 reviewers:
     - name3
-    - name4
+    - name4 #any comment can follow the first word that is the gihub handle
 
 features:
     - feature1
@@ -128,8 +128,11 @@ The following features are available.
 
 *  `comments` - allow commands (see below) in comments.
 
+*  `approvers` - approvers are allowed to trigger merge into the repository.
+   Only the first word is meaningful and correspond to the github handler of the reviewer.
+
 *  `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
-   relevant OWNERS files.
+   relevant OWNERS files. Only the first word is meaningful and correspond to the github handler of the reviewer.
 
 *  `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it
    to be done. Needs a "no-dco" label in the repository for it to work.
