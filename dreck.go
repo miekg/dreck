@@ -1,12 +1,10 @@
 package dreck
 
 import (
-	"strings"
-
 	"github.com/miekg/dreck/types"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 // Dreck is a plugin that handles Github Issues and Pull Requests for you.
@@ -52,26 +50,8 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 	return &config, nil
 }
 
-func removeComment(line []string) []string {
-	nc := make([]string, len(line))
-	for i, l := range line {
-		idx := strings.Index(l, "#")
-		if idx >= 0 {
-			nc[i] = strings.TrimRight(l[0:idx], " \t")
-			continue
-		}
-		nc[i] = l
-	}
-	return nc
-}
-
 func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
 	err := yaml.Unmarshal(bytesOut, &config)
-
-	// cleanup Reviewers and Approvers by keeping only the first word of the config.
-	// other part on the same line of config is consider as comment that is only human meaningful
-	config.Approvers = removeComment(config.Approvers)
-	config.Reviewers = removeComment(config.Reviewers)
 
 	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
 		config.Reviewers = config.Approvers
