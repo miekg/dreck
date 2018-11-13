@@ -1,11 +1,12 @@
 package dreck
 
 import (
+	"strings"
+
 	"github.com/miekg/dreck/types"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	yaml "gopkg.in/yaml.v2"
-	"strings"
 )
 
 // Dreck is a plugin that handles Github Issues and Pull Requests for you.
