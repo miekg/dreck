@@ -74,7 +74,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 	}
 
 	if typ == "pull" {
-		stat := newStatus(statusPending, "In progess", cmd)
+		stat := newStatus(statusPending, "In progress", cmd)
 		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
@@ -114,6 +114,11 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 func (d Dreck) execCmd(parts []string, trigger string) (*exec.Cmd, error) {
 
 	cmd := exec.Command(parts[0], parts[1:]...)
+	for i := range parts {
+		if !sanitize(parts[i]) {
+			return nil, fmt.Errorf("exec: %q doesn't adhere to the sanitize checks", parts[i])
+		}
+	}
 
 	// run as d.user, if not empty
 	if d.user != "" {
