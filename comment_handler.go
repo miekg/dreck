@@ -251,7 +251,7 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 	}
 
 	if cmdType == lockConst {
-		_, err = client.Issues.Lock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
+		_, err = client.Issues.Lock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, &github.LockIssueOptions{})
 	} else {
 		_, err = client.Issues.Unlock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	}

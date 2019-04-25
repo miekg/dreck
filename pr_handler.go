@@ -132,7 +132,7 @@ func (d Dreck) pullRequestReviewers(req types.PullRequestOuter) error {
 	title := pull.GetTitle()
 	log.Infof("Title for PR %d: %s", req.PullRequest.Number, title)
 	if hasWIPPrefix(title) {
-		log.Infof("No searching for owners because of Work-in-Progress status for PR %d: %s", req.PullRequest.Number)
+		log.Infof("No searching for owners because of Work-in-Progress status for PR %d: %s", req.PullRequest.Number, title)
 		// We used to add a comment in the PR that no reviewer was assigned, stop doing that to cut back on the spam.
 		return nil
 	}
