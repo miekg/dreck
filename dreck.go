@@ -3,7 +3,7 @@ package dreck
 import (
 	"github.com/miekg/dreck/types"
 
-	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"github.com/caddyserver/caddy/caddyhttp/httpserver"
 	yaml "gopkg.in/yaml.v2"
 )
 

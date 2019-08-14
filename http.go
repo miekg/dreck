@@ -11,7 +11,7 @@ import (
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
-	"github.com/mholt/caddy"
+	"github.com/caddyserver/caddy"
 )
 
 func init() {
