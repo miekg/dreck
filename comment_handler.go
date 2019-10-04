@@ -184,6 +184,10 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) erro
 }
 
 func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	// remove @ when we see it.
+	if len(cmdValue) > 1 && cmdValue[0] == '@' {
+		cmdValue = cmdValue[1:]
+	}
 
 	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 

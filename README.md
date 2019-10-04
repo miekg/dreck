@@ -158,9 +158,9 @@ The following commands are supported in issue comments.
 *  `/label rm: LABEL`, short for "label remove",
 
 *  `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the
-   commenter
+   commenter. `@ASSIGNEE` can also be used.
 
-*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**.
+*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**. `@ASSIGNEE` is legal as well.
 
 *  `/close`, close issue.
 
