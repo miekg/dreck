@@ -38,6 +38,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	c := parse(body, conf)
 
 	for _, command := range c {
+		log.Infof("Incoming request %s: %s", command.Type, command.Value)
 
 		switch command.Type {
 
@@ -122,7 +123,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 
 	labelAction := strings.Replace(cmdType, "label", "", 1)
 
-	log.Infof("%s wants to %s label of '%s' on issue #%d \n", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
+	log.Infof("%s wants to %s label of '%s' on issue #%d", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
 
 	found := labelDuplicate(req.Issue.Labels, labelValue)
 	if !validAction(found, cmdType, addLabelConst, removeLabelConst) {
@@ -160,7 +161,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 
 func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) error {
 
-	log.Infof("%s wants to set the title of issue #%d\n", req.Comment.User.Login, req.Issue.Number)
+	log.Infof("%s wants to set the title of issue #%d", req.Comment.User.Login, req.Issue.Number)
 
 	newTitle := cmdValue
 
@@ -179,7 +180,7 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) erro
 		return err
 	}
 
-	log.Infof("Request to set the title of issue #%d by %s was successful.\n", req.Issue.Number, req.Comment.User.Login)
+	log.Infof("Request to set the title of issue #%d by %s was successful.", req.Issue.Number, req.Comment.User.Login)
 	return nil
 }
 
@@ -189,14 +190,14 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 		cmdValue = cmdValue[1:]
 	}
 
-	log.Infof("%s wants to %s user '%s' from issue #%d\n", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
+	log.Infof("%s wants to %s user '%s' from issue #%d", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
 	}
 
-	if cmdValue == "me" {
+	if cmdValue == "me" || cmdValue == "" {
 		cmdValue = req.Comment.User.Login
 	}
 
@@ -210,14 +211,14 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 		return err
 	}
 
-	log.Infof("%s %sed successfully or already %sed.\n", cmdValue, cmdType, cmdType)
+	log.Infof("%s %sed successfully or already %sed", cmdValue, cmdType, cmdType)
 
 	return nil
 }
 
 func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 
-	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
+	log.Infof("%s wants to %s issue #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
 
@@ -235,7 +236,7 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	log.Infof("Request to %s issue #%d by %s was successful.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
+	log.Infof("Request to %s issue #%d by %s was successful.", cmdType, req.Issue.Number, req.Comment.User.Login)
 
 	return nil
 
@@ -243,7 +244,7 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 
 func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 
-	log.Infof("%s wants to %s issue #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
+	log.Infof("%s wants to %s issue #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	if !validAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
 		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, cmdType)
@@ -264,12 +265,12 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	log.Infof("Request to %s issue #%d by %s was successful.\n", cmdType, req.Issue.Number, req.Comment.User.Login)
+	log.Infof("Request to %s issue #%d by %s was successful.", cmdType, req.Issue.Number, req.Comment.User.Login)
 	return nil
 }
 
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
-	log.Infof("%s wants to %s pull request #%d\n", req.Comment.User.Login, cmdType, req.Issue.Number)
+	log.Infof("%s wants to %s pull request #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -293,7 +294,7 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 }
 
 func (d Dreck) test(req types.IssueCommentOuter, cmdType, cmdValue string) error {
-	log.Infof("%s wants to %s %s issue #%d\n", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
+	log.Infof("%s wants to %s %s issue #%d", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 	return nil
 }
 

@@ -112,13 +112,6 @@ func (d Dreck) handleEvent(eventType string, body []byte) error {
 			}
 		}
 
-		// DCO.
-		if enabledFeature(featureDCO, conf) {
-			if err := d.pullRequestDCO(req); err != nil {
-				return err
-			}
-		}
-
 		autosubmit, _ := d.isAutosubmit(req, conf)
 
 		// Reviewers, only on PR opens.

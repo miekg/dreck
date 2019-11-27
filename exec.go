@@ -41,7 +41,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("illegal exec command %s", run)
 	}
 
-	log.Infof("%s wants to execute %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
+	log.Infof("%s wants to execute %s for #%d", req.Comment.User.Login, run, req.Issue.Number)
 
 	parts := strings.Fields(run) // simple split
 	if len(parts) == 0 {
@@ -64,7 +64,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		typ = "issue"
 	}
 
-	log.Infof("Assembling command '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("Assembling command '%s %s' for #%d", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
 
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	trigger := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
@@ -78,7 +78,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
-	log.Infof("Executing '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("Executing '%s %s' for #%d", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
 
 	// Get all output
 	buf, err := cmd.CombinedOutput()

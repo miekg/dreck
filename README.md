@@ -131,9 +131,6 @@ The following features are available.
 *  `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
    relevant OWNERS files.
 
-*  `dco` - check if a pull request has "Signed-off-by" (that literal string) and if not ask for it
-   to be done. Needs a "no-dco" label in the repository for it to work.
-
 *  `aliases` - enable alias expansion.
 
 *  `branches` - enables the deletion of branches after a merge of a pull request. Any pending
@@ -157,10 +154,11 @@ The following commands are supported in issue comments.
 
 *  `/label rm: LABEL`, short for "label remove",
 
-*  `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` can be used as a shortcut for the
-   commenter. `@ASSIGNEE` can also be used.
+ *  `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` or the empty string can be used as a
+    shortcut for the commenter. `@ASSIGNEE` can also be used.
 
-*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**. `@ASSIGNEE` is legal as well.
+*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**. `@ASSIGNEE` is legal as well. If no names is used
+   the commenters is used.
 
 *  `/close`, close issue.
 
