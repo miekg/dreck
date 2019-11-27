@@ -4,19 +4,16 @@
 Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.org/miekg/dreck)
 
 *dreck* is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration, so you
-can "just" run it as a plugin in Caddy. It also massively expands on the number of features.
+can "just" run it as a plugin in Caddy. It also massively expands on the number of features. *Dreck*
+depends on the GitHub CODEOWNERS features and it will check if that file exist. A separate
+`.dreck.yaml` contains various things that are not captured in the
+[CODEOWNERS](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners)
+file. Dreck doesn't support the email address syntax, so be sure to use GitHub usernames here.
 
 *Dreck* can help you with managing pull requests and issues in your GitHub project. Dreck currently
 can:
 
-*  Label/close/lock etc. issues.
-
-*  Assign reviewers to a pull request based on *OWNERS* files, taking into account Work-in-Progress
-   status.
-
-*  Delete the branch when a pull request is merged.
-
-*  Merge a pull request when the status is green (/autosubmit).
+*  Label/close/lock etc. issues and pull requests comments.
 
 *  LGTM a pull request with a comment.
 
@@ -79,20 +76,10 @@ dreck {
 
 ## OWNERS File Syntax
 
-The OWNERS file syntax is borrowed from Kubernetes and extended with a `features` and `aliases`
-section that allows you to configure dreck. This file should live in the top level directory of the
-repository. Other OWNERS files may exist in deeper directories. These are used to assign reviewers
-from for pull requests.
+The .dreck.yaml file has `features` and `aliases` section that allows you to configure dreck. This
+file should live in the top level directory of the repository.
 
 ~~~ yaml
-approvers:
-    - name1
-    - name2
-
-reviewers:
-    - name3
-    - name4
-
 features:
     - feature1
     - feature2
@@ -107,10 +94,6 @@ aliases:
 An example:
 
 ~~~ yaml
-approvers:
-    - miek
-reviewers:
-    - miek
 features:
     - comments
     - exec
@@ -124,117 +107,73 @@ aliases:
 
 ### Features
 
+The comment handling feature is always enabled, so you will most like only used this for,
+`aliaseses` and `exec`.
+
 The following features are available.
 
-*  `comments` - allow commands (see below) in comments.
-
-*  `reviewers` - assign reviewers for the pull request based on changed files and reviewers in the
-   relevant OWNERS files.
-
 *  `aliases` - enable alias expansion.
-
-*  `branches` - enables the deletion of branches after a merge of a pull request. Any pending
-   reviews on this pull request are deleted.
-
-*  `autosubmit` - enables `/autosubmit`.
 
 *  `exec` - enables `/exec`.
 
 ## Supported Commands
 
-### Comments
+The following commands are supported in issue comments and pull requests. When referencing
+a user you can use **USER** or **@USER. Most commands are only available to user referenced in the
+CODEOWNERS file.
 
-The following commands are supported in issue comments.
+*  `/[un]label LABEL`, add/remove a label.
 
-*  `/label add: LABEL`, label an issue with **LABEL**.
-
-*  `/label: LABEL`, short for "label add".
-
-*  `/label remove: LABEL`, remove **LABEL**.
-
-*  `/label rm: LABEL`, short for "label remove",
-
- *  `/assign: ASSIGNEE`, assign issue to **ASSIGNEE**, `me` or the empty string can be used as a
-    shortcut for the commenter. `@ASSIGNEE` can also be used.
-
-*  `/unassign: ASSIGNEE`, unassigns **ASSIGNEE**. `@ASSIGNEE` is legal as well. If no names is used
-   the commenters is used.
+ *  `/[un]assign USER`, [un]assign issue to **USER**, the empty string can be used as a
+    shortcut for the current user.
 
 *  `/close`, close issue.
 
 *  `/reopen`, reopen issue.
 
-*  `/title set: TITLE`, set the title to **TITLE**.
+*  `/title TITLE`: short for "title set".
 
-*  `/title: TITLE`: short for "title set".
-
-*  `/title edit: TITLE`, set the title to **TITLE**.
-
-*  `/lock`, lock the issue.
-
-*  `/unlock`, unlock the issue.
+*  `/[un]lock`, [un]lock the issue.
 
 *  `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
    are allowed.
 
-*  `/duplicate: NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
+*  `/duplicate NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
    and adding the 'duplicate' label.
 
 *  `/fortune`, adds a comment containing text obtained from running "fortune".
 
 *  `/test`, a noop used for testing *dreck*.
 
-### Pull Requests
+* `/[un]cc USER` [un]cc **USER** in this issue, empty string means the current user.
 
-When a pull request is submitted dreck will check which files are modified, removed or changed. For
-a subset of these it will search for the nearest OWNERS file. We will then randomly assign someone
-from the reviewers to review the pull request. This is only done when the pull request does not have
-any reviewers, nor is a work-in-progress. *dreck* adds a comment how showing what OWNERS file was
-used to pick the reviewer from.
-
-If pull requests have `WIP` (case insensitive) as a prefix in the title and this title is changed to
-remove that prefix we will search (again) for a reviewer. The prefixes allowed are: `WIP`, `WIP:`,
-`[WIP]` and `[WIP]:`.
-
-Further more the following extra commands are supported for pull request issues comments (ignored
-for issues).
-
-*  `/lgtm`, approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
-   this command.
-
-*  `/autosubmit`, when all checks are OK, automatically merge the pull request. This will wait for
-   30 minutes for all tests to complete. The label 'autosubmit' is added to the pull request. Note
-   that the command `/autosubmit` can *also be given in the pull request body*. If *dreck* sees it
-   there, it will immediately start checking and, if allowed, we start submitting.
-
-*  `/exec`, executing commands is supported for pull requests.
+*  `/[un]lgtm`, [un]approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
+   this command and adds an approve by the bot.
 
 *  `/merge`, merge this pull request if the checks are green and we have approval (and no explicit
    changes requested). Any pending reviews are deleted.
 
 ## Aliases
 
-The `aliases` sections of the OWNERS file allows you to specify alias for other commands. It's
+The `aliases` sections of the .dreck.yaml allows you to specify alias for other commands. It's
 a regular expression based format and looks like this: `alias -> command`. Note the this is:
 `<space>-><space>`, e.g.:
 
-~~~
-/plugin: (.*) -> /label add: plugin/$1
-~~~
+    /plugin (.*) -> /label plugin/$1
 
-This defines a new command `/plugin: forward` that translates into `/label add: plugin/forward`.
-The regular expression `(.*)` catches the argument after `/plugin:` and `$1` is the first expression
+This defines a new command `/plugin forward` that translates into `/label plugin/forward`.
+The regular expression `(.*)` catches the argument after `/plugin` and `$1` is the first expression
 match group.
 
-Note this entire string needs to be taken literal in the OWNERS file to be valid yaml:
+Note this entire string needs to be taken literal to be valid yaml:
 
 ~~~ yaml
 aliases:
     - |
-      /plugin: (.*) -> /label add: plugin/$1
+      /plugin (.*) -> /label plugin/$1
 ~~~
 
-### Exec
+## Exec
 
 Exec allows for processes be started on the dreck server. For this the `exec` feature *and* the
 `aliases` feature must be enabled. Only commands *expanded* by an alias are allowed to execute, this
@@ -243,8 +182,8 @@ of the command will be picked up and put in the new comment under the issue or p
 
 If `user` is specified dreck will run the command under that user.
 
-Apart from the environment set in the configuration all command well have access to GITHUB*TRIGGER.
-If the command is given in an issue dreck will set GITHUB*TRIGGER to `issue/NUMBER`, if done for a
+Apart from the environment set in the configuration all command well have access to GITHUB\_TRIGGER.
+If the command is given in an issue dreck will set GITHUB\_TRIGGER to `issue/NUMBER`, if done for a
 pull request that value will be `pull/NUMBER`.
 
 If the command is run for a pull request dreck will update the status with 'pending' when the
@@ -254,7 +193,7 @@ For example, if you want to execute `/opt/bin/release ARGUMENT` on the server, t
 must be defined:
 
 ~~~
-/release: (.*) -> /exec: /opt/bin/release $1
+/release (.*) -> /exec /opt/bin/release $1
 ~~~
 
 If you then call the command with `/release 0.1` in issue 42. *dreck* will run:
@@ -263,7 +202,7 @@ If you then call the command with `/release 0.1` in issue 42. *dreck* will run:
 /opt/bin/release 0.1
 ~~~
 
-And GITHUB_TRIGGER will be issue/42.
+And GITHUB\_TRIGGER will be issue/42.
 
 Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd`
 *still* yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
@@ -273,18 +212,12 @@ Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat 
 list currently is this regular expression: `^[-a-zA-Z0-9 ./]+$`. Note that two dots in a row is not
 allowed.
 
-## Branches
-
-With this enabled, *dreck* will, after each closed pull request, look to see if the branch is
-merged, but not deleted. If this is true, it will delete the branch. The *master* branch is always
-excluded from this.
-
 # Examples
 
 Set a label on an issue, on Github (or via email), create a reply that contains:
 
 ~~~
-/label: bug
+/label bug
 ~~~
 
 And *dreck* will apply that label if it exists. Text can freely intermixed, but each command should
@@ -292,13 +225,13 @@ be on its own line and start on the left most position.
 
 ~~~
 This is good question.
-/label: question
+/label question
 ~~~
 
 While the following will not be detected as a command:
 
 ~~~
-This is good question. /label: question
+This is good question. /label question
 ~~~
 
 # Also See

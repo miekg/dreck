@@ -6,46 +6,29 @@ import (
 	"github.com/miekg/dreck/types"
 )
 
-func enabledFeature(attemptedFeature string, config *types.DreckConfig) bool {
-	for _, availableFeature := range config.Features {
-		if strings.EqualFold(attemptedFeature, availableFeature) {
+func aliasOK(c *types.DreckConfig) bool {
+	for _, f := range config.Features {
+		if strings.EqualFold(Aliases, availableFeature) {
 			return true
 		}
 	}
 	return false
 }
 
-func permittedUserFeature(attemptedFeature string, config *types.DreckConfig, user string) bool {
-
-	if enabledFeature(attemptedFeature, config) {
-		for _, reviewer := range config.Reviewers {
-			if strings.EqualFold(user, reviewer) {
-				return true
-			}
+func execOK(c *types.DreckConfig) bool {
+	for _, f := range config.Features {
+		if strings.EqualFold(Exec, availableFeature) {
+			return true
 		}
 	}
-	if enabledFeature(attemptedFeature, config) {
-		for _, approver := range config.Approvers {
-			if strings.EqualFold(user, approver) {
-				return true
-			}
-		}
-	}
-
 	return false
 }
 
-func permittedUser(config *types.DreckConfig, user string) bool {
-	for _, reviewer := range config.Reviewers {
-		if strings.EqualFold(user, reviewer) {
+func isCodeOwner(c *types.DreckConfig, user string) bool {
+	for _, o := range c.CodeOwners {
+		if strings.EqualFold(user, o) {
 			return true
 		}
 	}
-	for _, approver := range config.Approvers {
-		if strings.EqualFold(user, approver) {
-			return true
-		}
-	}
-
 	return false
 }

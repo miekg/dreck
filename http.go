@@ -54,9 +54,12 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	return 0, err
 }
 
-func (d Dreck) handleEvent(eventType string, body []byte) error {
+func (d Dreck) handleEvent(event string, body []byte) error {
+	switch event {
 
-	switch eventType {
+	}
+
+	switch event {
 	case "pull_request":
 		req := types.PullRequestOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {

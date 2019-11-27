@@ -65,10 +65,9 @@ type CommentAction struct {
 
 // DreckConfig holds the configuration from the top-level owners file.
 type DreckConfig struct {
-	Aliases   []string
-	Features  []string
-	Reviewers []string
-	Approvers []string
+	CodeOwners []string
+	Aliases    []string
+	Features   []string
 }
 
 // PullRequestToIssueComment converts one type to another. This is not a full copy, but copies
