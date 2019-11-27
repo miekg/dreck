@@ -130,8 +130,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 	if err != nil {
 		return err
 	}
-	found = labelDuplicate(labels, labelValue)
-	if !found {
+	if found := labelDuplicate(labels, labelValue); !found {
 		return fmt.Errorf("label %s does not exist", labelValue)
 	}
 
@@ -247,10 +246,6 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 }
 
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
-	if !isCodeOwner(conf, req.Comment.User.Login) {
-		return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
-	}
-
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
