@@ -41,10 +41,8 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	c := parse(body, conf)
 
 	for _, command := range c {
-		log.Infof("Incoming request %s: %s", command.Type, command.Value)
-
+		log.Infof("Incoming request from %s, %s: %s", req.Comment.User.Login, command.Type, command.Value)
 		switch command.Type {
-
 		case addLabelConst, removeLabelConst:
 			if err := d.label(req, command.Type, command.Value); err != nil {
 				return err
@@ -70,9 +68,13 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			}
 			return fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
 		case lgtmConst, unlgtmConst:
-			if err := d.lgtm(req, command.Type); err != nil {
-				return err
+			if isCodeOwner(conf, req.Comment.User.Login) {
+				if err := d.lgtm(req, command.Type); err != nil {
+					return err
+				}
+				return nil
 			}
+			return fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
 		case ccConst, unccConst:
 			//			if err := d.cc(req, command.Type); err != nil {
 			//				return err
@@ -118,16 +120,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 }
 
 func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) error {
-
 	labelAction := strings.Replace(cmdType, "label", "", 1)
-
-	log.Infof("%s wants to %s label of '%s' on issue #%d", req.Comment.User.Login, labelAction, labelValue, req.Issue.Number)
-
-	found := labelDuplicate(req.Issue.Labels, labelValue)
-	if !isAction(found, cmdType, addLabelConst, removeLabelConst) {
-		return fmt.Errorf("request to %s label of '%s' on issue #%d was unnecessary", labelAction, labelValue, req.Issue.Number)
-	}
-
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -158,11 +151,7 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 }
 
 func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) error {
-
-	log.Infof("%s wants to set the title of issue #%d", req.Comment.User.Login, req.Issue.Number)
-
 	newTitle := cmdValue
-
 	if newTitle == req.Issue.Title || len(newTitle) == 0 {
 		return fmt.Errorf("setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged", req.Issue.Number, req.Comment.User.Login)
 	}
@@ -183,12 +172,9 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) erro
 }
 
 func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) error {
-	// remove @ when we see it.
 	if len(cmdValue) > 1 && cmdValue[0] == '@' {
 		cmdValue = cmdValue[1:]
 	}
-
-	log.Infof("%s wants to %s user '%s' from issue #%d", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -215,11 +201,7 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 }
 
 func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
-
-	log.Infof("%s wants to %s issue #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
-
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
-
 	if !validTransition {
 		return fmt.Errorf("request to %s issue #%d by %s was invalidn", cmdType, req.Issue.Number, req.Comment.User.Login)
 	}
@@ -241,9 +223,6 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 }
 
 func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
-
-	log.Infof("%s wants to %s issue #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
-
 	if !isAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
 		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, cmdType)
 	}
@@ -268,7 +247,9 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 }
 
 func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
-	log.Infof("%s wants to %s pull request #%d", req.Comment.User.Login, cmdType, req.Issue.Number)
+	if !isCodeOwner(conf, req.Comment.User.Login) {
+		return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
+	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -292,7 +273,6 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 }
 
 func (d Dreck) test(req types.IssueCommentOuter, cmdType, cmdValue string) error {
-	log.Infof("%s wants to %s %s issue #%d", req.Comment.User.Login, cmdType, cmdValue, req.Issue.Number)
 	return nil
 }
 
@@ -386,8 +366,8 @@ func checkTransition(requestedAction string, currentState string) (string, bool)
 var IssueCommands = map[string]string{
 	Trigger + "label":      addLabelConst,
 	Trigger + "unlabel":    removeLabelConst,
-	Trigger + "cc":         "", // don't know yet
-	Trigger + "uncc":       "", // don't know yet
+	Trigger + "cc":         ccConst,
+	Trigger + "uncc":       unccConst,
 	Trigger + "assign":     assignConst,
 	Trigger + "unassign":   unassignConst,
 	Trigger + "close":      closeConst,

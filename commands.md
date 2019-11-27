@@ -13,7 +13,7 @@
 | /duplicate **NUMBER** | `/duplicate 17` | Marks issues as duplicate | anyone | |
 | /[un]lock | `/lock` | Locks or unlocks the issue | codeowners | |
 | /fortune | `/fortune` | Adds comment containing a fortune (cookie) |anyone | |
-| /[un]lgtm | `/lgtm` | Approves the pull request | anyone | Yes |
+| /[un]lgtm | `/lgtm` | Approves the pull request | code owners | Yes |
 | /merge | `/merge` | When status is green and approved, submits pull request | code owners| Yes |
 | /exec | `/exec` | Execute a command | code owners| |
 | /fortune | `/fortune` | Add fortune comment | anyone | |
