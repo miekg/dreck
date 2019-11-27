@@ -7,8 +7,8 @@ import (
 )
 
 func aliasOK(c *types.DreckConfig) bool {
-	for _, f := range config.Features {
-		if strings.EqualFold(Aliases, availableFeature) {
+	for _, f := range c.Features {
+		if strings.EqualFold(Aliases, f) {
 			return true
 		}
 	}
@@ -16,8 +16,8 @@ func aliasOK(c *types.DreckConfig) bool {
 }
 
 func execOK(c *types.DreckConfig) bool {
-	for _, f := range config.Features {
-		if strings.EqualFold(Exec, availableFeature) {
+	for _, f := range c.Features {
+		if strings.EqualFold(Exec, f) {
 			return true
 		}
 	}

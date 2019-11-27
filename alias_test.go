@@ -52,12 +52,11 @@ func TestAliasParse(t *testing.T) {
 }
 
 func TestParsingAlias(t *testing.T) {
-
 	conf := &types.DreckConfig{
-		Features: []string{featureAliases},
+		Features: []string{Aliases},
 		Aliases: []string{
-			fmt.Sprintf("%splugin: (.*) -> %slabel add: plugin/$1", Trigger, Trigger),
-			fmt.Sprintf("%splugin2: (.*) -> %slabel add: plugin/$2", Trigger, Trigger),
+			fmt.Sprintf("%splugin (.*) -> %slabel plugin/$1", Trigger, Trigger),
+			fmt.Sprintf("%splugin2 (.*) -> %slabel plugin/$2", Trigger, Trigger),
 			fmt.Sprintf("%slooksOK -> %slgtm", Trigger, Trigger),
 		},
 	}
@@ -70,31 +69,31 @@ func TestParsingAlias(t *testing.T) {
 	}{
 		{
 			title:        "Alias Add label of demo",
-			body:         Trigger + "plugin: demo",
+			body:         Trigger + "plugin demo",
 			expectedType: "AddLabel",
 			expectedVal:  "plugin/demo",
 		},
 		{
 			title:        "Alias2 Add label of demo",
-			body:         Trigger + "plugin2: demo",
+			body:         Trigger + "plugin2 demo",
 			expectedType: "AddLabel",
 			expectedVal:  "plugin/",
 		},
 		{
 			title:        "Alias Add label of demo",
-			body:         Trigger + "plugin: demo",
+			body:         Trigger + "plugin demo",
 			expectedType: "AddLabel",
 			expectedVal:  "plugin/demo",
 		},
 		{
 			title:        "Alias Add label of demo case",
-			body:         Trigger + "plUGin: demo",
+			body:         Trigger + "plUGin demo",
 			expectedType: "AddLabel",
 			expectedVal:  "plugin/demo",
 		},
 		{
 			title:        "Non alias label of demo",
-			body:         Trigger + "pluginner: demo",
+			body:         Trigger + "pluginner demo",
 			expectedType: "",
 			expectedVal:  "",
 		},

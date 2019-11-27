@@ -60,78 +60,6 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 	}
 
 	switch event {
-	case "pull_request":
-		req := types.PullRequestOuter{}
-		if err := json.Unmarshal(body, &req); err != nil {
-			if e, ok := err.(*json.SyntaxError); ok {
-				log.Errorf("Syntax error at byte offset %d", e.Offset)
-			}
-			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
-		}
-
-		log.Infof("Pull request action %s", req.Action)
-
-		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
-		if err != nil {
-			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
-		}
-
-		// Branch deletion handling. Only done when req.Action is closed (happens after merge).
-		if req.Action == closedConst {
-			if enabledFeature(featureBranches, conf) {
-				d.pullRequestBranches(req)
-			}
-
-			// delete pending reviews
-
-			client, ctx, err := d.newClient(req.Installation.ID)
-			if err != nil {
-				return err
-			}
-
-			pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.PullRequest.Number)
-			if err != nil {
-				// Pr does not exist, noop.
-				return err
-			}
-
-			return d.pullRequestDeletePendingReviews(client, types.PullRequestToIssueComment(req), pull)
-		}
-
-		// Reviewers, title change WIP, none WIP.
-		if req.Action == "edited" {
-			ok, err := d.pullRequestWIP(req)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				return nil
-			}
-
-			if enabledFeature(featureReviewers, conf) {
-				if err := d.pullRequestReviewers(req); err != nil {
-					return err
-				}
-			}
-		}
-
-		autosubmit, _ := d.isAutosubmit(req, conf)
-
-		// Reviewers, only on PR opens.
-		if req.Action == openPRConst {
-			if enabledFeature(featureReviewers, conf) && !autosubmit {
-				if err := d.pullRequestReviewers(req); err != nil {
-					return err
-				}
-			}
-		}
-
-		if req.Action == openPRConst && autosubmit {
-			if err := d.pullRequestAutosubmit(req); err != nil {
-				return err
-			}
-		}
-
 	case "issue_comment", "pull_request_review":
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
@@ -143,32 +71,28 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 
 		log.Infof("Issue comment action %s", req.Action)
 
-		// Do nothing when the comment is deleted.
+		// Do nothing on deletion
 		if req.Action == "deleted" {
 			return nil
 		}
 
 		conf, err := d.getConfig(req.Repository.Owner.Login, req.Repository.Name)
 		if err != nil {
-			return fmt.Errorf("Unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
+			return fmt.Errorf("unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
-
-		if permittedUserFeature(featureComments, conf, req.Comment.User.Login) {
-			err := d.comment(req, conf)
-			if err != nil {
-				return err
-			}
+		if err := d.comment(req, conf); err != nil {
+			return err
 		}
 
 	case "ping":
 		fallthrough
 
 	case "status":
-		log.Infof("Seen %s", eventType)
+		log.Infof("Seen %s", event)
 		return nil
 
 	default:
-		return fmt.Errorf("unsupported event: %s", eventType)
+		return fmt.Errorf("unsupported event: %s", event)
 	}
 
 	return nil

@@ -1,6 +1,10 @@
 package dreck
 
 import (
+	"bufio"
+	"bytes"
+	"strings"
+
 	"github.com/miekg/dreck/types"
 
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
@@ -42,11 +46,60 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 		return nil, err
 	}
 
-	if err := yaml.Unmarshal(bytesOut, &config); err != nil {
+	if err := yaml.Unmarshal(buf, &config); err != nil {
 		return nil, err
 	}
 
-	return &config, nil
+	// grap toplevel CODEOWNERS file and parse that
+	buf, err = githubFile("CODEOWNERS", repository, d.owners)
+	if err != nil {
+		return nil, err
+	}
+	config.CodeOwners, err = parseOwners(buf)
+	return &config, err
+}
+
+func parseOwners(buf []byte) ([]string, error) {
+	// simple line, by line based format
+	//
+	// # In this example, @doctocat owns any files in the build/logs
+	// # directory at the root of the repository and any of its
+	// # subdirectories.
+	// /build/logs/ @doctocat
+
+	scanner := bufio.NewScanner(bytes.NewReader(buf))
+	users := map[string]struct{}{}
+	for scanner.Scan() {
+		text := scanner.Text()
+		if len(text) == 0 {
+			continue
+		}
+		if text[0] == '#' {
+			continue
+		}
+		ele := strings.Fields(text)
+		if len(ele) == 0 {
+			continue
+		}
+
+		// ok ele[0] is the path, the rest are (in our case) github usernames prefixed with @
+		for _, s := range ele[1:] {
+			if len(s) <= 1 {
+				continue
+			}
+			users[s[1:]] = struct{}{}
+		}
+
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	u := []string{}
+	for k, _ := range users {
+		u = append(u, k)
+	}
+	return u, nil
+
 }
 
 const (
