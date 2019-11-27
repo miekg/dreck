@@ -1,6 +1,10 @@
 package dreck
 
 import (
+	"bufio"
+	"bytes"
+	"strings"
+
 	"github.com/miekg/dreck/types"
 
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
@@ -26,7 +30,7 @@ type Dreck struct {
 // New returns a new, initialized Dreck.
 func New() Dreck {
 	d := Dreck{}
-	d.owners = "OWNERS"
+	d.owners = ".dreck.yaml"
 	d.path = "/dreck"
 	d.strategy = mergeSquash
 	d.env = make(map[string]string)
@@ -35,7 +39,6 @@ func New() Dreck {
 }
 
 func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
-
 	var config types.DreckConfig
 
 	buf, err := githubFile(owner, repository, d.owners)
@@ -43,31 +46,65 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 		return nil, err
 	}
 
-	if err := parseConfig(buf, &config); err != nil {
+	if err := yaml.Unmarshal(buf, &config); err != nil {
 		return nil, err
 	}
 
-	return &config, nil
+	// grap toplevel CODEOWNERS file and parse that
+	buf, err = githubFile(owner, repository, "CODEOWNERS")
+	if err != nil {
+		return nil, err
+	}
+	config.CodeOwners, err = parseOwners(buf)
+	return &config, err
 }
 
-func parseConfig(bytesOut []byte, config *types.DreckConfig) error {
-	err := yaml.Unmarshal(bytesOut, &config)
+func parseOwners(buf []byte) ([]string, error) {
+	// simple line, by line based format
+	//
+	// # In this example, @doctocat owns any files in the build/logs
+	// # directory at the root of the repository and any of its
+	// # subdirectories.
+	// /build/logs/ @doctocat
 
-	if len(config.Reviewers) == 0 && len(config.Approvers) > 0 {
-		config.Reviewers = config.Approvers
+	scanner := bufio.NewScanner(bytes.NewReader(buf))
+	users := map[string]struct{}{}
+	for scanner.Scan() {
+		text := scanner.Text()
+		if len(text) == 0 {
+			continue
+		}
+		if text[0] == '#' {
+			continue
+		}
+		ele := strings.Fields(text)
+		if len(ele) == 0 {
+			continue
+		}
+
+		// ok ele[0] is the path, the rest are (in our case) github usernames prefixed with @
+		for _, s := range ele[1:] {
+			if len(s) <= 1 {
+				continue
+			}
+			users[s[1:]] = struct{}{}
+		}
+
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	u := []string{}
+	for k, _ := range users {
+		u = append(u, k)
+	}
+	return u, nil
 
-	return err
 }
 
 const (
-	featureDCO        = "dco"        // featureDCO enables the "Signed-off-by" checking of PRs.
-	featureComments   = "comments"   // featureComments allows commands to be given in comments.
-	featureReviewers  = "reviewers"  // featureReviewers enables automatically assigning reviewers based on OWNERS.
-	featureAliases    = "aliases"    // featureAliases enables alias expansion.
-	featureBranches   = "branches"   // featureBranches enables branch deletion after a merge.
-	featureAutosubmit = "autosubmit" // featureAutosubmit enables the auto submitting or pull requests when the tests are green.
-	featureExec       = "exec"       // featureExec enables the exec command.
+	Aliases = "aliases" // Aliases enables alias expansion.
+	Exec    = "exec"    // Exec enables the exec command.
 )
 
 // Trigger is the prefix that triggers action from this bot.

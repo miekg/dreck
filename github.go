@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/miekg/dreck/auth"
-	"github.com/miekg/dreck/log"
 
 	"github.com/google/go-github/github"
 )
@@ -21,26 +20,19 @@ func githubIssueComment(body string) *github.IssueComment {
 
 func (d Dreck) newClient(installation int) (*github.Client, context.Context, error) {
 	ctx := context.Background()
-
 	token, err := auth.MakeAccessTokenForInstallation(d.clientID, d.key, installation)
 	if err != nil {
 		return nil, ctx, err
 	}
 
 	client := auth.MakeClient(ctx, token)
-
-	log.Infof("Create client with installation ID %d", installation)
-
 	return client, ctx, nil
 }
 
 // githubFile returns the file from github or an error if nothing is found.
 func githubFile(owner, repository, path string) ([]byte, error) {
-
 	file := fmt.Sprintf("https://github.com/%s/%s/raw/master/%s", owner, repository, path)
-
 	client := http.Client{Timeout: 30 * time.Second}
-
 	req, _ := http.NewRequest(http.MethodGet, file, nil)
 
 	res, err := client.Do(req)

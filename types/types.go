@@ -10,10 +10,6 @@ type Owner struct {
 	Type  string `json:"type"`
 }
 
-type PullRequest struct {
-	Number int `json:"number"`
-}
-
 type InstallationRequest struct {
 	Installation ID `json:"installation"`
 }
@@ -22,19 +18,12 @@ type ID struct {
 	ID int `json:"id"`
 }
 
-type PullRequestOuter struct {
-	Repository  Repository  `json:"repository"`
-	PullRequest PullRequest `json:"pull_request"`
-	Action      string      `json:"action"`
-	InstallationRequest
-	Changes map[string]map[string]string `json:"changes"`
-}
-
 type IssueCommentOuter struct {
-	Repository Repository `json:"repository"`
-	Comment    Comment    `json:"comment"`
-	Action     string     `json:"action"`
-	Issue      Issue      `json:"issue"`
+	Repository  Repository  `json:"repository"`
+	Comment     Comment     `json:"comment"`
+	Action      string      `json:"action"`
+	Issue       Issue       `json:"issue,omitempty"`
+	PullRequest PullRequest `json:"pull_request,omitempty"`
 	InstallationRequest
 }
 
@@ -48,6 +37,18 @@ type Issue struct {
 	Title  string       `json:"title"`
 	Locked bool         `json:"locked"`
 	State  string       `json:"state"`
+	Body   string       `json:"body,omitempty""`
+	User   struct {
+		Login string `json:"login"`
+	}
+}
+
+type PullRequest struct {
+	Body string `json:"body,omitempty""`
+	User struct {
+		Login string `json:"login"`
+	}
+	Number int `json:"number"`
 }
 
 type Comment struct {
@@ -63,21 +64,9 @@ type CommentAction struct {
 	Value string
 }
 
-// DreckConfig holds the configuration from the top-level owners file.
+// DreckConfig holds the configuration from the .dreck.yaml and CODEOWNERS file.
 type DreckConfig struct {
-	Aliases   []string
-	Features  []string
-	Reviewers []string
-	Approvers []string
-}
-
-// PullRequestToIssueComment converts one type to another. This is not a full copy, but copies
-// enough elements to make things work from a pull request.
-func PullRequestToIssueComment(pr PullRequestOuter) IssueCommentOuter {
-	ico := IssueCommentOuter{}
-	ico.Repository = pr.Repository
-	ico.Issue.Number = pr.PullRequest.Number
-	ico.InstallationRequest = pr.InstallationRequest
-
-	return ico
+	CodeOwners []string
+	Aliases    []string
+	Features   []string
 }

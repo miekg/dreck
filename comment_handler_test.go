@@ -34,19 +34,18 @@ var actionOptions = []struct {
 	},
 	{
 		title:          "Longer reopen command",
-		body:           Trigger + "reopen: ",
+		body:           Trigger + "reopen",
 		expectedAction: reopenConst,
 	},
 	{
 		title:          "Longer close command",
-		body:           Trigger + "close: ",
+		body:           Trigger + "close",
 		expectedAction: closeConst,
 	},
 }
 
 func TestParsingOpenClose(t *testing.T) {
-
-	for _, test := range actionOptions {
+	for i, test := range actionOptions {
 		t.Run(test.title, func(t *testing.T) {
 			test.body = strings.ToLower(test.body)
 			actions := parse(test.body, &types.DreckConfig{})
@@ -55,21 +54,19 @@ func TestParsingOpenClose(t *testing.T) {
 				return
 			}
 			if len(actions) != 1 {
-				t.Errorf("Action - not parsed correctly")
+				t.Errorf("%d - action - not parsed correctly", i)
 				return
 			}
 			action := actions[0]
 
 			if action.Type != test.expectedAction {
-				t.Errorf("Action - want: %s, got %s", test.expectedAction, action.Type)
+				t.Errorf("%d - action - want: %s, got %s", i, test.expectedAction, action.Type)
 			}
-
 		})
 	}
 }
 
 func TestParsingLabels(t *testing.T) {
-
 	var labelOptions = []struct {
 		title        string
 		body         string
@@ -78,19 +75,19 @@ func TestParsingLabels(t *testing.T) {
 	}{
 		{
 			title:        "Add label of demo",
-			body:         Trigger + "label add: demo",
+			body:         Trigger + "label demo",
 			expectedType: "AddLabel",
 			expectedVal:  "demo",
 		},
 		{
 			title:        "Remove label of demo",
-			body:         Trigger + "label remove: demo",
+			body:         Trigger + "unlabel demo",
 			expectedType: "RemoveLabel",
 			expectedVal:  "demo",
 		},
 		{
 			title:        "Invalid label action",
-			body:         Trigger + "label peel: demo",
+			body:         Trigger + "labell demo",
 			expectedType: "",
 			expectedVal:  "",
 		},
@@ -126,37 +123,43 @@ func TestParsingAssignments(t *testing.T) {
 	}{
 		{
 			title:        "Assign to burt",
-			body:         Trigger + "assign: burt",
+			body:         Trigger + "assign burt",
 			expectedType: assignConst,
 			expectedVal:  "burt",
 		},
 		{
 			title:        "Unassign burt",
-			body:         Trigger + "unassign: burt",
+			body:         Trigger + "unassign burt",
 			expectedType: unassignConst,
 			expectedVal:  "burt",
 		},
 		{
 			title:        "Assign to me",
-			body:         Trigger + "assign: me",
+			body:         Trigger + "assign me",
 			expectedType: assignConst,
 			expectedVal:  "me",
 		},
 		{
+			title:        "Assign to me",
+			body:         Trigger + "assign",
+			expectedType: assignConst,
+			expectedVal:  "",
+		},
+		{
 			title:        "Unassign me",
-			body:         Trigger + "unassign: me",
+			body:         Trigger + "unassign me",
 			expectedType: unassignConst,
 			expectedVal:  "me",
 		},
 		{
 			title:        "Invalid assignment action",
-			body:         Trigger + "consign: burt",
+			body:         Trigger + "consign burt",
 			expectedType: "",
 			expectedVal:  "",
 		},
 		{
 			title:        "Unassign blank",
-			body:         Trigger + "unassign: ",
+			body:         Trigger + "unassign",
 			expectedType: unassignConst,
 			expectedVal:  "",
 		},
@@ -164,7 +167,6 @@ func TestParsingAssignments(t *testing.T) {
 
 	for _, test := range assignmentOptions {
 		t.Run(test.title, func(t *testing.T) {
-
 			actions := parse(test.body, &types.DreckConfig{})
 			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
 				// correct, we didn't parse anything
@@ -192,26 +194,26 @@ func TestParsingTitles(t *testing.T) {
 	}{
 		{
 			title:        "Set Title",
-			body:         Trigger + "title set: This is a really great Title!",
-			expectedType: setTitleConst,
+			body:         Trigger + "title This is a really great Title!",
+			expectedType: titleConst,
 			expectedVal:  "This is a really great Title!",
 		},
 		{
 			title:        "Mis-spelling of title",
-			body:         Trigger + "titel set: This is a really great Title!",
+			body:         Trigger + "titel This is a really great Title!",
 			expectedType: "",
 			expectedVal:  "",
 		},
 		{
 			title:        "Empty Title",
-			body:         Trigger + "title set: ",
-			expectedType: setTitleConst,
+			body:         Trigger + "title",
+			expectedType: titleConst,
 			expectedVal:  "",
 		},
 		{
 			title:        "Empty Title (Double Space)",
-			body:         Trigger + "title set:  ",
-			expectedType: setTitleConst,
+			body:         Trigger + "title  ",
+			expectedType: titleConst,
 			expectedVal:  "",
 		},
 	}
@@ -334,18 +336,15 @@ func TestValidAction(t *testing.T) {
 
 	for _, test := range stateOptions {
 		t.Run(test.title, func(t *testing.T) {
-
-			isValid := validAction(test.running, test.requestedAction, test.start, test.stop)
-
-			if isValid != test.expectedBool {
-				t.Errorf("\nActions - wanted: %t, got %t\n", test.expectedBool, isValid)
+			ok := isAction(test.running, test.requestedAction, test.start, test.stop)
+			if ok != test.expectedBool {
+				t.Errorf("\nActions - wanted: %t, got %t\n", test.expectedBool, ok)
 			}
 		})
 	}
 }
 
 func TestLabelDuplicate(t *testing.T) {
-
 	var stateOptions = []struct {
 		title         string
 		currentLabels []types.IssueLabel

@@ -11,72 +11,14 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func (d Dreck) autosubmit(req types.IssueCommentOuter) error {
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
-	ticker := time.NewTicker(15 * time.Second)
-	stop := time.NewTimer(30 * time.Minute)
-	defer ticker.Stop()
-	defer stop.Stop()
-
-	// Add autosubmit label to signal we will merge this automatically.
-	client.Issues.AddLabelsToIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{"autosubmit"})
-
-	log.Infof("Start autosubmit polling for PR %d", req.Issue.Number)
-
-	for {
-		select {
-		case <-ticker.C:
-
-			pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
-			if err != nil {
-				return err
-			}
-			if pull.ClosedAt != nil {
-				// Pr has been closed or deleted. Don't merge!
-				return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
-			}
-
-			ok, _ := d.pullRequestStatus(client, req, pull)
-			if ok && pull.Mergeable != nil {
-				d.pullRequestDeletePendingReviews(client, req, pull)
-				err := d.pullRequestMerge(client, req, pull)
-				if err != nil {
-					return err
-				}
-			}
-
-			return nil
-
-		case <-stop.C:
-
-			return fmt.Errorf("timeout while waiting for PR %d", req.Issue.Number)
-		}
-	}
-}
-
-func (d Dreck) pullRequestMerge(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
-
-	ctx := context.Background()
+func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
 	msg := "Automatically submitted."
-	commit, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
-
-	if err != nil {
-		return fmt.Errorf("failed merge of PR %d: %s", *pull.Number, err.Error())
-	}
-
-	log.Infof("PR %d has been autosubmitted in %s", req.Issue.Number, commit.GetSHA())
-
-	return nil
+	_, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
+	return err
 }
 
-func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-
-	ctx := context.Background()
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
@@ -91,14 +33,10 @@ func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOu
 			return false, nil
 		}
 	}
-
-	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
 	return true, nil
 }
 
-func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-
-	ctx := context.Background()
+func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
 
@@ -117,40 +55,12 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 		}
 	}
 	if !ok {
-		log.Infof("PR %d has not been approved", pull.GetNumber())
-		return false, fmt.Errorf("PR %d is not reviews or has a %s", pull.GetNumber(), reviewChanges)
+		return false, fmt.Errorf("PR %d is no reviewers or has a %s", pull.GetNumber(), reviewChanges)
 	}
-
-	log.Infof("PR %d has been approved", pull.GetNumber())
 	return true, nil
 }
 
-func (d Dreck) pullRequestDeletePendingReviews(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
-	ctx := context.Background()
-	listOpts := &github.ListOptions{PerPage: 100}
-	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
-
-	if err != nil {
-		log.Infof("Failed to list reviewers: %s", err)
-		return err
-	}
-
-	for _, review := range reviews {
-		// don't care about return code here.
-		if _, _, err := client.PullRequests.DeletePendingReview(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), review.GetID()); err != nil {
-			log.Warningf("Failed to delete pending review: %s", err)
-		}
-	}
-
-	return nil
-}
-
-func (d Dreck) merge(req types.IssueCommentOuter) error {
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
+func (d Dreck) merge(ctx context.Context, client *github.Client, req types.IssueCommentOuter) error {
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
 		// Pr does not exist, noop.
@@ -161,16 +71,14 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 		return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
 	}
 
-	statusOK, _ := d.pullRequestStatus(client, req, pull)
-	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
-	if statusOK && reviewOK && pull.Mergeable != nil {
-		d.pullRequestDeletePendingReviews(client, req, pull)
-		err := d.pullRequestMerge(client, req, pull)
-		if err != nil {
-			return err
-		}
-	}
+	// wait a tiny bit for checking these; we see \lgtm and \merge together a lot, give /merge a small head start
+	time.Sleep(2 * time.Second)
 
+	statusOK, _ := d.pullRequestStatus(ctx, client, req, pull)
+	reviewOK, _ := d.pullRequestReviewed(ctx, client, req, pull)
+	if statusOK && reviewOK && pull.Mergeable != nil {
+		return d.pullRequestMerge(ctx, client, req, pull)
+	}
 	return nil
 }
 

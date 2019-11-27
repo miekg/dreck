@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -33,7 +34,7 @@ func sanitize(s string) bool {
 	return true
 }
 
-func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
+func (d Dreck) exec(ctx context.Context, client *github.Client, req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
 	run, err := stripValue(cmdValue)
@@ -41,7 +42,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("illegal exec command %s", run)
 	}
 
-	log.Infof("%s wants to execute %s for #%d\n", req.Comment.User.Login, run, req.Issue.Number)
+	log.Infof("%s wants to execute %s for #%d", req.Comment.User.Login, run, req.Issue.Number)
 
 	parts := strings.Fields(run) // simple split
 	if len(parts) == 0 {
@@ -52,11 +53,6 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		return fmt.Errorf("The command %s is not defined in any alias", run)
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
 	typ := "pull"
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	// 404 error when not found
@@ -64,7 +60,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		typ = "issue"
 	}
 
-	log.Infof("Assembling command '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("Assembling command '%s %s' for #%d", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
 
 	// Add pull:<NUM> or issue:<NUM> as the first arg.
 	trigger := fmt.Sprintf("%s/%d", typ, req.Issue.Number)
@@ -78,7 +74,7 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 		client.Repositories.CreateStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), stat)
 	}
 
-	log.Infof("Executing '%s %s' for #%d\n", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
+	log.Infof("Executing '%s %s' for #%d", parts[0], strings.Join(parts[1:], " "), req.Issue.Number)
 
 	// Get all output
 	buf, err := cmd.CombinedOutput()
