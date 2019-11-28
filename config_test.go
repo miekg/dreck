@@ -4,38 +4,38 @@ import (
 	"testing"
 
 	"github.com/miekg/dreck/types"
+	yaml "gopkg.in/yaml.v2"
 )
 
-func TestApproversConfigParse(t *testing.T) {
-	config := types.DreckConfig{}
-	parseConfig([]byte(`approvers:
-- aa
-- ac
-`), &config)
-	actual := len(config.Approvers)
-	if actual != 2 {
-		t.Errorf("want: %d approvers, got: %d", 2, actual)
+func TestOwnersConfigParse(t *testing.T) {
+	owners, err := parseOwners([]byte(`# Order is important; the last matching pattern takes the most
+*.js    @js-owner
+*       @miekg @blaa
+`))
+	if err != nil {
+		t.Error(err)
 	}
-}
-
-func TestReviewerConfigParse(t *testing.T) {
-	config := types.DreckConfig{}
-	parseConfig([]byte(`reviewers:
-- aa
-- ac
-`), &config)
-	actual := len(config.Reviewers)
-	if actual != 2 {
-		t.Errorf("want: %d reviewers, got: %d", 2, actual)
+	if actual := len(owners); actual != 3 {
+		t.Errorf("want: %d approvers, got: %d", 3, actual)
+	}
+	found := false
+	for i := range owners {
+		if owners[i] == "miekg" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("want: %q in owners", "miekg")
 	}
 }
 
 func TestAliasConfigParse(t *testing.T) {
 	config := types.DreckConfig{}
-	err := parseConfig([]byte(`aliases:
+	buf := []byte(`aliases:
 - |
-  /plugin: (.*) - /label add: plugin/$1
-`), &config)
+  /plugin (.*) - /label plugin/$1
+`)
+	err := yaml.Unmarshal(buf, &config)
 	if err != nil {
 		t.Errorf("failed to parse config: %s", err)
 	}
@@ -47,14 +47,11 @@ func TestAliasConfigParse(t *testing.T) {
 
 func TestConfigParse(t *testing.T) {
 	config := types.DreckConfig{}
-	err := parseConfig([]byte(`reviewers:
-- aa
-- ac
-
-aliases:
+	buf := []byte(`aliases:
 - >
-  /plugin: (.*) - /label add: plugin/$1
-`), &config)
+  /plugin (.*) - /label plugin/$1
+`)
+	err := yaml.Unmarshal(buf, &config)
 	if err != nil {
 		t.Errorf("failed to parse config: %s", err)
 	}

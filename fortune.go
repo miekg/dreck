@@ -1,11 +1,14 @@
 package dreck
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"regexp"
 
 	"github.com/miekg/dreck/types"
+
+	"github.com/google/go-github/github"
 )
 
 var r = regexp.MustCompile("^")
@@ -24,25 +27,16 @@ func runFortune() (string, error) {
 	}
 
 	buf = r.ReplaceAll(buf, []byte("> "))
-
-	return string(buf), nil
+	return "Cookie:\n\n" + string(buf), nil
 }
 
-func (d Dreck) fortune(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) fortune(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	body, err := runFortune()
 	if err != nil {
 		return err
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
 	comment := githubIssueComment(body)
-	_, resp, err := client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
-
-	logRateLimit(resp)
-
-	return nil
+	_, _, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+	return err
 }
