@@ -68,7 +68,10 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		case closeConst, reopenConst:
 			return d.state(ctx, client, req, command.Type)
 		case titleConst:
-			return d.title(ctx, client, req, command.Type, command.Value)
+			if isCodeOwner(conf, req.Comment.User.Login) {
+				return d.title(ctx, client, req, command.Type, command.Value)
+			}
+			return fmt.Errorf("user %s not permitted to use title", req.Comment.User.Login)
 		case lockConst, unlockConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				return d.lock(ctx, client, req, command.Type)
