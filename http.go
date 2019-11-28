@@ -56,10 +56,6 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 func (d Dreck) handleEvent(event string, body []byte) error {
 	switch event {
-
-	}
-
-	switch event {
 	case "issue_comment", "pull_request_review":
 		req := types.IssueCommentOuter{}
 		if err := json.Unmarshal(body, &req); err != nil {
@@ -69,7 +65,7 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
 
-		log.Infof("Issue comment action %s", req.Action)
+		log.Infof("Comment action %s", req.Action)
 
 		// Do nothing on deletion
 		if req.Action == "deleted" {

@@ -44,70 +44,54 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		log.Infof("Incoming request from %s, %s: %s", req.Comment.User.Login, command.Type, command.Value)
 		switch command.Type {
 		case addLabelConst, removeLabelConst:
-			if err := d.label(req, command.Type, command.Value); err != nil {
-				return err
+			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
+				return d.label(req, command.Type, command.Value)
 			}
+			return fmt.Errorf("user %s not permitted to use [un]label", req.Comment.User.Login)
 		case assignConst, unassignConst:
-			if err := d.assign(req, command.Type, command.Value); err != nil {
-				return err
+			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
+				return d.assign(req, command.Type, command.Value)
 			}
+			return fmt.Errorf("user %s not permitted to use [un]assign", req.Comment.User.Login)
 		case closeConst, reopenConst:
-			if err := d.state(req, command.Type); err != nil {
-				return err
-			}
+			return d.state(req, command.Type)
 		case titleConst:
-			if err := d.title(req, command.Type, command.Value); err != nil {
-				return err
-			}
+			return d.title(req, command.Type, command.Value)
 		case lockConst, unlockConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				if err := d.lock(req, command.Type); err != nil {
-					return err
-				}
-				return nil
+				return d.lock(req, command.Type)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				if err := d.lgtm(req, command.Type); err != nil {
-					return err
-				}
-				return nil
+				return d.lgtm(req, command.Type)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
 		case ccConst, unccConst:
-			//			if err := d.cc(req, command.Type); err != nil {
-			//				return err
-			//			}
+			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
+				//return d.cc(req, command.Type, command.Value)
+				return nil
+			}
+			return fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
 		case testConst:
 			if err := d.test(req, command.Type, command.Value); err != nil {
 				return err
 			}
 		case duplicateConst:
-			if err := d.duplicate(req, command.Type, command.Value); err != nil {
-				return err
-			}
+			return d.duplicate(req, command.Type, command.Value)
 		case fortuneConst:
-			if err := d.fortune(req, command.Type); err != nil {
-				return err
-			}
+			return d.fortune(req, command.Type)
 		case execConst:
 			if !aliasOK(conf) {
 				return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, Aliases)
 			}
 			if !isCodeOwner(conf, req.Comment.User.Login) {
-				return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
+				return fmt.Errorf("user %s not permitted to use exec", req.Comment.User.Login)
 			}
-
-			if err := d.exec(req, conf, command.Type, command.Value); err != nil {
-				return err
-			}
+			return d.exec(req, conf, command.Type, command.Value)
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				if err := d.merge(req); err != nil {
-					return err
-				}
-				return nil
+				return d.merge(req)
 			}
 			return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
 		}
@@ -144,8 +128,6 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 		return err
 	}
 
-	log.Infof("Request to %s label of '%s' on issue #%d was successfully completed.", labelAction, labelValue, req.Issue.Number)
-
 	return nil
 }
 
@@ -165,8 +147,6 @@ func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) erro
 	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
 		return err
 	}
-
-	log.Infof("Request to set the title of issue #%d by %s was successful.", req.Issue.Number, req.Comment.User.Login)
 	return nil
 }
 
@@ -193,9 +173,6 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 	if err != nil {
 		return err
 	}
-
-	log.Infof("%s %sed successfully or already %sed", cmdValue, cmdType, cmdType)
-
 	return nil
 }
 
@@ -214,11 +191,7 @@ func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
 	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
 		return err
 	}
-
-	log.Infof("Request to %s issue #%d by %s was successful.", cmdType, req.Issue.Number, req.Comment.User.Login)
-
 	return nil
-
 }
 
 func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
@@ -241,7 +214,6 @@ func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	log.Infof("Request to %s issue #%d by %s was successful.", cmdType, req.Issue.Number, req.Comment.User.Login)
 	return nil
 }
 
@@ -340,6 +312,21 @@ func isValidCommand(body string, trigger string, conf *types.DreckConfig) []stri
 	}
 
 	return val
+}
+
+// isMe returns true if login equals value or value is empty or "me"
+func isMe(login, value string) bool {
+	if value == "me" || value == "" {
+		return true
+	}
+	if login == value {
+		return true
+	}
+	// check if value starts with @
+	if len(value) > 1 && value[1] == "@" && login == value[1:] {
+		return true
+	}
+	return false
 }
 
 func isAction(running bool, requestedAction string, start string, stop string) bool {

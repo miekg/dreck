@@ -51,7 +51,7 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 	}
 
 	// grap toplevel CODEOWNERS file and parse that
-	buf, err = githubFile("CODEOWNERS", repository, d.owners)
+	buf, err = githubFile(owner, repository, "CODEOWNERS")
 	if err != nil {
 		return nil, err
 	}

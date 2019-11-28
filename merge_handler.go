@@ -19,9 +19,6 @@ func (d Dreck) pullRequestMerge(client *github.Client, req types.IssueCommentOut
 	if err != nil {
 		return fmt.Errorf("failed merge of PR %d: %s", *pull.Number, err.Error())
 	}
-
-	log.Infof("PR %d has been autosubmitted in %s", req.Issue.Number, commit.GetSHA())
-
 	return nil
 }
 
@@ -41,13 +38,10 @@ func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOu
 			return false, nil
 		}
 	}
-
-	log.Infof("All %d statuses for PR %d are in state %s", combined.GetTotalCount(), pull.GetNumber(), statusOK)
 	return true, nil
 }
 
 func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-
 	ctx := context.Background()
 	listOpts := &github.ListOptions{PerPage: 100}
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
@@ -67,11 +61,8 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 		}
 	}
 	if !ok {
-		log.Infof("PR %d has not been approved", pull.GetNumber())
 		return false, fmt.Errorf("PR %d is no reviewers or has a %s", pull.GetNumber(), reviewChanges)
 	}
-
-	log.Infof("PR %d has been approved", pull.GetNumber())
 	return true, nil
 }
 
@@ -94,12 +85,8 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 	statusOK, _ := d.pullRequestStatus(client, req, pull)
 	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
 	if statusOK && reviewOK && pull.Mergeable != nil {
-		err := d.pullRequestMerge(client, req, pull)
-		if err != nil {
-			return err
-		}
+		return d.pullRequestMerge(client, req, pull)
 	}
-
 	return nil
 }
 
