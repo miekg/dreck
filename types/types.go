@@ -10,10 +10,6 @@ type Owner struct {
 	Type  string `json:"type"`
 }
 
-type PullRequest struct {
-	Number int `json:"number"`
-}
-
 type InstallationRequest struct {
 	Installation ID `json:"installation"`
 }
@@ -40,6 +36,10 @@ type Issue struct {
 	Title  string       `json:"title"`
 	Locked bool         `json:"locked"`
 	State  string       `json:"state"`
+	Body   string       `json:"body,omitempty""`
+	User   struct {
+		Login string `json:"login"`
+	}
 }
 
 type Comment struct {
@@ -55,7 +55,7 @@ type CommentAction struct {
 	Value string
 }
 
-// DreckConfig holds the configuration from the top-level owners file.
+// DreckConfig holds the configuration from the .dreck.yaml and CODEOWNERS file.
 type DreckConfig struct {
 	CodeOwners []string
 	Aliases    []string

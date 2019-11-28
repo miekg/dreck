@@ -29,9 +29,14 @@ email.
 
 Commands are detected in a case insensitive manner.
 
-For this all to work, you'll need to have an Github App that allows access to your repository
-- setting this up is beyond scope of this documentation. And need to recompile Caddy and have a
-functional Go setup; again: all beyond the scope of this document.
+For this all to work, you'll need to have an Github App that allows access to your repository.
+You'll need:
+
+* Issues
+* Pull Requests
+* Issue Comments
+
+And need to recompile Caddy and have a functional Go setup.
 
 ## Config in caddy
 
@@ -95,7 +100,6 @@ An example:
 
 ~~~ yaml
 features:
-    - comments
     - exec
     - aliases
 aliases:
@@ -124,7 +128,7 @@ CODEOWNERS file.
 
 *  `/[un]label LABEL`, add/remove a label.
 
- *  `/[un]assign USER`, [un]assign issue to **USER**, the empty string can be used as a
+*  `/[un]assign USER`, [un]assign issue to **USER**, the empty string can be used as a
     shortcut for the current user.
 
 *  `/close`, close issue.

@@ -55,18 +55,30 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	return 0, err
 }
 
+func parseEvent(event string, body []byte) (types.IssueCommentOuter, error) {
+	req := types.IssueCommentOuter{}
+	if err := json.Unmarshal(body, &req); err != nil {
+		if e, ok := err.(*json.SyntaxError); ok {
+			return req, fmt.Errorf("Syntax error at byte offset %d", e.Offset)
+		}
+		return req, fmt.Errorf("parse error %s: %s", string(body), err.Error())
+	}
+	// If event is issues; we copy some elements, so we can treat it as an issue comment.
+	if event == "issues" {
+		req.Comment.Body = req.Issue.Body
+		req.Comment.User.Login = req.Issue.User.Login
+	}
+
+	return req, nil
+}
+
 func (d Dreck) handleEvent(event string, body []byte) error {
-	println("EVENT", event)
 	switch event {
 	case "issue_comment", "issues", "pull_request_review":
-		req := types.IssueCommentOuter{}
-		if err := json.Unmarshal(body, &req); err != nil {
-			if e, ok := err.(*json.SyntaxError); ok {
-				log.Errorf("Syntax error at byte offset %d", e.Offset)
-			}
-			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
+		req, err := parseEvent(event, body)
+		if err != nil {
+			return err
 		}
-
 		log.Infof("Comment action %s", req.Action)
 
 		// Do nothing on deletion
