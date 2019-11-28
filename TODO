@@ -2,3 +2,4 @@
   possibly putting the stdout/stderr in a comment still.
   Or possible the github actions, which seems way more powerful - then we can remove dreck.yaml completely?
 - figure out how to unCc yourself; is this the notification api?
+- issue creation handling?
