@@ -24,6 +24,7 @@ func init() {
 func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	// Give up if we can't find this header in the event.
 	event := r.Header.Get("X-GitHub-Event")
+	println("EVENT", event)
 	if event == "" {
 		return d.Next.ServeHTTP(w, r)
 	}
