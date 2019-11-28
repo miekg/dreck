@@ -42,9 +42,9 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	c := parse(body, conf)
 
 	if isCodeOwner(conf, req.Comment.User.Login) {
-		log.Infof("user %s is a code owner")
+		log.Infof("user %s is a code owner", req.Comment.User.Login)
 	} else {
-		log.Infof("user %s is not a code owner")
+		log.Infof("user %s is not a code owner", req.Comment.User.Login)
 	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
