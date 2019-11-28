@@ -39,6 +39,6 @@ func (d Dreck) fortune(req types.IssueCommentOuter, cmdType string) error {
 	}
 
 	comment := githubIssueComment(body)
-	_, resp, err := client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+	_, _, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
 	return err
 }

@@ -14,12 +14,8 @@ func (d Dreck) pullRequestMerge(client *github.Client, req types.IssueCommentOut
 	ctx := context.Background()
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
 	msg := "Automatically submitted."
-	commit, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
-
-	if err != nil {
-		return fmt.Errorf("failed merge of PR %d: %s", *pull.Number, err.Error())
-	}
-	return nil
+	_, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
+	return err
 }
 
 func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {

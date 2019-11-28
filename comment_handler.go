@@ -104,7 +104,6 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 }
 
 func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) error {
-	labelAction := strings.Replace(cmdType, "label", "", 1)
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -323,7 +322,7 @@ func isMe(login, value string) bool {
 		return true
 	}
 	// check if value starts with @
-	if len(value) > 1 && value[1] == "@" && login == value[1:] {
+	if len(value) > 1 && value[1] == '@' && login == value[1:] {
 		return true
 	}
 	return false
