@@ -4,6 +4,8 @@ features:
 
 aliases:
   - |
-    /plugin: (.*) -> /label add: plugin/$1
+    /plugin (.*) -> /label plugin/$1
   - |
-    /release: (.*) -> /exec: /opt/release-dreck $1
+    /release (.*) -> /exec /opt/release-dreck $1
+  - |
+    /hosts -> /exec /bin/cat /etc/hosts
