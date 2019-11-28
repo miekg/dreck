@@ -55,6 +55,7 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 }
 
 func (d Dreck) handleEvent(event string, body []byte) error {
+	println("EVENT", event)
 	switch event {
 	case "issue_comment", "issues", "pull_request_review":
 		req := types.IssueCommentOuter{}
