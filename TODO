@@ -1,0 +1,3 @@
+- move exec to a check: https://developer.github.com/v3/checks/runs/
+  possibly putting the stdout/stderr in a comment still
+- figure out how to unCc yourself; is this the notification api?
