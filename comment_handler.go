@@ -52,6 +52,8 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		return err
 	}
 
+	log.Infof("executing %d commands", len(c))
+For:
 	for _, command := range c {
 		if err != nil {
 			log.Error(err)
@@ -60,13 +62,13 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		case addLabelConst, removeLabelConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.label(ctx, client, req, command.Type, command.Value)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]label", req.Comment.User.Login)
 		case assignConst, unassignConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.assign(ctx, client, req, command.Type, command.Value)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]assign", req.Comment.User.Login)
 		case closeConst, reopenConst:
@@ -74,25 +76,25 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		case titleConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.title(ctx, client, req, command.Type, command.Value)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use title", req.Comment.User.Login)
 		case lockConst, unlockConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.lock(ctx, client, req, command.Type)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.lgtm(ctx, client, req, command.Type)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
 		case ccConst, unccConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.cc(ctx, client, req, command.Type, command.Value)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
 		case testConst:
@@ -104,17 +106,17 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 		case execConst:
 			if !aliasOK(conf) {
 				err = fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, Aliases)
-				continue
+				continue For
 			}
 			if !isCodeOwner(conf, req.Comment.User.Login) {
 				err = fmt.Errorf("user %s not permitted to use exec", req.Comment.User.Login)
-				continue
+				continue For
 			}
 			err = d.exec(ctx, client, req, conf, command.Type, command.Value)
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.merge(ctx, client, req)
-				continue
+				continue For
 			}
 			err = fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
 		}
@@ -123,7 +125,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	if len(c) == 0 {
 		log.Info("No command found")
 	}
-	return nil
+	return err
 }
 
 func (d Dreck) label(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, labelValue string) error {
