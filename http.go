@@ -65,7 +65,7 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 			return fmt.Errorf("parse error %s: %s", string(body), err.Error())
 		}
 
-		log.Infof("Comment action %s", req.Action)
+		log.Infof("Comment action %s\n%s", req.Action, string(body))
 
 		// Do nothing on deletion
 		if req.Action == "deleted" {

@@ -160,10 +160,35 @@ func (d Dreck) assign(ctx context.Context, client *github.Client, req types.Issu
 	return nil
 }
 
+/*
+func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	if len(cmdValue) > 1 && cmdValue[0] == '@' {
+		cmdValue = cmdValue[1:]
+	}
+
+	if cmdValue == "me" || cmdValue == "" {
+		cmdValue = req.Comment.User.Login
+	}
+
+	if cmdType == ccConst {
+		Activity * ActivityService
+		_, _, err := client.Issues.RemoveAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
+//		func (s *ActivityService) SetThreadSubscription(ctx context.Context, id string, subscription *Subscription) (*Subscription, *Response, error) {
+		_, _, err := client.Activity.SetThreadSubscription(ctx,
+
+		return err
+	} else {
+		_, _, err := client.Issues.AddAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
+		return err
+	}
+	return nil
+}
+*/
+
 func (d Dreck) state(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
 	if !validTransition {
-		return fmt.Errorf("request to %s issue #%d by %s was invalidn", cmdType, req.Issue.Number, req.Comment.User.Login)
+		return fmt.Errorf("request to %s issue #%d by %s was invalid", cmdType, req.Issue.Number, req.Comment.User.Login)
 	}
 
 	input := &github.IssueRequest{State: &newState}
