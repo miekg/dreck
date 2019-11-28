@@ -2,6 +2,7 @@ package dreck
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"strings"
 
@@ -40,47 +41,56 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	body := strings.ToLower(req.Comment.Body)
 	c := parse(body, conf)
 
+	if isCodeOwner(conf, req.Comment.User.Login) {
+		log.Infof("user %s is a code owner")
+	} else {
+		log.Infof("user %s is not a code owner")
+	}
+
+	client, ctx, err := d.newClient(req.Installation.ID)
+	if err != nil {
+		return err
+	}
+
 	for _, command := range c {
 		log.Infof("Incoming request from %s, %s: %s", req.Comment.User.Login, command.Type, command.Value)
 		switch command.Type {
 		case addLabelConst, removeLabelConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				return d.label(req, command.Type, command.Value)
+				return d.label(ctx, client, req, command.Type, command.Value)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]label", req.Comment.User.Login)
 		case assignConst, unassignConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				return d.assign(req, command.Type, command.Value)
+				return d.assign(ctx, client, req, command.Type, command.Value)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]assign", req.Comment.User.Login)
 		case closeConst, reopenConst:
-			return d.state(req, command.Type)
+			return d.state(ctx, client, req, command.Type)
 		case titleConst:
-			return d.title(req, command.Type, command.Value)
+			return d.title(ctx, client, req, command.Type, command.Value)
 		case lockConst, unlockConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.lock(req, command.Type)
+				return d.lock(ctx, client, req, command.Type)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.lgtm(req, command.Type)
+				return d.lgtm(ctx, client, req, command.Type)
 			}
 			return fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
 		case ccConst, unccConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				//return d.cc(req, command.Type, command.Value)
+				//return d.cc(ctx, client, req, command.Type, command.Value)
 				return nil
 			}
 			return fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
 		case testConst:
-			if err := d.test(req, command.Type, command.Value); err != nil {
-				return err
-			}
+			return d.test(ctx, client, req, command.Type, command.Value)
 		case duplicateConst:
-			return d.duplicate(req, command.Type, command.Value)
+			return d.duplicate(ctx, client, req, command.Type, command.Value)
 		case fortuneConst:
-			return d.fortune(req, command.Type)
+			return d.fortune(ctx, client, req, command.Type)
 		case execConst:
 			if !aliasOK(conf) {
 				return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, Aliases)
@@ -88,10 +98,10 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 			if !isCodeOwner(conf, req.Comment.User.Login) {
 				return fmt.Errorf("user %s not permitted to use exec", req.Comment.User.Login)
 			}
-			return d.exec(req, conf, command.Type, command.Value)
+			return d.exec(ctx, client, req, conf, command.Type, command.Value)
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.merge(req)
+				return d.merge(ctx, client, req)
 			}
 			return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
 		}
@@ -103,12 +113,7 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	return nil
 }
 
-func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) error {
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
+func (d Dreck) label(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, labelValue string) error {
 	labels, err := d.allLabels(ctx, client, req)
 	if err != nil {
 		return err
@@ -122,41 +127,23 @@ func (d Dreck) label(req types.IssueCommentOuter, cmdType, labelValue string) er
 	} else {
 		_, err = client.Issues.RemoveLabelForIssue(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, labelValue)
 	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func (d Dreck) title(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+func (d Dreck) title(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, cmdValue string) error {
 	newTitle := cmdValue
 	if newTitle == req.Issue.Title || len(newTitle) == 0 {
 		return fmt.Errorf("setting the title of #%d by %s was unsuccessful as the new title was empty or unchanged", req.Issue.Number, req.Comment.User.Login)
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
 	input := &github.IssueRequest{Title: &newTitle}
-
-	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
-		return err
-	}
-	return nil
+	_, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
+	return err
 }
 
-func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+func (d Dreck) assign(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, cmdValue string) error {
 	if len(cmdValue) > 1 && cmdValue[0] == '@' {
 		cmdValue = cmdValue[1:]
-	}
-
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
 	}
 
 	if cmdValue == "me" || cmdValue == "" {
@@ -164,59 +151,42 @@ func (d Dreck) assign(req types.IssueCommentOuter, cmdType, cmdValue string) err
 	}
 
 	if cmdType == unassignConst {
-		_, _, err = client.Issues.RemoveAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
+		_, _, err := client.Issues.RemoveAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
+		return err
 	} else {
-		_, _, err = client.Issues.AddAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
-	}
-
-	if err != nil {
+		_, _, err := client.Issues.AddAssignees(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, []string{cmdValue})
 		return err
 	}
 	return nil
 }
 
-func (d Dreck) state(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) state(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	newState, validTransition := checkTransition(cmdType, req.Issue.State)
 	if !validTransition {
 		return fmt.Errorf("request to %s issue #%d by %s was invalidn", cmdType, req.Issue.Number, req.Comment.User.Login)
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
 	input := &github.IssueRequest{State: &newState}
-
-	if _, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input); err != nil {
-		return err
-	}
-	return nil
+	_, _, err := client.Issues.Edit(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
+	return err
 }
 
-func (d Dreck) lock(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) lock(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	if !isAction(req.Issue.Locked, cmdType, lockConst, unlockConst) {
 		return fmt.Errorf("issue #%d is already %sed", req.Issue.Number, cmdType)
 	}
 
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
 	if cmdType == lockConst {
-		_, err = client.Issues.Lock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, &github.LockIssueOptions{})
+		_, err := client.Issues.Lock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, &github.LockIssueOptions{})
+		return err
 	} else {
-		_, err = client.Issues.Unlock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
-	}
-
-	if err != nil {
+		_, err := client.Issues.Unlock(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 		return err
 	}
-
 	return nil
 }
 
-func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) lgtm(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
 		return err
@@ -228,34 +198,32 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
+	input := &github.PullRequestReviewRequest{}
 	if cmdType == lgtmConst {
-		input := &github.PullRequestReviewRequest{
+		input = &github.PullRequestReviewRequest{
 			Body:  github.String("Approved by **" + req.Comment.User.Login + "**"),
 			Event: github.String(reviewOK),
 		}
-		_, _, err = client.PullRequests.CreateReview(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
 	} else {
-		input := &github.PullRequestReviewRequest{
+		input = &github.PullRequestReviewRequest{
 			Body:  github.String("Unapproved by **" + req.Comment.User.Login + "**"),
 			Event: github.String(reviewChanges),
 		}
 	}
 
+	_, _, err = client.PullRequests.CreateReview(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
 	return err
 }
 
-func (d Dreck) test(req types.IssueCommentOuter, cmdType, cmdValue string) error {
+func (d Dreck) test(ctx context.Context, _ *github.Client, _ types.IssueCommentOuter, _, _ string) error {
 	return nil
 }
 
-func (d Dreck) duplicate(req types.IssueCommentOuter, cmdType, cmdValue string) error {
-	if err := d.label(req, addLabelConst, "duplicate"); err != nil {
+func (d Dreck) duplicate(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	if err := d.label(ctx, client, req, addLabelConst, "duplicate"); err != nil {
 		return err
 	}
-	if err := d.state(req, closeConst); err != nil {
-		return err
-	}
-	return nil
+	return d.state(ctx, client, req, closeConst)
 }
 
 // Body must be downcased already.

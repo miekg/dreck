@@ -1,6 +1,7 @@
 package dreck
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -33,7 +34,7 @@ func sanitize(s string) bool {
 	return true
 }
 
-func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
+func (d Dreck) exec(ctx context.Context, client *github.Client, req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
 	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
 	// then start with a slash.
 	run, err := stripValue(cmdValue)
@@ -50,11 +51,6 @@ func (d Dreck) exec(req types.IssueCommentOuter, conf *types.DreckConfig, cmdTyp
 
 	if !isValidExec(conf, parts, run) {
 		return fmt.Errorf("The command %s is not defined in any alias", run)
-	}
-
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
 	}
 
 	typ := "pull"

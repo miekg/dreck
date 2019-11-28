@@ -10,16 +10,14 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func (d Dreck) pullRequestMerge(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
-	ctx := context.Background()
+func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
 	msg := "Automatically submitted."
 	_, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
 	return err
 }
 
-func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-	ctx := context.Background()
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
@@ -37,8 +35,7 @@ func (d Dreck) pullRequestStatus(client *github.Client, req types.IssueCommentOu
 	return true, nil
 }
 
-func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-	ctx := context.Background()
+func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
 
@@ -62,12 +59,7 @@ func (d Dreck) pullRequestReviewed(client *github.Client, req types.IssueComment
 	return true, nil
 }
 
-func (d Dreck) merge(req types.IssueCommentOuter) error {
-	client, ctx, err := d.newClient(req.Installation.ID)
-	if err != nil {
-		return err
-	}
-
+func (d Dreck) merge(ctx context.Context, client *github.Client, req types.IssueCommentOuter) error {
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
 		// Pr does not exist, noop.
@@ -78,10 +70,10 @@ func (d Dreck) merge(req types.IssueCommentOuter) error {
 		return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
 	}
 
-	statusOK, _ := d.pullRequestStatus(client, req, pull)
-	reviewOK, _ := d.pullRequestReviewed(client, req, pull)
+	statusOK, _ := d.pullRequestStatus(ctx, client, req, pull)
+	reviewOK, _ := d.pullRequestReviewed(ctx, client, req, pull)
 	if statusOK && reviewOK && pull.Mergeable != nil {
-		return d.pullRequestMerge(client, req, pull)
+		return d.pullRequestMerge(ctx, client, req, pull)
 	}
 	return nil
 }
