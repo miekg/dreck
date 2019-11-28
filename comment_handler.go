@@ -53,65 +53,75 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	}
 
 	for _, command := range c {
-		log.Infof("Incoming request from %s, %s: %s", req.Comment.User.Login, command.Type, command.Value)
+		if err != nil {
+			log.Error(err)
+		}
 		switch command.Type {
 		case addLabelConst, removeLabelConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				return d.label(ctx, client, req, command.Type, command.Value)
+				err = d.label(ctx, client, req, command.Type, command.Value)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use [un]label", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use [un]label", req.Comment.User.Login)
 		case assignConst, unassignConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				return d.assign(ctx, client, req, command.Type, command.Value)
+				err = d.assign(ctx, client, req, command.Type, command.Value)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use [un]assign", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use [un]assign", req.Comment.User.Login)
 		case closeConst, reopenConst:
-			return d.state(ctx, client, req, command.Type)
+			err = d.state(ctx, client, req, command.Type)
 		case titleConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.title(ctx, client, req, command.Type, command.Value)
+				err = d.title(ctx, client, req, command.Type, command.Value)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use title", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use title", req.Comment.User.Login)
 		case lockConst, unlockConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.lock(ctx, client, req, command.Type)
+				err = d.lock(ctx, client, req, command.Type)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.lgtm(ctx, client, req, command.Type)
+				err = d.lgtm(ctx, client, req, command.Type)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use [un]lgtm", req.Comment.User.Login)
 		case ccConst, unccConst:
 			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
-				return d.cc(ctx, client, req, command.Type, command.Value)
-				return nil
+				err = d.cc(ctx, client, req, command.Type, command.Value)
+				continue
 			}
-			return fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
+			err = fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
 		case testConst:
-			return d.test(ctx, client, req, command.Type, command.Value)
+			err = d.test(ctx, client, req, command.Type, command.Value)
 		case duplicateConst:
-			return d.duplicate(ctx, client, req, command.Type, command.Value)
+			err = d.duplicate(ctx, client, req, command.Type, command.Value)
 		case fortuneConst:
-			return d.fortune(ctx, client, req, command.Type)
+			err = d.fortune(ctx, client, req, command.Type)
 		case execConst:
 			if !aliasOK(conf) {
-				return fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, Aliases)
+				err = fmt.Errorf("feature %s is not enabled, so %s can't work", Trigger+execConst, Aliases)
+				continue
 			}
 			if !isCodeOwner(conf, req.Comment.User.Login) {
-				return fmt.Errorf("user %s not permitted to use exec", req.Comment.User.Login)
+				err = fmt.Errorf("user %s not permitted to use exec", req.Comment.User.Login)
+				continue
 			}
-			return d.exec(ctx, client, req, conf, command.Type, command.Value)
+			err = d.exec(ctx, client, req, conf, command.Type, command.Value)
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
-				return d.merge(ctx, client, req)
+				err = d.merge(ctx, client, req)
+				continue
 			}
-			return fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
+			err = fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
 		}
 	}
 
 	if len(c) == 0 {
-		log.Infof("No command found in comment %d", req.Issue.Number)
+		log.Info("No command found")
 	}
 	return nil
 }
