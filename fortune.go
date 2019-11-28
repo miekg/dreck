@@ -24,7 +24,7 @@ func runFortune() (string, error) {
 	}
 
 	buf = r.ReplaceAll(buf, []byte("> "))
-	return string(buf), nil
+	return "Fortune cookie\n\n" + string(buf), nil
 }
 
 func (d Dreck) fortune(req types.IssueCommentOuter, cmdType string) error {

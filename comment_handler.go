@@ -228,12 +228,18 @@ func (d Dreck) lgtm(req types.IssueCommentOuter, cmdType string) error {
 		return err
 	}
 
-	input := &github.PullRequestReviewRequest{
-		Body:  github.String("LGTM by **" + req.Comment.User.Login + "**"),
-		Event: github.String("APPROVE"),
+	if cmdType == lgtmConst {
+		input := &github.PullRequestReviewRequest{
+			Body:  github.String("Approved by **" + req.Comment.User.Login + "**"),
+			Event: github.String(reviewOK),
+		}
+		_, _, err = client.PullRequests.CreateReview(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
+	} else {
+		input := &github.PullRequestReviewRequest{
+			Body:  github.String("Unapproved by **" + req.Comment.User.Login + "**"),
+			Event: github.String(reviewChanges),
+		}
 	}
-
-	_, _, err = client.PullRequests.CreateReview(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, input)
 
 	return err
 }
