@@ -1,15 +1,5 @@
-reviewers:
-  - miekg
-
-approvers:
-  - miekg
-
 features:
-  - comments
-  - reviewers
   - aliases
-  - branches
-  - autosubmit
   - exec
 
 aliases:
