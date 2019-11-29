@@ -8,13 +8,13 @@ import (
 )
 
 func TestAlias(t *testing.T) {
-	alias := "/plugin: (.*) -> /label add: plugin/$1"
+	alias := "/plugin (.*) -> /label plugin/$1"
 
 	r, err := NewAlias(alias)
 	if err != nil {
 		t.Errorf("Failed to parse %s: %v", alias, err)
 	}
-	input := "/plugin: example"
+	input := "/plugin example"
 	exp := r.Expand(input)
 	if exp == input {
 		t.Errorf("Failed to expand %s", input)
@@ -40,12 +40,12 @@ func TestAliasSingle(t *testing.T) {
 }
 
 func TestAliasParse(t *testing.T) {
-	alias := "/plugin: (.*) - /label add: plugin/$1"
+	alias := "/plugin (.*) - /label plugin/$1"
 	if _, err := NewAlias(alias); err == nil {
 		t.Errorf("Expected to not parse %s", alias)
 	}
 
-	alias = "/plugin: (*) - /label add: plugin/$1"
+	alias = "/plugin (*) - /label plugin/$1"
 	if _, err := NewAlias(alias); err == nil {
 		t.Errorf("Expected to not parse %s", alias)
 	}

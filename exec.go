@@ -162,10 +162,9 @@ func isValidExec(conf *types.DreckConfig, parts []string, run string) bool {
 			log.Warningf("Failed to parse alias: %s, %v", a, err)
 			continue
 		}
-		if strings.HasPrefix(r.replace, Trigger+execConst+": "+parts[0]) {
+		if strings.HasPrefix(r.replace, Trigger+execConst+" "+parts[0]) {
 			log.Infof("Executing %s, because it is defined in alias expansion %s", run, r.replace)
 			return true
-
 		}
 	}
 	return false
