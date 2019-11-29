@@ -188,11 +188,6 @@ func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCom
 		cmdValue = req.Comment.User.Login
 	}
 
-	number := req.PullRequest.Number
-	if number == 0 {
-		number = req.Issue.Number
-	}
-
 	// check if this a pull request.
 	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, number)
 	if err != nil {
@@ -201,10 +196,10 @@ func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCom
 
 	rev := github.ReviewersRequest{Reviewers: []string{cmdValue}}
 	if cmdType == ccConst {
-		_, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, number, rev)
+		_, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, rev)
 		return err
 	} else {
-		_, err := client.PullRequests.RemoveReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, number, rev)
+		_, err := client.PullRequests.RemoveReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, rev)
 		return err
 	}
 	return nil

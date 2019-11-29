@@ -74,6 +74,7 @@ func parseEvent(event string, body []byte) (types.IssueCommentOuter, error) {
 		if req.Action == "opened" {
 			req.Comment.Body = req.PullRequest.Body
 		}
+		req.Issue.Number = req.PullRequest.Number
 		req.Comment.User.Login = req.PullRequest.User.Login
 	}
 
