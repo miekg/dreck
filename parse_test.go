@@ -103,3 +103,22 @@ func TestParseMultipleCommands(t *testing.T) {
 		}
 	}
 }
+
+func TestParseDulicate(t *testing.T) {
+	f := "testdata/issue_comment-duplicate.json"
+	event := "issue_comment"
+	body, err := ioutil.ReadFile(f)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := parseEvent(event, body)
+	if err != nil {
+		t.Error(err)
+	}
+	conf := &types.DreckConfig{}
+	c := parse(req.Comment.Body, conf)
+	if c[0].Type != "duplicate" {
+		t.Errorf("expected not duplicate, got %s", c[0].Type)
+	}
+}
