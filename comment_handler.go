@@ -30,6 +30,8 @@ const (
 	unccConst      = "uncc"
 	lgtmConst      = "lgtm"
 	unlgtmConst    = "unlgtm"
+	approveConst   = "approve"
+	unapproveConst = "unapprove"
 	execConst      = "exec"
 	testConst      = "test"
 	duplicateConst = "duplicate"
@@ -85,6 +87,8 @@ For:
 				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
+		case approveConst, unapproveConst:
+			fallthrough
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.lgtm(ctx, client, req, command.Type)
