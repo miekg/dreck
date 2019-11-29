@@ -2,10 +2,10 @@ GITHUB:=miekg
 NAME:=dreck
 
 build:
-	 GO111MODULE=on go build
+	 go build
 
 test:
-	 GO111MODULE=on go test -race -cover
+	 go test -race -cover
 
 .PHONY: release
 release:
