@@ -189,9 +189,9 @@ func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCom
 	}
 
 	// check if this a pull request.
-	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, number)
+	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
-		return fmt.Errorf("not a pull request: %d", number)
+		return fmt.Errorf("not a pull request: %d", req.Issue.Number)
 	}
 
 	rev := github.ReviewersRequest{Reviewers: []string{cmdValue}}
