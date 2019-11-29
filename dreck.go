@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
@@ -43,11 +44,12 @@ func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, e
 
 	buf, err := githubFile(owner, repository, d.owners)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := yaml.Unmarshal(buf, &config); err != nil {
-		return nil, err
+		// failing to grab this file is not an error
+		log.Infof("Failing to grab %s file: %s", d.owners, err)
+	} else {
+		if err := yaml.Unmarshal(buf, &config); err != nil {
+			return nil, err
+		}
 	}
 
 	// grap toplevel CODEOWNERS file and parse that

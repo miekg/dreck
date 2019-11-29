@@ -366,22 +366,22 @@ func checkTransition(requestedAction string, currentState string) (string, bool)
 
 // IssueCommands are all commands we support in issues.
 var IssueCommands = map[string]string{
-	Trigger + "label":      addLabelConst,
-	Trigger + "unlabel":    removeLabelConst,
-	Trigger + "cc":         ccConst,
-	Trigger + "uncc":       unccConst,
-	Trigger + "assign":     assignConst,
-	Trigger + "unassign":   unassignConst,
-	Trigger + "close":      closeConst,
-	Trigger + "reopen":     reopenConst,
-	Trigger + "title":      titleConst,
-	Trigger + "lock":       lockConst,
-	Trigger + "unlock":     unlockConst,
-	Trigger + "exec":       execConst,
-	Trigger + "lgtm":       lgtmConst,   // Only works on Pull Request comments.
-	Trigger + "unlgtm":     unlgtmConst, // Only works on Pull Request comments.
-	Trigger + "merge":      mergeConst,  // Only works on Pull Request comments.
-	Trigger + "fortune":    fortuneConst,
-	Trigger + "test":       testConst,
-	Trigger + "duplicate ": duplicateConst,
+	Trigger + "label":     addLabelConst,
+	Trigger + "unlabel":   removeLabelConst,
+	Trigger + "cc":        ccConst,
+	Trigger + "uncc":      unccConst,
+	Trigger + "assign":    assignConst,
+	Trigger + "unassign":  unassignConst,
+	Trigger + "close":     closeConst,
+	Trigger + "reopen":    reopenConst,
+	Trigger + "title":     titleConst,
+	Trigger + "lock":      lockConst,
+	Trigger + "unlock":    unlockConst,
+	Trigger + "exec":      execConst,
+	Trigger + "lgtm":      lgtmConst,   // Only works on Pull Request comments.
+	Trigger + "unlgtm":    unlgtmConst, // Only works on Pull Request comments.
+	Trigger + "merge":     mergeConst,  // Only works on Pull Request comments.
+	Trigger + "fortune":   fortuneConst,
+	Trigger + "test":      testConst,
+	Trigger + "duplicate": duplicateConst,
 }
