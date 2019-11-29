@@ -145,6 +145,8 @@ CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 *  `/[un]lgtm`, [un]approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
    this command and adds an approve by the bot.
 
+*  `/[un]approve`, alternative for lgtm.
+
 *  `/merge`, merge this pull request if the checks are green and we have approval (and no explicit
    changes requested). Any pending reviews are deleted.
 
