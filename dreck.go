@@ -99,13 +99,10 @@ func parseOwners(buf []byte) ([]string, error) {
 		u = append(u, k)
 	}
 	return u, nil
-
 }
 
 const (
 	Aliases = "aliases" // Aliases enables alias expansion.
 	Exec    = "exec"    // Exec enables the exec command.
+	Trigger = "/"       // Trigger is the prefix that triggers action from this bot.
 )
-
-// Trigger is the prefix that triggers action from this bot.
-const Trigger = "/"
