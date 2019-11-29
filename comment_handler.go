@@ -30,6 +30,8 @@ const (
 	unccConst      = "uncc"
 	lgtmConst      = "lgtm"
 	unlgtmConst    = "unlgtm"
+	approveConst   = "approve"
+	unapproveConst = "unapprove"
 	execConst      = "exec"
 	testConst      = "test"
 	duplicateConst = "duplicate"
@@ -85,6 +87,8 @@ For:
 				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]lock", req.Comment.User.Login)
+		case approveConst, unapproveConst:
+			fallthrough
 		case lgtmConst, unlgtmConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.lgtm(ctx, client, req, command.Type)
@@ -184,23 +188,18 @@ func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCom
 		cmdValue = req.Comment.User.Login
 	}
 
-	number := req.PullRequest.Number
-	if number == 0 {
-		number = req.Issue.Number
-	}
-
 	// check if this a pull request.
-	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, number)
+	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
-		return fmt.Errorf("not a pull request: %d", number)
+		return fmt.Errorf("not a pull request: %d", req.Issue.Number)
 	}
 
 	rev := github.ReviewersRequest{Reviewers: []string{cmdValue}}
 	if cmdType == ccConst {
-		_, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, number, rev)
+		_, _, err := client.PullRequests.RequestReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, rev)
 		return err
 	} else {
-		_, err := client.PullRequests.RemoveReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, number, rev)
+		_, err := client.PullRequests.RemoveReviewers(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, rev)
 		return err
 	}
 	return nil
