@@ -88,13 +88,13 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 		if err != nil {
 			return err
 		}
-		log.Infof("Action: %s for: %s", req.Action, req.Comment.User.Login)
+		log.Infof("Action: %q for: %s", req.Action, req.Comment.User.Login)
 		if strings.HasSuffix(req.Comment.User.Login, "[bot]") {
 			return nil
 		}
 
 		// Do nothing on deletion or synchronize.
-		if req.Action == "deleted" || req.Action == "synchronize" {
+		if req.Action == "deleted" || req.Action == "synchronize" || req.Action == "locked" {
 			return nil
 		}
 
