@@ -5,7 +5,7 @@ build:
 	 go build
 
 test:
-	 go test -race -cover
+	 go test -race
 
 .PHONY: release
 release:
