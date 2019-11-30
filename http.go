@@ -66,7 +66,7 @@ func parseEvent(event string, body []byte) (types.IssueCommentOuter, error) {
 	// But only when the issue/pr is created.
 	switch event {
 	case "issues":
-		if req.Action == "created" {
+		if req.Action == "opened" {
 			req.Comment.Body = req.Issue.Body
 		}
 		req.Comment.User.Login = req.Issue.User.Login
