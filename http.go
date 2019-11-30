@@ -44,7 +44,10 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		if hubSignature == "" {
 			return 0, fmt.Errorf("must provide X-Hub-Signature")
 		}
-		err := auth.ValidateHMAC(body, hubSignature)
+		if d.secret == "" {
+			return 0, fmt.Errorf("must provide a secret")
+		}
+		err := auth.ValidateHMAC(d.secret, body, hubSignature)
 		if err != nil {
 			return 0, err
 		}
@@ -93,8 +96,15 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 			return nil
 		}
 
-		// Do nothing on deletion or synchronize.
-		if req.Action == "deleted" || req.Action == "synchronize" || req.Action == "locked" {
+		// Do nothing on these actions
+		switch req.Action {
+		case "deleted":
+			fallthrough
+		case "synchronize":
+			fallthrough
+		case "locked":
+			fallthrough
+		case "labeled":
 			return nil
 		}
 
