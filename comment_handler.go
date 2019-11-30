@@ -188,10 +188,11 @@ func (d Dreck) cc(ctx context.Context, client *github.Client, req types.IssueCom
 		cmdValue = req.Comment.User.Login
 	}
 
-	// check if this a pull request.
+	// check if this a pull request, if not call assign
 	_, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
-		return fmt.Errorf("not a pull request: %d", req.Issue.Number)
+		log.Infof("not a pull request: %d", req.Issue.Number)
+		return d.assign(ctx, client, req, cmdType, cmdValue)
 	}
 
 	rev := github.ReviewersRequest{Reviewers: []string{cmdValue}}

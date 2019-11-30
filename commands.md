@@ -6,6 +6,7 @@
 | --- | --- | --- | --- | --- |
 | /[un]label **LABEL** | `/label build` | Adds a label | codeowners | |
 | /[un]assign **USER** | `/assign bob` | Assigns to **USER** | codeowners | |
+| /[un]cc **USER** | `/cc bob` | Assign to **USER** | anyone | |
 | /[un]cc **USER** | `/cc bob` | Request review from **USER** | codeowners |Yes |
 | /title **TITLE** | `title New Title` | Sets the title for the issue | codeowners | |
 | /[un]lock | `/lock` | Locks or unlocks the issue | codeowners | |
