@@ -8,7 +8,7 @@ import (
 )
 
 func setup(c *caddy.Controller) error {
-	dr, err := parse(c)
+	dr, err := parseConfig(c)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func parse(c *caddy.Controller) (Dreck, error) {
+func parseConfig(c *caddy.Controller) (Dreck, error) {
 	d := New()
 	for c.Next() {
 		for c.NextBlock() {
