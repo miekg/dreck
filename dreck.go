@@ -97,7 +97,7 @@ func parseOwners(buf []byte) ([]string, error) {
 		return nil, err
 	}
 	u := []string{}
-	for k, _ := range users {
+	for k := range users {
 		u = append(u, k)
 	}
 	return u, nil

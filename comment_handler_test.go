@@ -354,13 +354,13 @@ func TestLabelDuplicate(t *testing.T) {
 		{
 			title: "Label exists lowercase",
 			currentLabels: []types.IssueLabel{
-				types.IssueLabel{
+				{
 					Name: "rod",
 				},
-				types.IssueLabel{
+				{
 					Name: "jane",
 				},
-				types.IssueLabel{
+				{
 					Name: "freddie",
 				},
 			},
@@ -370,13 +370,13 @@ func TestLabelDuplicate(t *testing.T) {
 		{
 			title: "Label exists case insensitive",
 			currentLabels: []types.IssueLabel{
-				types.IssueLabel{
+				{
 					Name: "rod",
 				},
-				types.IssueLabel{
+				{
 					Name: "jane",
 				},
-				types.IssueLabel{
+				{
 					Name: "freddie",
 				},
 			},
@@ -386,13 +386,13 @@ func TestLabelDuplicate(t *testing.T) {
 		{
 			title: "Label doesnt exist lowercase",
 			currentLabels: []types.IssueLabel{
-				types.IssueLabel{
+				{
 					Name: "rod",
 				},
-				types.IssueLabel{
+				{
 					Name: "jane",
 				},
-				types.IssueLabel{
+				{
 					Name: "freddie",
 				},
 			},
@@ -402,13 +402,13 @@ func TestLabelDuplicate(t *testing.T) {
 		{
 			title: "Label doesnt exist case insensitive",
 			currentLabels: []types.IssueLabel{
-				types.IssueLabel{
+				{
 					Name: "rod",
 				},
-				types.IssueLabel{
+				{
 					Name: "jane",
 				},
-				types.IssueLabel{
+				{
 					Name: "freddie",
 				},
 			},
