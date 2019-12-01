@@ -8,8 +8,7 @@ import (
 )
 
 func setup(c *caddy.Controller) error {
-
-	dr, err := parseDreck(c)
+	dr, err := parse(c)
 	if err != nil {
 		return err
 	}
@@ -18,6 +17,12 @@ func setup(c *caddy.Controller) error {
 	}
 	if dr.key == "" {
 		return fmt.Errorf("need a path to a private key file")
+	}
+	if dr.secret == "" {
+		return fmt.Errorf("need a webhook secret")
+	}
+	if !dr.hmac {
+		return fmt.Errorf("need a to validate the webhook secret")
 	}
 
 	dreck := func(next httpserver.Handler) httpserver.Handler {
@@ -29,7 +34,7 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func parseDreck(c *caddy.Controller) (Dreck, error) {
+func parse(c *caddy.Controller) (Dreck, error) {
 	d := New()
 	for c.Next() {
 		for c.NextBlock() {

@@ -5,7 +5,7 @@ Status](https://travis-ci.org/miekg/dreck.svg?branch=master)](https://travis-ci.
 
 *dreck* is a fork of [Derek](https://github.com/alexellis/derek). It adds Caddy integration,
 so you can "just" run it as a plugin in Caddy v1. It also massively expands on the number
-of features. *Dreck* depends on the GitHub CODEOWNERS features and it will check if that
+of features. *Dreck* depends on the GitHub CODEOWNERS feature and it will check if that
 file exist. A separate `.dreck.yaml` contains various things that are not captured in the
 [CODEOWNERS](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners)
 file. Dreck doesn't support the email address syntax, so be sure to use GitHub usernames here.
@@ -37,7 +37,7 @@ You'll need:
 * Pull Requests
 * Issue Comments
 
-And need to recompile Caddy and have a functional Go setup.
+And need to compile Caddy with this plugin.
 
 ## Config in caddy
 
@@ -63,16 +63,16 @@ dreck {
 *  `private_key` specifies the **PATH** of the private key of the Github App. This is also
    mandatory.
 
-*  `secret` can optionally specify a **SECRET** for the webhook.
+*  `secret` specify a **SECRET** for the webhook. This is mandatory.
 
-*  `owners` can optionally specify a **NAME** for the OWNERS files, defaults to "OWNERS".
+*  `validate` enable HMAC validation of the request, using the secret. This is mandatory.
+
+*  `owners` can optionally specify a **NAME** for the .dreck.yaml file, defaults to ".dreck.yaml".
 
 *  `path` trigger Dreck when the webhook hits **PATH**, defaults to "/dreck".
 
 *  `merge` defines the **STRATEGY** for merging, possible values are `merge`, `squash` or `rebase`,
    it defaults to `squash`.
-
-*  `validate` enable HMAC validation of the request.
 
 *  `user` specifies the **USER** to be used for executing commands. This defaults to the user
    running Caddy.
