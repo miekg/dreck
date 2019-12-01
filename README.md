@@ -244,3 +244,33 @@ This is good question. /label question
 # Also See
 
 See [Derek](https://github.com/alexellis/derek) of which dreck is a fork.
+
+# Adding in Caddy
+
+Apply a patch like the following:
+
+~~~ patch
+diff --git caddyhttp/caddyhttp.go caddyhttp/caddyhttp.go
+index 7ca8b874..34b8b405 100644
+--- caddyhttp/caddyhttp.go
++++ caddyhttp/caddyhttp.go
+@@ -46,4 +46,6 @@ import (
+        _ "github.com/caddyserver/caddy/caddyhttp/timeouts"
+        _ "github.com/caddyserver/caddy/caddyhttp/websocket"
+        _ "github.com/caddyserver/caddy/onevent"
++
++       _ "github.com/miekg/dreck"
+ )
+diff --git caddyhttp/httpserver/plugin.go caddyhttp/httpserver/plugin.go
+index 378e9cb8..79498579 100644
+--- caddyhttp/httpserver/plugin.go
++++ caddyhttp/httpserver/plugin.go
+@@ -701,6 +701,7 @@ var directives = []string{
+        "restic",    // github.com/restic/caddy
+        "wkd",       // github.com/emersion/caddy-wkd
+        "dyndns",    // github.com/linkonoid/caddy-dyndns
++       "dreck",     // "github.com/miekg/dreck"
+ }
+
+ const (
+~~~
