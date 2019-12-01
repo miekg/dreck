@@ -8,7 +8,7 @@ import (
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {

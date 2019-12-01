@@ -9,7 +9,7 @@ import (
 
 	"github.com/miekg/dreck/auth"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 func githubIssueComment(body string) *github.IssueComment {

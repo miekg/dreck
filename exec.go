@@ -12,7 +12,7 @@ import (
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 // sanitize checks the exec command s to see if a respects our white list.

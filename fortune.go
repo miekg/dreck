@@ -8,7 +8,7 @@ import (
 
 	"github.com/miekg/dreck/types"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 var r = regexp.MustCompile("^")

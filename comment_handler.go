@@ -9,7 +9,7 @@ import (
 	"github.com/miekg/dreck/log"
 	"github.com/miekg/dreck/types"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 	approveConst   = "approve"
 	unapproveConst = "unapprove"
 	execConst      = "exec"
-	testConst      = "test"
+	retestConst    = "retest"
 	duplicateConst = "duplicate"
 	mergeConst     = "merge"
 	fortuneConst   = "fortune"
@@ -62,7 +62,7 @@ For:
 		}
 		switch command.Type {
 		case addLabelConst, removeLabelConst:
-			if isMe(req.Comment.User.Login, command.Value) || isCodeOwner(conf, req.Comment.User.Login) {
+			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.label(ctx, client, req, command.Type, command.Value)
 				continue For
 			}
@@ -101,8 +101,12 @@ For:
 				continue For
 			}
 			err = fmt.Errorf("user %s not permitted to use [un]cc", req.Comment.User.Login)
-		case testConst:
-			err = d.test(ctx, client, req, command.Type, command.Value)
+		case retestConst:
+			if isCodeOwner(conf, req.Comment.User.Login) {
+				err = d.retest(ctx, client, req, command.Type, command.Value)
+				continue For
+			}
+			err = fmt.Errorf("user %s not permitted to use retest", req.Comment.User.Login)
 		case duplicateConst:
 			err = d.duplicate(ctx, client, req, command.Type, command.Value)
 		case fortuneConst:
@@ -261,7 +265,8 @@ func (d Dreck) lgtm(ctx context.Context, client *github.Client, req types.IssueC
 	return err
 }
 
-func (d Dreck) test(ctx context.Context, _ *github.Client, _ types.IssueCommentOuter, _, _ string) error {
+func (d Dreck) retest(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdTYpe, cmdValue string) error {
+
 	return nil
 }
 
@@ -379,10 +384,10 @@ var IssueCommands = map[string]string{
 	Trigger + "lock":      lockConst,
 	Trigger + "unlock":    unlockConst,
 	Trigger + "exec":      execConst,
+	Trigger + "fortune":   fortuneConst,
+	Trigger + "duplicate": duplicateConst,
+	Trigger + "retest":    retestConst, // Only works on Pull Request comments.
 	Trigger + "lgtm":      lgtmConst,   // Only works on Pull Request comments.
 	Trigger + "unlgtm":    unlgtmConst, // Only works on Pull Request comments.
 	Trigger + "merge":     mergeConst,  // Only works on Pull Request comments.
-	Trigger + "fortune":   fortuneConst,
-	Trigger + "test":      testConst,
-	Trigger + "duplicate": duplicateConst,
 }

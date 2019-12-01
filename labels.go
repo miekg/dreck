@@ -6,7 +6,7 @@ import (
 
 	"github.com/miekg/dreck/types"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v28/github"
 )
 
 func labelDuplicate(current []types.IssueLabel, label string) bool {
