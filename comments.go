@@ -48,6 +48,9 @@ func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) err
 	} else {
 		log.Infof("user %s is not a code owner", req.Comment.User.Login)
 	}
+	if len(c) == 0 {
+		return nil
+	}
 
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -130,9 +133,6 @@ For:
 		}
 	}
 
-	if len(c) == 0 {
-		log.Info("No command found")
-	}
 	return err
 }
 
