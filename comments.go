@@ -37,6 +37,8 @@ const (
 	duplicateConst = "duplicate"
 	mergeConst     = "merge"
 	fortuneConst   = "fortune"
+	blockConst     = "block"
+	unblockConst   = "unblock"
 )
 
 func (d Dreck) comment(req types.IssueCommentOuter, conf *types.DreckConfig) error {
@@ -127,6 +129,12 @@ For:
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
 				err = d.merge(ctx, client, req)
+				continue For
+			}
+			err = fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
+		case blockConst, unblockConst:
+			if isCodeOwner(conf, req.Comment.User.Login) {
+				err = d.block(ctx, client, req, command.Type, command.Value)
 				continue For
 			}
 			err = fmt.Errorf("user %s is not a code owner", req.Comment.User.Login)
@@ -236,6 +244,17 @@ func (d Dreck) lock(ctx context.Context, client *github.Client, req types.IssueC
 	return nil
 }
 
+func (d Dreck) block(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType, cmdValue string) error {
+	if cmdType == blockConst {
+		_, err := client.Organizations.BlockUser(ctx, req.Repository.Owner.Login, cmdValue)
+		return err
+	} else {
+		_, err := client.Organizations.UnblockUser(ctx, req.Repository.Owner.Login, cmdValue)
+		return err
+	}
+	return nil
+}
+
 func (d Dreck) lgtm(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
 	client, ctx, err := d.newClient(req.Installation.ID)
 	if err != nil {
@@ -266,7 +285,6 @@ func (d Dreck) lgtm(ctx context.Context, client *github.Client, req types.IssueC
 }
 
 func (d Dreck) retest(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdTYpe, cmdValue string) error {
-
 	return nil
 }
 
