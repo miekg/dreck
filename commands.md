@@ -19,5 +19,6 @@
 | /close | `/close` | Closes the issue | anyone | |
 | /reopen | `/reopen` | Opens the issue | anyone | |
 | /fortune | `/fortune` | Adds comment containing a fortune (cookie) |anyone | |
+| /[un]block **USER** | `/block bob` | Block **USER** | codeowners | |
 
 Extra commands may be defined via aliases, but this depends on the configuration in `.dreck.yaml`.

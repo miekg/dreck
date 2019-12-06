@@ -59,7 +59,7 @@ type Comment struct {
 	}
 }
 
-type CommentAction struct {
+type Action struct {
 	Type  string
 	Value string
 }
