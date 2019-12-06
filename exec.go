@@ -34,10 +34,10 @@ func sanitize(s string) bool {
 	return true
 }
 
-func (d Dreck) exec(ctx context.Context, client *github.Client, req types.IssueCommentOuter, conf *types.DreckConfig, cmdType, cmdValue string) error {
-	// Due to $reasons cmdValue may be prefixed with spaces and a :, strip those off, cmdValue should
+func (d Dreck) exec(ctx context.Context, client *github.Client, req types.IssueCommentOuter, conf *types.DreckConfig, c *types.Action) error {
+	// Due to $reasons c.Value may be prefixed with spaces and a :, strip those off, c.Value should
 	// then start with a slash.
-	run, err := stripValue(cmdValue)
+	run, err := stripValue(c.Value)
 	if err != nil {
 		return fmt.Errorf("illegal exec command %s", run)
 	}
