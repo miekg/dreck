@@ -30,7 +30,7 @@ func runFortune() (string, error) {
 	return "Cookie:\n\n" + string(buf), nil
 }
 
-func (d Dreck) fortune(ctx context.Context, client *github.Client, req types.IssueCommentOuter, cmdType string) error {
+func (d Dreck) fortune(ctx context.Context, client *github.Client, req types.IssueCommentOuter, _ *types.Action) error {
 	body, err := runFortune()
 	if err != nil {
 		return err
