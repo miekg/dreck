@@ -6,8 +6,6 @@ import (
 	"os/exec"
 	"regexp"
 
-	"github.com/miekg/dreck/types"
-
 	"github.com/google/go-github/v28/github"
 )
 
@@ -30,13 +28,13 @@ func runFortune() (string, error) {
 	return "Cookie:\n\n" + string(buf), nil
 }
 
-func (d Dreck) fortune(ctx context.Context, client *github.Client, req types.IssueCommentOuter, _ *types.Action) error {
+func (d Dreck) fortune(ctx context.Context, client *github.Client, req IssueCommentOuter, _ *Action) (*github.Response, error) {
 	body, err := runFortune()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	comment := githubIssueComment(body)
-	_, _, err = client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
-	return err
+	_, resp, err := client.Issues.CreateComment(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number, comment)
+	return resp, err
 }

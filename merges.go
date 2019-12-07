@@ -6,19 +6,18 @@ import (
 	"time"
 
 	"github.com/miekg/dreck/log"
-	"github.com/miekg/dreck/types"
 
 	"github.com/google/go-github/v28/github"
 )
 
-func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) error {
+func (d Dreck) pullRequestMerge(ctx context.Context, client *github.Client, req IssueCommentOuter, pull *github.PullRequest) (*github.Response, error) {
 	opt := &github.PullRequestOptions{MergeMethod: d.strategy}
 	msg := "Automatically submitted."
-	_, _, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
-	return err
+	_, resp, err := client.PullRequests.Merge(ctx, req.Repository.Owner.Login, req.Repository.Name, *pull.Number, msg, opt)
+	return resp, err
 }
 
-func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
+func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	combined, _, err := client.Repositories.GetCombinedStatus(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.Head.GetSHA(), listOpts)
 	if err != nil {
@@ -36,7 +35,7 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 	return true, nil
 }
 
-func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, req types.IssueCommentOuter, pull *github.PullRequest) (bool, error) {
+func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, req IssueCommentOuter, pull *github.PullRequest) (bool, error) {
 	listOpts := &github.ListOptions{PerPage: 100}
 	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
 
@@ -60,15 +59,15 @@ func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, r
 	return true, nil
 }
 
-func (d Dreck) merge(ctx context.Context, client *github.Client, req types.IssueCommentOuter) error {
+func (d Dreck) merge(ctx context.Context, client *github.Client, req IssueCommentOuter) (*github.Response, error) {
 	pull, _, err := client.PullRequests.Get(ctx, req.Repository.Owner.Login, req.Repository.Name, req.Issue.Number)
 	if err != nil {
 		// Pr does not exist, noop.
-		return err
+		return nil, err
 	}
 	if pull.ClosedAt != nil {
 		// Pr has been closed or deleted. Don't merge!
-		return fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
+		return nil, fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
 	}
 
 	// wait a tiny bit for checking these; we see \lgtm and \merge together a lot, give /merge a small head start
@@ -79,7 +78,7 @@ func (d Dreck) merge(ctx context.Context, client *github.Client, req types.Issue
 	if statusOK && reviewOK && pull.Mergeable != nil {
 		return d.pullRequestMerge(ctx, client, req, pull)
 	}
-	return nil
+	return nil, nil
 }
 
 const (

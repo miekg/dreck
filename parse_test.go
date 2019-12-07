@@ -3,8 +3,6 @@ package dreck
 import (
 	"io/ioutil"
 	"testing"
-
-	"github.com/miekg/dreck/types"
 )
 
 func TestParseComment(t *testing.T) {
@@ -90,7 +88,7 @@ func TestParseMultipleCommands(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	conf := &types.DreckConfig{}
+	conf := &DreckConfig{}
 	c := parse(req.Comment.Body, conf)
 	if len(c) != 2 {
 		t.Errorf("expected 2 commands, got %d", len(c))
@@ -116,7 +114,7 @@ func TestParseDulicate(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	conf := &types.DreckConfig{}
+	conf := &DreckConfig{}
 	c := parse(req.Comment.Body, conf)
 	if c[0].Type != "duplicate" {
 		t.Errorf("expected not duplicate, got %s", c[0].Type)

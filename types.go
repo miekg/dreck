@@ -1,4 +1,4 @@
-package types
+package dreck
 
 type Repository struct {
 	Owner Owner  `json:"owner"`

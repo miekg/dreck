@@ -3,8 +3,6 @@ package dreck
 import (
 	"strings"
 	"testing"
-
-	"github.com/miekg/dreck/types"
 )
 
 var actionOptions = []struct {
@@ -48,7 +46,7 @@ func TestParsingOpenClose(t *testing.T) {
 	for i, test := range actionOptions {
 		t.Run(test.title, func(t *testing.T) {
 			test.body = strings.ToLower(test.body)
-			actions := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &DreckConfig{})
 			if len(actions) == 0 && test.expectedAction == "" { // Ugly hack to should be cleaned up (miek)
 				// correct, we didn't parse anything
 				return
@@ -96,7 +94,7 @@ func TestParsingLabels(t *testing.T) {
 	for _, test := range labelOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			actions := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &DreckConfig{})
 			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
 				// correct, we didn't parse anything
 				return
@@ -167,7 +165,7 @@ func TestParsingAssignments(t *testing.T) {
 
 	for _, test := range assignmentOptions {
 		t.Run(test.title, func(t *testing.T) {
-			actions := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &DreckConfig{})
 			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
 				// correct, we didn't parse anything
 				return
@@ -221,7 +219,7 @@ func TestParsingTitles(t *testing.T) {
 	for _, test := range titleOptions {
 		t.Run(test.title, func(t *testing.T) {
 
-			actions := parse(test.body, &types.DreckConfig{})
+			actions := parse(test.body, &DreckConfig{})
 			if len(actions) == 0 && test.expectedType == "" { // Ugly hack to should be cleaned up (miek)
 				// correct, we didn't parse anything
 				return
@@ -347,13 +345,13 @@ func TestValidAction(t *testing.T) {
 func TestLabelDuplicate(t *testing.T) {
 	var stateOptions = []struct {
 		title         string
-		currentLabels []types.IssueLabel
+		currentLabels []IssueLabel
 		cmdLabel      string
 		expectedFound bool
 	}{
 		{
 			title: "Label exists lowercase",
-			currentLabels: []types.IssueLabel{
+			currentLabels: []IssueLabel{
 				{
 					Name: "rod",
 				},
@@ -369,7 +367,7 @@ func TestLabelDuplicate(t *testing.T) {
 		},
 		{
 			title: "Label exists case insensitive",
-			currentLabels: []types.IssueLabel{
+			currentLabels: []IssueLabel{
 				{
 					Name: "rod",
 				},
@@ -385,7 +383,7 @@ func TestLabelDuplicate(t *testing.T) {
 		},
 		{
 			title: "Label doesnt exist lowercase",
-			currentLabels: []types.IssueLabel{
+			currentLabels: []IssueLabel{
 				{
 					Name: "rod",
 				},
@@ -401,7 +399,7 @@ func TestLabelDuplicate(t *testing.T) {
 		},
 		{
 			title: "Label doesnt exist case insensitive",
-			currentLabels: []types.IssueLabel{
+			currentLabels: []IssueLabel{
 				{
 					Name: "rod",
 				},

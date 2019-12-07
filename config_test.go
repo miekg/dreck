@@ -3,7 +3,6 @@ package dreck
 import (
 	"testing"
 
-	"github.com/miekg/dreck/types"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -30,7 +29,7 @@ func TestOwnersConfigParse(t *testing.T) {
 }
 
 func TestAliasConfigParse(t *testing.T) {
-	config := types.DreckConfig{}
+	config := DreckConfig{}
 	buf := []byte(`aliases:
 - |
   /plugin (.*) - /label plugin/$1
@@ -46,7 +45,7 @@ func TestAliasConfigParse(t *testing.T) {
 }
 
 func TestConfigParse(t *testing.T) {
-	config := types.DreckConfig{}
+	config := DreckConfig{}
 	buf := []byte(`aliases:
 - >
   /plugin (.*) - /label plugin/$1

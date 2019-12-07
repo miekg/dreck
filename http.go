@@ -9,7 +9,6 @@ import (
 
 	"github.com/miekg/dreck/auth"
 	"github.com/miekg/dreck/log"
-	"github.com/miekg/dreck/types"
 
 	"github.com/caddyserver/caddy"
 )
@@ -57,8 +56,8 @@ func (d Dreck) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	return 0, err
 }
 
-func parseEvent(event string, body []byte) (types.IssueCommentOuter, error) {
-	req := types.IssueCommentOuter{}
+func parseEvent(event string, body []byte) (IssueCommentOuter, error) {
+	req := IssueCommentOuter{}
 	if err := json.Unmarshal(body, &req); err != nil {
 		if e, ok := err.(*json.SyntaxError); ok {
 			return req, fmt.Errorf("Syntax error at byte offset %d", e.Offset)
@@ -112,7 +111,7 @@ func (d Dreck) handleEvent(event string, body []byte) error {
 		if err != nil {
 			return fmt.Errorf("unable to access maintainers file at %s/%s: %s", req.Repository.Owner.Login, req.Repository.Name, err)
 		}
-		if err := d.comment(req, conf); err != nil {
+		if _, err := d.comment(req, conf); err != nil {
 			return err
 		}
 

@@ -3,8 +3,6 @@ package dreck
 import (
 	"fmt"
 	"testing"
-
-	"github.com/miekg/dreck/types"
 )
 
 func TestAlias(t *testing.T) {
@@ -52,7 +50,7 @@ func TestAliasParse(t *testing.T) {
 }
 
 func TestParsingAlias(t *testing.T) {
-	conf := &types.DreckConfig{
+	conf := &DreckConfig{
 		Features: []string{Aliases},
 		Aliases: []string{
 			fmt.Sprintf("%splugin (.*) -> %slabel plugin/$1", Trigger, Trigger),

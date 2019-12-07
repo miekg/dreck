@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/miekg/dreck/log"
-	"github.com/miekg/dreck/types"
 
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
 	yaml "gopkg.in/yaml.v2"
@@ -39,8 +38,8 @@ func New() Dreck {
 	return d
 }
 
-func (d Dreck) getConfig(owner string, repository string) (*types.DreckConfig, error) {
-	var config types.DreckConfig
+func (d Dreck) getConfig(owner string, repository string) (*DreckConfig, error) {
+	var config DreckConfig
 
 	buf, err := githubFile(owner, repository, d.owners)
 	if err != nil {

@@ -2,11 +2,9 @@ package dreck
 
 import (
 	"strings"
-
-	"github.com/miekg/dreck/types"
 )
 
-func aliasOK(c *types.DreckConfig) bool {
+func aliasOK(c *DreckConfig) bool {
 	for _, f := range c.Features {
 		if strings.EqualFold(Aliases, f) {
 			return true
@@ -15,7 +13,7 @@ func aliasOK(c *types.DreckConfig) bool {
 	return false
 }
 
-func execOK(c *types.DreckConfig) bool {
+func execOK(c *DreckConfig) bool {
 	for _, f := range c.Features {
 		if strings.EqualFold(Exec, f) {
 			return true
@@ -24,7 +22,7 @@ func execOK(c *types.DreckConfig) bool {
 	return false
 }
 
-func isCodeOwner(c *types.DreckConfig, user string) bool {
+func isCodeOwner(c *DreckConfig, user string) bool {
 	for _, o := range c.CodeOwners {
 		if strings.EqualFold(user, o) {
 			return true
