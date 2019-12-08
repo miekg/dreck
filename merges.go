@@ -45,16 +45,16 @@ func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, r
 
 	ok := false
 	for _, review := range reviews {
-		if review.GetState() == reviewChanges {
+		if review.GetState() == "REQUEST_CHANGES" {
 			ok = false
 			break
 		}
-		if review.GetState() == reviewOK {
+		if review.GetState() == "APPROVED" {
 			ok = true
 		}
 	}
 	if !ok {
-		return false, fmt.Errorf("PR %d is no reviewers or has a %s", pull.GetNumber(), reviewChanges)
+		return false, fmt.Errorf("PR %d is no reviewers or has a %s", pull.GetNumber(), "REQUEST_CHANGES")
 	}
 	return true, nil
 }
@@ -73,9 +73,9 @@ func (d Dreck) merge(ctx context.Context, client *github.Client, req IssueCommen
 	// wait a tiny bit for checking these; we see \lgtm and \merge together a lot, give /merge a small head start
 	time.Sleep(2 * time.Second)
 
-	statusOK, _ := d.pullRequestStatus(ctx, client, req, pull)
-	reviewOK, _ := d.pullRequestReviewed(ctx, client, req, pull)
-	if statusOK && reviewOK && pull.Mergeable != nil {
+	ok1, _ := d.pullRequestStatus(ctx, client, req, pull)
+	ok2, _ := d.pullRequestReviewed(ctx, client, req, pull)
+	if ok1 && ok2 && pull.Mergeable != nil {
 		return d.pullRequestMerge(ctx, client, req, pull)
 	}
 	return nil, nil
@@ -86,8 +86,4 @@ const (
 	statusPending = "pending"
 	statusFail    = "failure"
 	statusError   = "error"
-
-	reviewOK      = "APPROVED"
-	reviewChanges = "REQUEST_CHANGES"
-	reviewComment = "COMMENT"
 )
