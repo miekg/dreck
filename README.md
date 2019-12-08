@@ -105,9 +105,9 @@ features:
     - aliases
 aliases:
     - |
-      /plugin: (.*) -> /label add: plugin/$1
+      /plugin (.*) -> /label add plugin/$1
     - |
-      /release: (.*) -> /exec: /opt/bin/release $1
+      /release (.*) -> /exec /opt/bin/release $1
 ~~~
 
 ### Features
@@ -124,7 +124,7 @@ The following features are available.
 ## Supported Commands
 
 The following commands are supported in issue comments and pull requests. When referencing
-a user you can use **USER** or **@USER. Most commands are only available to user referenced in the
+a user you can use **USER** or **@USER**. Most commands are only available to user referenced in the
 CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 
 *  `/[un]label LABEL`, add/remove a label.
@@ -136,7 +136,7 @@ CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 
 *  `/reopen`, reopen issue.
 
-*  `/title TITLE`: short for "title set".
+*  `/title TITLE`, short for "title set".
 
 *  `/[un]lock`, [un]lock the issue.
 
@@ -153,12 +153,10 @@ CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 *  `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
    are allowed.
 
-*  `/duplicate NUMBER`, mark this issue as a duplicate of NUMBER. This is done by closing the issue
+*  `/duplicate NUMBER`, mark this issue as a duplicate of **NUMBER**. This is done by closing the issue
    and adding the 'duplicate' label.
 
 *  `/fortune`, adds a comment containing text obtained from running "fortune".
-
-*  `/test`, a noop used for testing *dreck*.
 
 ## Aliases
 
@@ -184,7 +182,7 @@ aliases:
 
 Exec allows for processes be started on the dreck server. For this the `exec` feature *and* the
 `aliases` feature must be enabled. Only commands *expanded* by an alias are allowed to execute, this
-is to prevent things like `/exec: /bin/cat /etc/passwd` to be run accidentally. The standard output
+is to prevent things like `/exec /bin/cat /etc/passwd` to be run accidentally. The standard output
 of the command will be picked up and put in the new comment under the issue or pull request.
 
 If `user` is specified dreck will run the command under that user.
@@ -211,7 +209,7 @@ If you then call the command with `/release 0.1` in issue 42. *dreck* will run:
 
 And GITHUB\_TRIGGER will be issue/42.
 
-Note that in this case `/cat -> /exec: /bin/cat /etc/resolv.conf`, running `cat /etc/passwd`
+Note that in this case `/cat -> /exec /bin/cat /etc/resolv.conf`, running `cat /etc/passwd`
 *still* yields in an (unwanted?) disclosure because the final command being run is `/bin/cat
 /etc/resolv.conf /etc/passwd`. In other words be careful of what commands you white list.
 

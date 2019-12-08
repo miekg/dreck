@@ -14,7 +14,6 @@
 | /[un]lgtm | `/lgtm` | Approves the pull request | code owners | Yes |
 | /[un]approve | `/approve` | Approves the pull request | code owners | Yes |
 | /merge | `/merge` | When status is green and approved, submits pull request | code owners| Yes |
-| /retest | `/retest` | Run the checks again | code owners| Yes |
 | /exec | `/exec` | Execute a command | code owners| |
 | /close | `/close` | Closes the issue | anyone | |
 | /reopen | `/reopen` | Opens the issue | anyone | |
