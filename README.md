@@ -136,11 +136,11 @@ CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 
 *  `/reopen`, reopen issue.
 
-*  `/title TITLE`, short for "title set".
+*  `/title TITLE`, set the title for this issue to **TITLE**.
 
 *  `/[un]lock`, [un]lock the issue.
 
-* `/[un]cc USER` [un]cc **USER** request a review from this user, empty string means the current user.
+*  `/[un]cc USER`, [un]cc **USER** request a review from this user, empty string means the current user.
 
 *  `/[un]lgtm`, [un]approve the pull request, this adds a comment that it was LGTM-ed by the user issuing
    this command and adds an approve by the bot.
@@ -148,7 +148,7 @@ CODEOWNERS file. Commands comming from bots (`[bot]` as suffix) are ignored.
 *  `/[un]approve`, alternative for lgtm.
 
 *  `/merge`, merge this pull request if the checks are green and we have approval (and no explicit
-   changes requested). Any pending reviews are deleted.
+   changes requested).
 
 *  `/exec COMMAND`, executes **COMMAND** on the dreck server. Only commands via an expanded alias
    are allowed.
