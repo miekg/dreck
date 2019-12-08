@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/miekg/dreck/log"
 
@@ -137,6 +138,11 @@ For:
 			resp, err = d.exec(ctx, client, req, conf, c)
 		case mergeConst:
 			if isCodeOwner(conf, req.Comment.User.Login) {
+				// try twice and wait a bit between tries, if a \lgtm has been given in the same
+				// issue we'll have to wait for the API to catch up.
+				time.Sleep(5 * time.Second)
+				resp, err = d.merge(ctx, client, req)
+				time.Sleep(5 * time.Second)
 				resp, err = d.merge(ctx, client, req)
 				continue For
 			}

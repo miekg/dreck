@@ -3,7 +3,6 @@ package dreck
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/miekg/dreck/log"
 
@@ -69,9 +68,6 @@ func (d Dreck) merge(ctx context.Context, client *github.Client, req IssueCommen
 		// Pr has been closed or deleted. Don't merge!
 		return nil, fmt.Errorf("PR %d has been deleted at %s", req.Issue.Number, pull.GetClosedAt())
 	}
-
-	// wait a tiny bit for checking these; we see \lgtm and \merge together a lot, give /merge a small head start
-	time.Sleep(2 * time.Second)
 
 	ok1, _ := d.pullRequestStatus(ctx, client, req, pull)
 	ok2, _ := d.pullRequestReviewed(ctx, client, req, pull)
