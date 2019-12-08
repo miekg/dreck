@@ -276,12 +276,12 @@ func (d Dreck) lgtm(ctx context.Context, client *github.Client, req IssueComment
 	if c.Type == lgtmConst {
 		input = &github.PullRequestReviewRequest{
 			Body:  github.String("Approved by **" + req.Comment.User.Login + "**"),
-			Event: github.String(reviewOK),
+			Event: github.String("APPROVE"),
 		}
 	} else {
 		input = &github.PullRequestReviewRequest{
 			Body:  github.String("Unapproved by **" + req.Comment.User.Login + "**"),
-			Event: github.String(reviewChanges),
+			Event: github.String("REQUEST_CHANGES"),
 		}
 	}
 
