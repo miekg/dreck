@@ -61,7 +61,11 @@ func (d Dreck) comment(req IssueCommentOuter, conf *DreckConfig) (*github.Respon
 	}
 
 	var resp *github.Response
-	log.Infof("executing %d commands", len(cs))
+	cmds := []string{}
+	for i := range cs {
+		cmds = append(cmds, cs[i].Type)
+	}
+	log.Infof("executing %d commands: %s", len(cs), strings.Join(cmds, ", "))
 For:
 	for _, c := range cs {
 		if err != nil {
