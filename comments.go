@@ -304,6 +304,13 @@ func (d Dreck) retest(ctx context.Context, client *github.Client, req IssueComme
 }
 
 func (d Dreck) duplicate(ctx context.Context, client *github.Client, req IssueCommentOuter, c *Action) (*github.Response, error) {
+	if c.Value == "" {
+		return nil, fmt.Errorf("need value for duplicate, got none")
+	}
+	if !strings.HasPrefix(c.Value, "#") {
+		return nil, fmt.Errorf("need reference (#) to other issue/pr for duplicate, got %q", c.Value)
+	}
+	// TODO(miek): check actual number
 	if resp, err := d.label(ctx, client, req, &Action{Type: addLabelConst, Value: "duplicate"}); err != nil {
 		return resp, err
 	}
