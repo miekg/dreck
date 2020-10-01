@@ -27,7 +27,7 @@ func MakeAccessTokenForInstallation(appID, privateKey string, installation int) 
 
 	if err == nil {
 		c := http.Client{}
-		req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.github.com/installations/%d/access_tokens", installation), nil)
+		req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.github.com/app/installations/%d/access_tokens", installation), nil)
 
 		req.Header.Add("Authorization", "Bearer "+signed)
 		req.Header.Add("Accept", "application/vnd.github.machine-man-preview+json")
