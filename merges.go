@@ -35,9 +35,7 @@ func (d Dreck) pullRequestStatus(ctx context.Context, client *github.Client, req
 }
 
 func (d Dreck) pullRequestReviewed(ctx context.Context, client *github.Client, req IssueCommentOuter, pull *github.PullRequest) (bool, error) {
-	listOpts := &github.ListOptions{PerPage: 100}
-	reviews, _, err := client.PullRequests.ListReviews(ctx, req.Repository.Owner.Login, req.Repository.Name, pull.GetNumber(), listOpts)
-
+	reviews, err := ListReviews(ctx, client, req, pull)
 	if err != nil {
 		return false, err
 	}
