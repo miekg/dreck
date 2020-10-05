@@ -113,7 +113,7 @@ aliases:
 ### Features
 
 The comment handling feature is always enabled, so you will most like only used this for,
-`aliaseses` and `exec`.
+`aliases` and `exec`.
 
 The following features are available.
 
