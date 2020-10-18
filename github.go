@@ -41,7 +41,7 @@ func githubFile(owner, repository, path string) ([]byte, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error: %d while fetching maintainers list (%s)", res.StatusCode, file)
+		return nil, fmt.Errorf("error: %d while fetching: %q", res.StatusCode, file)
 	}
 	if res.Body != nil {
 		defer res.Body.Close()
