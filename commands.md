@@ -3,7 +3,7 @@
 *Dreck* understands the following commands.
 
 | Command | Example | Description | Who Can Use | Pull Request Only | Feedback
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | /[un]label **LABEL** | `/label build` | Adds a label | codeowners | | |
 | /[un]assign **USER** | `/assign bob` | Assigns to **USER** | codeowners | | |
 | /[un]cc **USER** | `/cc bob` | Assign to **USER** | anyone | | |
